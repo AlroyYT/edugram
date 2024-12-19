@@ -52,7 +52,7 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 90vh;
+  min-height: 89vh;
   background-image: url('/images/ailanding.webp'); /* Add the background image */
   background-size: cover;
   background-position: center;
@@ -106,7 +106,7 @@ button:hover {
   padding: 3px 12px;
   border-radius: 5px;
   transition: background-color 0.3s ease, color 0.3s ease;
-  transform:translate(-130%,90%);
+  transform:translate(-130%,65%);
 }
 
 .navbar-menu a:hover {
@@ -125,7 +125,7 @@ button:hover {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  transform:translate(-50%,0%);
+  transform:translate(-40%,-20%);
 }
 
 .logout-btn:hover {
@@ -133,3 +133,669 @@ button:hover {
   color: white;
   border-color: #c33c2e;
 }
+/* Features Page Styles */
+/* Features Page Styles */
+.features-page {
+  text-align: center;
+  padding: 40px 20px;
+  background-image: url("/images/featuress.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.features-header h1 {
+  transform:translateY(-30%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.features-header p {
+  transform:translateY(-10%);
+  font-size: 1.2rem;
+  color: #e0e0e0;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.features-grid {
+  transform:translateY(-10%);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 60px;
+  padding: 0 10px;
+}
+
+.feature-card {
+  bottom:-40px;
+  background-image: url("/images/sp.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  color: #fff; /* Ensure text is visible against the background */
+  height: 350px; /* Increased height of the feature card */
+}
+
+.feature-card:hover {
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(0.88);
+  filter: drop-shadow(0 0 10px rgba(219, 162, 233, 0.8));
+  border: 1px solid rgba(255, 255, 255, 1.4);
+}
+
+
+
+.feature-icon {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.feature-card h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7); /* Shadow for readability */
+}
+
+.feature-card p {
+  font-size: 1rem;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.7); /* Shadow for readability */
+}
+
+/* globals.css */
+
+/* General styling */
+/* General Layout */
+/* General Layout */
+.study-upload-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background-color: #f9f6ee;
+}
+
+/* Sidebar */
+.upload-sidebar {
+  width: 20%;
+  background-image: url('/images/black-pattern.jpg');
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.status-indicator {
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.sidebar-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-btn {
+  background-color: #42034e;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.sidebar-btn:hover {
+  background-color: #970acf;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Subjects Dropdown */
+.subjects-list {
+  list-style: none;
+  padding-left: 20px;
+  margin: 10px 0;
+  animation: dropdown 0.3s ease-in-out;
+}
+
+.subjects-list li {
+  padding: 5px 0;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subjects-list li:hover {
+  text-decoration: underline;
+}
+
+/* Animation for Dropdown */
+@keyframes dropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main Content */
+.upload-content {
+  transform: translateY(0%);
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  align-items: center;
+  background-image: url('/images/backdrop.avif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.upload-search {
+ 
+  width: 80%;
+  margin-bottom: 20px;
+}
+
+.upload-searchbar {
+  transform: translateY(190%);
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  /* From https://css.glass */
+background: rgba(255, 255, 255, 0.18);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(15.7px);
+-webkit-backdrop-filter: blur(15.7px);
+border: 1px solid rgba(255, 255, 255, 0.3);
+color:white;
+}
+
+.upload-interface {
+  transform: translateY(22%);
+   /* Keeps the grey box pushed down */
+  width: 80%;
+  background-image: url('/images/featuress.jpg'); /* Use the image as the background */
+  background-size: cover; /* Ensure the image covers the entire area */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Avoid image tiling */
+  padding: 10px;
+  border: 2px solid #011427;
+  text-align: center;
+  transition: transform 0.3s ease;
+  color: rgb(255, 255, 255);
+  border-radius:10%; /* Optional: smooth movement */
+}
+.upload-interface h2, 
+.upload-interface p, 
+.upload-interface button {
+  color: white; /* Ensures all text and buttons within the interface have white color */
+}
+
+
+.upload-action-btn {
+  background-color: #4f078a;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  margin: 10px 0;
+  cursor: pointer;
+  
+}
+
+.upload-tools {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 20px;
+}
+
+/* Tool Card */
+.tool-card {
+  width: 250px;
+  height: 100px;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  border-radius: 10px;
+  position: relative; /* Allows independent positioning of child elements */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+}
+
+.tool-card:hover {
+  
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Tool Button (Inside Tool Card) */
+.tool-btn {
+  position: absolute; /* Allows precise positioning inside the card */
+  top: 50%; /* Adjust the position as needed */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centers the button within the card */
+  background-color: #50067a;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tool-btn:hover {
+  background-color: #6ccf9b;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Content Footer */
+.content-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+/* Recommendations */
+.recommendations-panel {
+  width: 20%;
+  background-image: url('/images/black-pattern2.jpg');
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Accessibility for Buttons and Links */
+button, .tool-card, .sidebar-btn {
+  outline: none;
+}
+
+button:focus, .tool-card:focus, .sidebar-btn:focus {
+  outline: 2px solid #5c87b2;
+  outline-offset: 2px;
+}
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to right, #535252, #e0e0e0); /* Subtle neutral gradient */
+  z-index: 1000;
+  color: #272626; /* Darker text for contrast */
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.circle-logo {
+  width: 40px;
+  height: 40px;
+  background-color: red; /* Red circular logo for attention */
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333; /* Matches text color for consistency */
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ddd; /* Light border for cleaner appearance */
+}
+
+.login-btn {
+  padding: 8px 16px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #aaa;
+}
+.upload-search {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+
+
+.search-btn {
+  position:relative;
+  transform:translate(300%,200%);
+  padding: 8px 16px;
+  background-color: #800aee;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.search-btn:hover {
+  background-color: #8c079e; /* Slightly darker green */
+}
+/* Summary Page Styles */
+.summary-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.summary-container h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.summary-content {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.summary-content p {
+  margin-bottom: 15px;
+}
+
+.summary-page-container {
+  padding: 20px;
+  background-color: #fafafa;
+}
+
+.summary-content p {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.summary-container p {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+}
+.custom-file-upload {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  transform:translateY(32%);
+}
+
+.custom-file-upload:hover {
+  background-color: #45a049;
+}
+
+.file-input {
+  display: none;
+}
+/* Overall container for centering the content */
+.flashcards-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  background-color: #f7f7f7;
+}
+
+/* Title styling */
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Input file section */
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.file-input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.loading-text,
+.error-text {
+  font-size: 1rem;
+  color: #f44336;
+  margin-top: 10px;
+}
+
+/* Flashcards Container */
+.flashcard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* File Input Styling */
+.file-input {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+}
+
+.file-input:disabled {
+  cursor: not-allowed;
+  background-color: #e0e0e0;
+}
+
+/* Flashcard Content */
+
+.flashcards-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #ffffff;
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.upload-section {
+  margin-bottom: 30px;
+}
+
+.file-upload-label {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #6a11cb;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+  transform: scale(1.1);
+  background: #6a11cb;
+  color: #ffffff;
+}
+
+.file-input {
+  display: none;
+}
+
+.loading-text,
+.error-text {
+  font-size: 1rem;
+  margin-top: 15px;
+}
+
+.error-text {
+  color: #ff3e3e;
+}
+
+.flashcard-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 1s ease-out;
+}
+
+.flashcard-question {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.flashcard-answer {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-btn {
+  background: #ffffff;
+  color: #2575fc;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  transform: scale(1.1);
+  background: #2575fc;
+  color: #ffffff;
+}
+
+.nav-btn:disabled {
+  background: #aaa;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.flashcard-info {
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+
+
+
