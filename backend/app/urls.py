@@ -4,6 +4,7 @@ from .views import (
     SummarizeAPIView,
     GenerateMCQsAPIView,
     GenerateFlashcardsAPIView,
+    SearchTopicAPIView
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('summarize/', SummarizeAPIView.as_view(), name='summarize'),
     path('generate-mcqs/', GenerateMCQsAPIView.as_view(), name='generate-mcqs'),
     path('generate-flashcards/', GenerateFlashcardsAPIView.as_view(), name='generate-flashcards'),
+    path('search-topic/',SearchTopicAPIView.as_view(), name='search-topic'),
 ]
