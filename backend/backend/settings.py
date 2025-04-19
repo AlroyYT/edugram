@@ -27,7 +27,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Add Gemini API Key directly (replace with your actual API key)
-GEMINI_API_KEY = "AIzaSyBEJA0yyNYyylhC1I05L0dMFtkZm5bnvhg"  # Get this from Google AI Studio
+GEMINI_API_KEY = "AIzaSyAnkDvJrgLwnU8ALYcQ7uH1y4dBKXIpmfc"  # Get this from Google AI Studio
 
 # Application definition
 INSTALLED_APPS = [
@@ -41,14 +41,16 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework
     'corsheaders',  # For enabling CORS
     # Your app
+    
     'app',  # Replace 'app' with your app's actual name if different
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # For CORS support
+      # For CORS support
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -166,3 +168,28 @@ LOGGING = {
         },
     },
 }
+# 1️⃣ Serve Media Files Correctly
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# 2️⃣ Allow Large Video File Uploads
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB (adjust as needed)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB (adjust as needed)
+
+# 3️⃣ Allow Video MIME Types
+import mimetypes
+mimetypes.add_type("video/mp4", ".mp4", True)
+mimetypes.add_type("video/webm", ".webm", True)
+
+# 4️⃣ Add 'whitenoise' for better file handling (optional)
+INSTALLED_APPS += ['whitenoise.runserver_nostatic']
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# 5️⃣ Ensure CORS Works for Media Requests
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
+]
+CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
+CORS_ALLOW_CREDENTIALS = True

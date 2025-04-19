@@ -1,6 +1,15 @@
 from django.conf import settings
+import mimetypes
+import os
+os.environ["PATH"] += os.pathsep + r"C:\Users\peter\Downloads\ffmpeg-7.1.1-essentials_build\ffmpeg-7.1.1-essentials_build\bin"
+import tempfile
+import whisper
+import base64
+import re
 from django.http import FileResponse, HttpResponse
 from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -11,11 +20,14 @@ from .utils.flashcards import FlashcardGenerator
 import logging 
 import json 
 from .utils.mcq_generator import OptimizedMCQGenerator 
-from .utils.video_generation import GestureVideoGenerator
+from .utils.video_generation import get_video_path
+from .utils.jarvis import JarvisAI
 import traceback
+import subprocess
+
 
 logger = logging.getLogger(__name__)
-import os
+
 
 class FileUploadAPIView(APIView):
     def post(self, request):
@@ -320,33 +332,77 @@ class DeleteFileAPIView(APIView):
             logger.error(f"Error deleting file {file_name}: {str(e)}")
             return Response({"error": f"Failed to delete file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+def get_video_path(topic):
+    """
+    Function to get the full path of the video file if it exists.
+    """
+    video_path = os.path.join(settings.MEDIA_ROOT, "videos", f"{topic}.mp4")
+    return video_path if os.path.exists(video_path) else None
+
 class SearchTopicAPIView(APIView):
+    """
+    API endpoint to fetch ASL video URL for a given topic.
+    """
+
     def get(self, request):
-        topic = request.query_params.get("topic", "")
+        topic = request.GET.get("topic", "").strip()
+
         if not topic:
-            return Response({"error": "Topic is required"}, status=400)
+            return Response({"error": "No topic provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        video_path = get_video_path(topic)
+
+        if not video_path:
+            return Response({"error": "Video not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # ✅ Return a JSON response with the video URL
+        video_url = f"{settings.MEDIA_URL}videos/{topic}.mp4"
+        return Response({"video_url": video_url}, status=status.HTTP_200_OK)
+    
+@csrf_exempt
+def process_audio(request):
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+    try:
+        # Parse request body
+        body = json.loads(request.body)
+        base64_audio = body.get("audio")
+        print(base64_audio)
+
+        if not base64_audio:
+            return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
+
+        # Transcribe using Whisper
+        text = JarvisAI.speech_to_text(base64_audio)
+
+        if not text:
+            return JsonResponse({
+                "status": "fail", 
+                "message": "Could not understand audio."
+            }, status=200)
+
+        # Get response from Gemini
+        response = JarvisAI.process_with_gemini(text)
+
+        # Convert response to speech
+        voice_response = JarvisAI.text_to_speech(response)
+
+        # Return all data to frontend
+        return JsonResponse({
+            "status": "success",
+            "text": text,
+            "response": response,
+            "voice_response": voice_response
+        })
+
+    except Exception as e:
+        # Print full traceback for debugging
+        traceback.print_exc()
         
-        try:
-            generator = GestureVideoGenerator()
-            video_path = generator.generate_video(topic)
-            
-            # Debug logs
-            print(f"Video path: {video_path}")
-            print(f"File exists: {os.path.exists(video_path)}")
-            if os.path.exists(video_path):
-                print(f"File size: {os.path.getsize(video_path)} bytes")
-            
-            if not os.path.exists(video_path):
-                return Response({"error": "Video file not generated"}, status=500)
-                
-            with open(video_path, "rb") as f:
-                video_data = f.read()
-                print(f"Read {len(video_data)} bytes from file")
-                
-                response = HttpResponse(video_data, content_type="video/mp4")
-                response["Content-Disposition"] = f'attachment; filename="{os.path.basename(video_path)}"'
-                return response
-                
-        except Exception as e:
-            logger.error(f"Error generating video: {e}", exc_info=True)
-            return Response({"error": f"Error generating video: {str(e)}"}, status=500)
+        return JsonResponse({
+            "status": "fail",
+            "message": f"Server error: {str(e)}"
+        }, status=500)
+
+
