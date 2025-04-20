@@ -1,109 +1,68 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFileContext } from '../context/FileContext';
+import { useRouter } from 'next/router';
 
 const FlashcardsEnhanced: React.FC = () => {
   const [fcrd84StudyCards, setFcrd84StudyCards] = useState<{ question: string; answer: string }[]>([]);
   const [fcrd84CardIndex, setFcrd84CardIndex] = useState(0);
   const [fcrd84ProcessingStatus, setFcrd84ProcessingStatus] = useState(false);
   const [fcrd84StatusMessage, setFcrd84StatusMessage] = useState('');
-  const [fcrd84UploadedFile, setFcrd84UploadedFile] = useState<string>('');
   const [fcrd84IsCardFlipped, setFcrd84IsCardFlipped] = useState(false);
   const [fcrd84UploadProgress, setFcrd84UploadProgress] = useState(0);
   const [fcrd84ShowProgressIndicator, setFcrd84ShowProgressIndicator] = useState(false);
-  const fcrd84FileInputRef = useRef<HTMLInputElement>(null);
-  const fcrd84ProgressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { uploadedFile } = useFileContext();
+  const router = useRouter();
 
   useEffect(() => {
-    return () => {
-      if (fcrd84ProgressIntervalRef.current) {
-        clearInterval(fcrd84ProgressIntervalRef.current);
-      }
-    };
-  }, []);
-
-  const fcrd84SimulateProgressIndicator = () => {
-    setFcrd84ShowProgressIndicator(true);
-    setFcrd84UploadProgress(0);
-    
-    fcrd84ProgressIntervalRef.current = setInterval(() => {
-      setFcrd84UploadProgress(prev => {
-        if (prev >= 90) {
-          return prev;
-        }
-        const increment = Math.random() * 10;
-        return Math.min(prev + increment, 90);
-      });
-    }, 500);
-  };
-
-  const fcrd84CompleteProgressIndicator = () => {
-    if (fcrd84ProgressIntervalRef.current) {
-      clearInterval(fcrd84ProgressIntervalRef.current);
+    if (!uploadedFile) {
+      router.push("/deaf");
+      return;
     }
-    setFcrd84UploadProgress(100);
-    setTimeout(() => {
-      setFcrd84ShowProgressIndicator(false);
-    }, 600);
-  };
 
-  const fcrd84HandleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
+    const generateFlashcards = async () => {
       setFcrd84ProcessingStatus(true);
       setFcrd84StatusMessage('');
-      const file = event.target.files?.[0];
-      
-      if (!file) {
-        setFcrd84StatusMessage('Please select a valid document to generate flashcards.');
-        setFcrd84ProcessingStatus(false);
-        return;
-      }
-
-      setFcrd84UploadedFile(file.name);
-      fcrd84SimulateProgressIndicator();
+      setFcrd84ShowProgressIndicator(true);
+      setFcrd84UploadProgress(0);
 
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', uploadedFile);
 
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/generate-flashcards/',
-        formData,
-        { 
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            const percentComplete = progressEvent.total 
-              ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
-              : 0;
-            
-            if (percentComplete === 100) {
-              // API processing now, keep progress bar moving
+      try {
+        const response = await axios.post(
+          'http://127.0.0.1:8000/api/generate-flashcards/',
+          formData,
+          { 
+            headers: { 'Content-Type': 'multipart/form-data' },
+            onUploadProgress: (progressEvent) => {
+              const percentComplete = progressEvent.total 
+                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                : 0;
+              setFcrd84UploadProgress(percentComplete);
             }
           }
+        );
+
+        if (response.data.flashcards && response.data.flashcards.length > 0) {
+          setFcrd84StudyCards(response.data.flashcards);
+          setFcrd84CardIndex(0);
+          setFcrd84IsCardFlipped(false);
+        } else {
+          setFcrd84StatusMessage('No flashcards could be generated from this document. Please try a different file.');
         }
-      );
-
-      fcrd84CompleteProgressIndicator();
-      
-      if (response.data.flashcards && response.data.flashcards.length > 0) {
-        setFcrd84StudyCards(response.data.flashcards);
-        setFcrd84CardIndex(0);
-        setFcrd84IsCardFlipped(false);
-      } else {
-        setFcrd84StatusMessage('No flashcards could be generated from this document. Please try a different file.');
+      } catch (error) {
+        console.error('Error generating flashcards:', error);
+        setFcrd84StatusMessage('We encountered an issue processing your document. Please try again.');
+      } finally {
+        setFcrd84ProcessingStatus(false);
+        setFcrd84ShowProgressIndicator(false);
       }
+    };
 
-      // Reset the file input
-      if (fcrd84FileInputRef.current) {
-        fcrd84FileInputRef.current.value = '';
-      }
-    } catch (error) {
-      fcrd84CompleteProgressIndicator();
-      console.error('Error generating flashcards:', error);
-      setFcrd84StatusMessage('We encountered an issue processing your document. Please try again.');
-    } finally {
-      setFcrd84ProcessingStatus(false);
-    }
-  };
+    generateFlashcards();
+  }, [uploadedFile, router]);
 
   const fcrd84NavigateNext = () => {
     if (fcrd84CardIndex < fcrd84StudyCards.length - 1) {
@@ -127,10 +86,8 @@ const FlashcardsEnhanced: React.FC = () => {
     setFcrd84IsCardFlipped(!fcrd84IsCardFlipped);
   };
 
-  const fcrd84TriggerFileUpload = () => {
-    if (fcrd84FileInputRef.current) {
-      fcrd84FileInputRef.current.click();
-    }
+  const handleBackToUpload = () => {
+    router.push("/deaf");
   };
 
   return (
@@ -145,77 +102,35 @@ const FlashcardsEnhanced: React.FC = () => {
           Flashcards
         </motion.h1>
 
-        <motion.div 
-          className="fcrd84_upload_container"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <button 
-            className="fcrd84_upload_button"
-            onClick={fcrd84TriggerFileUpload}
-            disabled={fcrd84ProcessingStatus}
+        {fcrd84ProcessingStatus && (
+          <motion.div 
+            className="fcrd84_progress_container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <span className="fcrd84_upload_icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 15V3M12 3L7 8M12 3L17 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-            Choose a File
-          </button>
-          
-          <input
-            ref={fcrd84FileInputRef}
-            id="fcrd84_document_upload"
-            type="file"
-            accept=".pdf,.pptx"
-            onChange={fcrd84HandleFileUpload}
-            disabled={fcrd84ProcessingStatus}
-            className="fcrd84_file_input_hidden"
-          />
-          
-          {fcrd84UploadedFile && (
-            <motion.p 
-              className="fcrd84_selected_file"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              Selected file: <span>{fcrd84UploadedFile}</span>
-            </motion.p>
-          )}
-          
-          {fcrd84ShowProgressIndicator && (
-            <motion.div 
-              className="fcrd84_progress_container"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="fcrd84_progress_bar_outer">
-                <motion.div 
-                  className="fcrd84_progress_bar_inner"
-                  initial={{ width: '0%' }}
-                  animate={{ width: `${fcrd84UploadProgress}%` }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-              <span className="fcrd84_progress_text">Processing document...</span>
-            </motion.div>
-          )}
-          
-          {fcrd84StatusMessage && (
-            <motion.p 
-              className="fcrd84_status_message"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              {fcrd84StatusMessage}
-            </motion.p>
-          )}
-        </motion.div>
+            <div className="fcrd84_progress_bar_outer">
+              <motion.div 
+                className="fcrd84_progress_bar_inner"
+                initial={{ width: '0%' }}
+                animate={{ width: `${fcrd84UploadProgress}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            <span className="fcrd84_progress_text">Processing document...</span>
+          </motion.div>
+        )}
+        
+        {fcrd84StatusMessage && (
+          <motion.p 
+            className="fcrd84_status_message"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {fcrd84StatusMessage}
+          </motion.p>
+        )}
 
         <AnimatePresence mode="wait">
           {fcrd84StudyCards.length > 0 && !fcrd84ProcessingStatus && (
@@ -294,8 +209,14 @@ const FlashcardsEnhanced: React.FC = () => {
                   <path d="M9 15H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3>No flashcards yet</h3>
-              <p>Upload a PDF or PPTX file to generate interactive flashcards</p>
+              <h3>No flashcards generated</h3>
+              <p>Please try uploading a different document</p>
+              <button 
+                className="fcrd84_back_button"
+                onClick={handleBackToUpload}
+              >
+                Back to Upload
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

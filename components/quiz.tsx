@@ -5,6 +5,8 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
+import { useFileContext } from "../context/FileContext";
+import { useRouter } from "next/router";
 
 const QuizExperience = () => {
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
@@ -20,7 +22,44 @@ const QuizExperience = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const { width, height } = useWindowSize();
   const [animateQuestion, setAnimateQuestion] = useState(true);
+  const { uploadedFile } = useFileContext();
+  const router = useRouter();
   
+  useEffect(() => {
+    if (!uploadedFile) {
+      router.push("/deaf");
+      return;
+    }
+    
+    const generateQuiz = async () => {
+      setProcessingFile(true);
+      setUploadError(null);
+
+      const formData = new FormData();
+      formData.append("file", uploadedFile);
+
+      try {
+        const response = await axios.post("http://127.0.0.1:8000/api/generate-mcqs/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (response.status === 200) {
+          setQuizQuestions(response.data.mcqs);
+          setScoreData({ correct: 0, total: response.data.mcqs.length });
+          setTimerActive(true);
+        } else {
+          setUploadError("Failed to generate quiz questions. Please try again.");
+        }
+      } catch (err) {
+        setUploadError("An error occurred while processing your document.");
+      } finally {
+        setProcessingFile(false);
+      }
+    };
+
+    generateQuiz();
+  }, [uploadedFile, router]);
+
   useEffect(() => {
     let countdown: NodeJS.Timeout;
     if (timerActive && timeRemaining > 0) {
@@ -43,46 +82,15 @@ const QuizExperience = () => {
     }
   }, [quizQuestions, activeProblemIndex]);
 
-  const handleDocumentUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setProcessingFile(true);
-    setUploadError(null);
-
-    try {
-      const response = await axios.post("http://127.0.0.1:8000/api/generate-mcqs/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (response.status === 200) {
-        setQuizQuestions(response.data.mcqs);
-        setScoreData({ correct: 0, total: response.data.mcqs.length });
-        setTimerActive(true);
-      } else {
-        setUploadError("Failed to generate quiz questions. Please try again.");
-      }
-    } catch (err) {
-      setUploadError("An error occurred while processing your document.");
-    } finally {
-      setProcessingFile(false);
-    }
-  };
-
   const handleAnswerSelection = (option: string) => {
     setChosenAnswer(option);
     setRevealSolution(true);
     setTimerActive(false);
     
-    // Update score
     if (option === quizQuestions[activeProblemIndex].correct_answer) {
       setScoreData(prev => ({ ...prev, correct: prev.correct + 1 }));
     }
     
-    // Check if quiz is completed
     if (activeProblemIndex === quizQuestions.length - 1) {
       setTimeout(() => {
         setQuizCompleted(true);
@@ -123,6 +131,7 @@ const QuizExperience = () => {
     setChosenAnswer(null);
     setRevealSolution(false);
     setScoreData({ correct: 0, total: 0 });
+    router.push("/deaf");
   };
 
   return (
@@ -139,60 +148,36 @@ const QuizExperience = () => {
           Intelligent Quiz Creator
         </motion.h1>
 
-        {/* File Upload Section */}
-        {!quizQuestions.length && (
+        {processingFile && (
           <motion.div 
-            className="quizUploadPanel"
+            className="quizProcessingIndicator"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="quizUploadContent">
-              <h2>Transform Your PDF into an Interactive Quiz</h2>
-              <p>Upload your document and get instant quiz questions with explanations.</p>
-              
-              <label className="quizFileInputLabel">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleDocumentUpload}
-                  className="quizFileInput"
-                />
-                <span className="quizUploadButton">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                  </svg>
-                  Select PDF
-                </span>
-              </label>
-              
-              {processingFile && (
-                <div className="quizProcessingIndicator">
-                  <div className="quizSpinner"></div>
-                  <p>Analyzing your document and generating questions...</p>
-                </div>
-              )}
-              
-              {uploadError && (
-                <div className="quizErrorMessage">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                  </svg>
-                  <p>{uploadError}</p>
-                </div>
-              )}
-            </div>
+            <div className="quizSpinner"></div>
+            <p>Analyzing your document and generating questions...</p>
+          </motion.div>
+        )}
+        
+        {uploadError && (
+          <motion.div 
+            className="quizErrorMessage"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p>{uploadError}</p>
           </motion.div>
         )}
 
-        {/* Quiz Section */}
-        {quizQuestions.length > 0 && !quizCompleted && (
+        {quizQuestions.length > 0 && !quizCompleted && !processingFile && (
           <div className="quizGamePanel">
-            {/* Progress Bar */}
             <div className="quizProgressTracker">
               <div className="quizProgressBar">
                 <div 
@@ -222,7 +207,6 @@ const QuizExperience = () => {
               </div>
             </div>
             
-            {/* Question */}
             <AnimatePresence mode="wait">
               {animateQuestion && (
                 <motion.div
@@ -235,7 +219,6 @@ const QuizExperience = () => {
                 >
                   <h2 className="quizQuestionText">{quizQuestions[activeProblemIndex].question}</h2>
                   
-                  {/* Answer Options */}
                   <div className="quizOptionsGrid">
                     {quizQuestions[activeProblemIndex].options.map((option: string, index: number) => (
                       <motion.button
@@ -266,7 +249,6 @@ const QuizExperience = () => {
               )}
             </AnimatePresence>
             
-            {/* Answer Explanation */}
             {revealSolution && (
               <motion.div 
                 className="quizExplanationBox"
@@ -286,7 +268,6 @@ const QuizExperience = () => {
               </motion.div>
             )}
             
-            {/* Navigation Buttons */}
             <div className="quizNavButtons">
               <motion.button
                 className="quizNavButton quizPrevButton"
@@ -323,7 +304,6 @@ const QuizExperience = () => {
           </div>
         )}
         
-        {/* Quiz Completion Screen */}
         {quizCompleted && (
           <motion.div 
             className="quizResultsPanel"
@@ -368,21 +348,6 @@ const QuizExperience = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 Try Another Quiz
-              </motion.button>
-              
-              <motion.button 
-                className="quizShareButton"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="18" cy="5" r="3"></circle>
-                  <circle cx="6" cy="12" r="3"></circle>
-                  <circle cx="18" cy="19" r="3"></circle>
-                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                </svg>
-                Share Results
               </motion.button>
             </div>
           </motion.div>
