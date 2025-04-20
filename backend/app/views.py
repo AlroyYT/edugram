@@ -24,7 +24,8 @@ from .utils.video_generation import get_video_path
 from .utils.jarvis import JarvisAI
 import traceback
 import subprocess
-
+from .utils.sign_lang import convert_text_to_gesture, speech_to_text
+from django.utils.decorators import method_decorator
 
 logger = logging.getLogger(__name__)
 
@@ -339,25 +340,6 @@ def get_video_path(topic):
     video_path = os.path.join(settings.MEDIA_ROOT, "videos", f"{topic}.mp4")
     return video_path if os.path.exists(video_path) else None
 
-class SearchTopicAPIView(APIView):
-    """
-    API endpoint to fetch ASL video URL for a given topic.
-    """
-
-    def get(self, request):
-        topic = request.GET.get("topic", "").strip()
-
-        if not topic:
-            return Response({"error": "No topic provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-        video_path = get_video_path(topic)
-
-        if not video_path:
-            return Response({"error": "Video not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # ✅ Return a JSON response with the video URL
-        video_url = f"{settings.MEDIA_URL}videos/{topic}.mp4"
-        return Response({"video_url": video_url}, status=status.HTTP_200_OK)
     
 @csrf_exempt
 def process_audio(request):
@@ -406,3 +388,20 @@ def process_audio(request):
         }, status=500)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class SignLanguageView(APIView):
+    def post(self, request):
+        """
+        Handle POST requests for both text-to-gesture and speech-to-text conversions
+        """
+        endpoint = request.path.split('/')[-1]  # Get the endpoint from the URL
+        
+        if endpoint == 'convert-text-to-gesture':
+            return convert_text_to_gesture(request)
+        elif endpoint == 'speech-to-text':
+            return speech_to_text(request)
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid endpoint'
+            }, status=400)

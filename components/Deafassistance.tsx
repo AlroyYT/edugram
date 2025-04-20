@@ -351,7 +351,7 @@ const DeafSupportHub = () => {
           <nav className="headerNav">
             <button className="nav-button active">Learning Hub</button>
             <button className="nav-button">Accessibility Tools</button>
-            <button className="nav-button">Sign Language Resources</button>
+            <button className="nav-button" onClick={() => navigator.push("/sign")}>Sign Language Resources</button>
           </nav>
           <div className="user-actions">
             <button className="theme-toggle">
