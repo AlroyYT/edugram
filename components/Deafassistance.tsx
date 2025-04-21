@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useFileContext } from "../context/FileContext";
 
 const DeafSupportHub = () => {
   const [activeSection, setActiveSection] = useState<string>("documentPortal");
-  const [learningAsset, setLearningAsset] = useState<File | null>(null);
   const [assetLabel, setAssetLabel] = useState<string>("");
   const [processStatus, setProcessStatus] = useState<string>("");
   const [animatedView, setAnimatedView] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
   const [notificationText, setNotificationText] = useState<string>("");
+  const { uploadedFile, setUploadedFile } = useFileContext();
 
   const navigator = useRouter();
 
@@ -33,56 +34,41 @@ const DeafSupportHub = () => {
 
   const handleAssetSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setLearningAsset(e.target.files[0]);
+      setUploadedFile(e.target.files[0]);
       setAssetLabel(e.target.files[0].name);
       displayNotification(`Selected: ${e.target.files[0].name}`);
     }
   };
 
   const handleAssetUpload = async () => {
-    if (!learningAsset) {
+    if (!uploadedFile) {
       displayNotification("Please select a file first");
       return;
     }
     
     setProcessStatus("Processing...");
-
-    const formData = new FormData();
-    formData.append("file", learningAsset);
-
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/upload/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      setProcessStatus("");
-      displayNotification("Upload successful");
-    } catch (error) {
-      setProcessStatus("");
-      displayNotification("Upload failed");
-      console.error(error);
-    }
+    displayNotification("File uploaded successfully");
+    setProcessStatus("");
   };
 
   const launchQuizModule = () => {
+    if (!uploadedFile) {
+      displayNotification("Please upload a file first");
+      return;
+    }
     navigator.push("/quizz");
   };
 
   const generateDocSummary = async () => {
-    if (!learningAsset) {
-      displayNotification("Please select a document first");
+    if (!uploadedFile) {
+      displayNotification("Please upload a file first");
       return;
     }
 
     setProcessStatus("Generating summary...");
     
     const formData = new FormData();
-    formData.append("file", learningAsset);
+    formData.append("file", uploadedFile);
 
     try {
       const response = await axios.post(
@@ -108,6 +94,10 @@ const DeafSupportHub = () => {
   };
 
   const launchFlashcardModule = () => {
+    if (!uploadedFile) {
+      displayNotification("Please upload a file first");
+      return;
+    }
     navigator.push("/flash");
   };
 
@@ -351,7 +341,7 @@ const DeafSupportHub = () => {
           <nav className="headerNav">
             <button className="nav-button active">Learning Hub</button>
             <button className="nav-button">Accessibility Tools</button>
-            <button className="nav-button">Sign Language Resources</button>
+            <button className="nav-button" onClick={() => navigator.push("/sign")}>Sign Language Resources</button>
           </nav>
           <div className="user-actions">
             <button className="theme-toggle">

@@ -19,7 +19,7 @@ const Summary = () => {
   }, [router.query]);
 
   const handleBackClick = () => {
-    router.push("/");
+    router.push("/deaf");
   };
 
   const getWordCount = (text: string): number => {
