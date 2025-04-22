@@ -1,0 +1,712 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 3555
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 16 Tf
+18.3999999999999986 TL
+0 g
+56.6929133858267775 785.1970866141732586 Td
+(Quiz Results) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 756.8506299212598378 Td
+(Date: 21-04-2025) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 728.5041732283464171 Td
+(Score: 2/10 \(20%\)) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 671.8112598425196893 Td
+(Question 1: What is the primary purpose of the VERTICAL tool?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+85.0393700787401627 632.1262204724408775 Td
+(A. To simulate commercial flight operations) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 612.2837007874015853 Td
+(B. To design and test Vertical Landing Aids \(VLAs\)) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 592.4411811023621794 Td
+(C. To train pilots for VTOL aircraft) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 572.5986614173227736 Td
+(D. To analyze weather patterns for shipboard landings) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 532.9136220472440755 Td
+(Explanation: The main goal of the VERTICAL tool is to facilitate the design and testing of VLAs for VTOL/rotorcraft shipboard landings.) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 493.2285826771653205 Td
+(Question 2: What software is the VERTICAL tool built upon?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 453.5435433070865656 Td
+(A. X-Plane) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 433.7010236220471597 Td
+(B. Prepar3D) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 413.8585039370078107 Td
+(C. Microsoft Flight Simulator) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 394.0159842519684616 Td
+(D. DCS World) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 354.3309448818897067 Td
+(Explanation: The text explicitly states that the tool utilizes Microsoft Flight Simulator for its visualization engine.) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 314.6459055118109518 Td
+(Question 3: What is the advantage of using a readily available platform like a PC for the VERTICAL tool?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 274.9608661417322537 Td
+(A. Enhanced graphics capabilities) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 255.1183464566928478 Td
+(B. Increased accessibility for test team members) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 235.2758267716534419 Td
+(C. Better compatibility with VR headsets) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 215.4333070866141497 Td
+(D. Simplified software development) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 175.748267716535338 Td
+(Explanation: The text emphasizes that using PCs allows greater access to the tool for test team members as PCs are widely available.) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 136.0632283464566399 Td
+(Question 4: What does VLA stand for in this context?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 96.3781889763778281 Td
+(A. Vertical Landing Area) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 76.5356692913385359 Td
+(B. Visual Landing Aids) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 56.69314960629913 Td
+(C. VTOL Landing Assistance) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 36.8506299212597241 Td
+(D. Variable Landing Approach) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 -2.8344094488189739 Td
+(Explanation: The text defines VLA as Visual Landing Aids.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 4029
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 5: What type of aircraft are the VLAs primarily designed for?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. Fixed-wing aircraft) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 725.6695275590550409 Td
+(B. VTOL/rotorcraft) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(C. Commercial airliners) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(D. Unmanned aerial vehicles) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: The tool is specifically intended to support VTOL \(Vertical Take-Off and Landing\) and rotorcraft shipboard operations.) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 606.614409448818833 Td
+(Question 6: What is one of the goals of shipboard VLA systems mentioned in the text?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 566.9293700787401349 Td
+(A. To increase aircraft speed during landing) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 547.086850393700729 Td
+(B. To enable pilots to land in lower visibility conditions) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 527.2443307086614368 Td
+(C. To reduce the need for pilot training) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 507.4018110236219741 Td
+(D. To automate the landing process) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 467.716771653543276 Td
+(Explanation: The text states that VLAs aim to allow safe operation in lower visibility conditions and higher sea states.) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 428.0317322834645211 Td
+(Question 7: What is the name of the design and test tool being developed?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 388.3466929133857661 Td
+(A. VTOLSim) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 368.5041732283464171 Td
+(B. LandingAidDesigner) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 348.6616535433070112 Td
+(C. VERTICAL) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 328.8191338582676053 Td
+(D. FlightDeckSimulator) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 289.1340944881889072 Td
+(Explanation: The tool being developed is called VERTICAL \(VLA Experimental Resource for Testing Innovative Configurations And Lightings\).) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 249.4490551181102092 Td
+(Question 8: Aside from Microsoft Flight Simulator, what other technologies are used in VERTICAL?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 209.7640157480313974 Td
+(A. Python and C++) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 189.9214960629919915 Td
+(B. FSUIPC and Java) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 170.0789763779526993 Td
+(C. C# and Unity) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 150.2364566929132934 Td
+(D. Fortran and Assembly) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 110.5514173228345953 Td
+(Explanation: The text mentions the use of FSUIPC and Java in conjunction with MS Flight Simulator.) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 70.8663779527557836 Td
+(Question 9: What feature of ship motion is important for VLA design but not yet implemented in the LHD prototype?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 31.1813385826770855 Td
+(A. Yaw) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 11.3388188976376796 Td
+(B. Forward motion) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 -8.5037007874017263 Td
+(C. Heave) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 -28.3462204724410185 Td
+(D. Pitch and roll) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 -68.0312598425198303 Td
+(Explanation: While a previous destroyer model had pitch, roll, and forward motion, the LHD prototype hasn't yet incorporated these features.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 750
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 10: What type of ship is the focus of the prototype development?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. Aircraft Carrier) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(B. Destroyer) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 705.8270078740157487 Td
+(C. LHD) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+1. 0. 0. rg
+85.0393700787401627 685.9844881889763428 Td
+(D. Submarine) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: The text specifies that a custom LHD ship model is used in the prototype application.) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R ]
+/Count 3
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 9 0 R
+/F2 10 0 R
+/F3 11 0 R
+/F4 12 0 R
+/F5 13 0 R
+/F6 14 0 R
+/F7 15 0 R
+/F8 16 0 R
+/F9 17 0 R
+/F10 18 0 R
+/F11 19 0 R
+/F12 20 0 R
+/F13 21 0 R
+/F14 22 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+23 0 obj
+<<
+/Producer (jsPDF 3.0.1)
+/CreationDate (D:20250421214911+05'30')
+>>
+endobj
+24 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 25
+0000000000 65535 f 
+0000008915 00000 n 
+0000010748 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000003759 00000 n 
+0000003896 00000 n 
+0000007977 00000 n 
+0000008114 00000 n 
+0000008984 00000 n 
+0000009109 00000 n 
+0000009240 00000 n 
+0000009374 00000 n 
+0000009512 00000 n 
+0000009636 00000 n 
+0000009765 00000 n 
+0000009897 00000 n 
+0000010033 00000 n 
+0000010161 00000 n 
+0000010288 00000 n 
+0000010417 00000 n 
+0000010550 00000 n 
+0000010652 00000 n 
+0000011000 00000 n 
+0000011086 00000 n 
+trailer
+<<
+/Size 25
+/Root 24 0 R
+/Info 23 0 R
+/ID [ <DB5FCBDE8D026F42BE9E03BE3852247B> <DB5FCBDE8D026F42BE9E03BE3852247B> ]
+>>
+startxref
+11190
+%%EOF

@@ -1,10 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import axios from 'axios';
+import { jsPDF } from 'jspdf';
 
 const Summary = () => {
   const router = useRouter();
   const [summaryText, setSummaryText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const { summary, fileName, type } = router.query;
+
+  // useEffect(() => {
+  //   if (summary && fileName && type) {
+  //     // Save the content after the page is loaded
+  //     const saveContent = async () => {
+  //       try {
+  //         await axios.post(
+  //           "http://127.0.0.1:8000/api/save-material/",
+  //           {
+  //             type,
+  //             content: summary,
+  //             fileName,
+  //           },
+  //           {
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             withCredentials: true,
+  //           }
+  //         );
+  //       } catch (error) {
+  //         console.error("Error saving summary:", error);
+  //       }
+  //     };
+
+  //     saveContent();
+  //   }
+  // }, [summary, fileName, type]);
 
   useEffect(() => {
     const { summary } = router.query;
@@ -18,8 +49,90 @@ const Summary = () => {
     }
   }, [router.query]);
 
-  const handleBackClick = () => {
-    router.push("/deaf");
+  const saveSummaryToPDF = async () => {
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    const originalFileName = fileName?.toString()?.split('.')[0] || 'summary'; // Get original filename without extension
+
+    try {
+      // Clean and format the summary text
+      const cleanText = summaryText
+        .replace(/[^\w\s.,!?-]/g, ' ') // Remove special characters except basic punctuation
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .replace(/\n\s*\n/g, '\n\n') // Replace multiple newlines with double newline
+        .trim();
+
+      // Add title and file info
+      doc.setFontSize(16);
+      doc.text("Document Summary", 20, 20);
+      doc.setFontSize(12);
+      doc.text(`File: ${originalFileName}`, 20, 30);
+      doc.text(`Date: ${date}`, 20, 40);
+
+      // Add summary content
+      let y = 60;
+      const lineHeight = 7;
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 20;
+      const maxWidth = doc.internal.pageSize.width - (margin * 2);
+
+      // Split the summary into paragraphs
+      const paragraphs = cleanText.split('\n\n');
+
+      // Add each paragraph to the PDF
+      paragraphs.forEach((paragraph: string) => {
+        // Split paragraph into lines that fit the page width
+        const lines = doc.splitTextToSize(paragraph, maxWidth);
+
+        // Add each line to the PDF
+        lines.forEach((line: string) => {
+          if (y > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.text(line, margin, y);
+          y += lineHeight;
+        });
+
+        // Add space between paragraphs
+        y += lineHeight;
+      });
+
+      // Convert PDF to blob
+      const pdfBlob = doc.output('blob');
+
+      // Create FormData and append the PDF
+      const formData = new FormData();
+      formData.append('file', pdfBlob, `${originalFileName}_summary.pdf`);
+      formData.append('type', 'summary');
+      formData.append('content', cleanText);
+      formData.append('fileName', `${originalFileName}_summary`);
+
+      // Send to backend using the save-material endpoint
+      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.status === 'success') {
+        console.log('Summary PDF saved successfully:', response.data.file_path);
+      }
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+    }
+  };
+
+  const handleBackClick = async () => {
+    try {
+      // Save the summary as PDF before navigating back
+      await saveSummaryToPDF();
+      // Only navigate after successful save
+      router.push('/deaf');
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+      // You can add a notification here if you want to inform the user about the error
+    }
   };
 
   const getWordCount = (text: string): number => {

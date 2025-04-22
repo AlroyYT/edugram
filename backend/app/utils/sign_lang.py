@@ -25,14 +25,6 @@ try:
 except:
     pass
 
-# Load the model for gesture recognition
-image_x, image_y = 64, 64
-try:
-    classifier = load_model('model.h5')  # Ensure model.h5 is in the working directory
-    print("Model loaded successfully")
-except Exception as e:
-    print(f"Error loading model: {e}")
-
 # Get the base directory of your Django project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -44,6 +36,15 @@ alpha_dest = os.path.join(BASE_DIR, "alphabet/")      # This will point to /D:/m
 dirListing = os.listdir(op_dest)
 editFiles = [item for item in dirListing if ".webp" in item]
 file_map = {i: i.replace(".webp", "").split() for i in editFiles}
+
+# Load the model for gesture recognition
+image_x, image_y = 64, 64
+try:
+    model_path = os.path.join(BASE_DIR, "model.h5")
+    classifier = load_model(model_path)  # Use the properly constructed path
+    print("Model loaded successfully")
+except Exception as e:
+    print(f"Error loading model: {e}")
 
 # Function to process input text and predict corresponding sign language gestures
 def give_char():

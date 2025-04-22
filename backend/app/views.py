@@ -25,7 +25,15 @@ from .utils.jarvis import JarvisAI
 import traceback
 import subprocess
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
-from django.utils.decorators import method_decorator
+from rest_framework.decorators import api_view
+from datetime import datetime
+from django.shortcuts import render
+# from .utils.mcq import MCQGenerator
+# from .utils.audio import process_audio
+from .utils.models import SavedMaterial
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +109,6 @@ class SummarizeAPIView(APIView):
         os.makedirs(upload_dir, exist_ok=True)
         
         # Generate unique file path
-        import uuid
         unique_filename = f"{uuid.uuid4()}{file_extension}"
         file_path = os.path.join(upload_dir, unique_filename)
         
@@ -149,6 +156,7 @@ class SummarizeAPIView(APIView):
                 "message": str(e),
                 "details": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class GenerateMCQsAPIView(APIView):
     def post(self, request):
         file = request.FILES.get('file')
@@ -229,6 +237,7 @@ class GenerateMCQsAPIView(APIView):
                     fs.delete(filename)
                 except Exception as e:
                     logger.error(f"Error cleaning up file: {str(e)}")
+
 class GenerateFlashcardsAPIView(APIView):
     def post(self, request):
         file = request.FILES.get('file')
@@ -315,6 +324,7 @@ class GenerateFlashcardsAPIView(APIView):
                 {"error": f"An error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
 # New feature: File Deletion API
 class DeleteFileAPIView(APIView):
     def post(self, request):
@@ -388,7 +398,38 @@ def process_audio(request):
         }, status=500)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@api_view(['GET'])
+def get_saved_materials(request):
+    try:
+        saved_dir = os.path.join(settings.MEDIA_ROOT, "saved")
+        if not os.path.exists(saved_dir):
+            return Response({
+                "materials": []
+            }, status=status.HTTP_200_OK)
+
+        materials = []
+        for filename in os.listdir(saved_dir):
+            if filename.endswith('.pdf'):
+                file_path = os.path.join(saved_dir, filename)
+                file_type = filename.split('_')[-1].replace('.pdf', '')
+                materials.append({
+                    'fileName': filename,
+                    'type': file_type,
+                    'filePath': f'http://127.0.0.1:8000/media/saved/{filename}',
+                    'date': datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
+                })
+
+        return Response({
+            "materials": materials
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.error(f"Error fetching saved materials: {str(e)}")
+        return Response({
+            "error": "Failed to fetch saved materials",
+            "message": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class SignLanguageView(APIView):
     def post(self, request):
         """
@@ -401,7 +442,72 @@ class SignLanguageView(APIView):
         elif endpoint == 'speech-to-text':
             return speech_to_text(request)
         else:
-            return JsonResponse({
+            return Response({
                 'status': 'error',
                 'message': 'Invalid endpoint'
-            }, status=400)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class SaveMaterialAPIView(APIView):
+    def post(self, request):
+        try:
+            file = request.FILES.get('file')
+            type = request.data.get('type')
+            content = request.data.get('content')
+            file_name = request.data.get('fileName')
+
+            if not all([file, type, content, file_name]):
+                return Response({
+                    "error": "Missing required fields",
+                    "required": ["file", "type", "content", "fileName"]
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Create saved directory if it doesn't exist
+            saved_dir = os.path.join(settings.MEDIA_ROOT, "saved")
+            os.makedirs(saved_dir, exist_ok=True)
+
+            # Ensure the file has a .pdf extension
+            if not file_name.lower().endswith('.pdf'):
+                file_name = f"{file_name}.pdf"
+
+            # Save the file
+            file_path = os.path.join(saved_dir, file_name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            # Verify the file was saved and is a valid PDF
+            if not os.path.exists(file_path):
+                return Response({
+                    "error": "Failed to save file",
+                    "message": "File was not created"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Check if the file is a valid PDF
+            try:
+                with open(file_path, 'rb') as f:
+                    header = f.read(4)
+                    if header != b'%PDF':
+                        os.remove(file_path)
+                        return Response({
+                            "error": "Invalid PDF file",
+                            "message": "The uploaded file is not a valid PDF"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                os.remove(file_path)
+                return Response({
+                    "error": "File validation failed",
+                    "message": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response({
+                "status": "success",
+                "file_path": file_path,
+                "message": "PDF file saved successfully"
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error saving material: {str(e)}")
+            return Response({
+                "error": "Failed to save material",
+                "message": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
