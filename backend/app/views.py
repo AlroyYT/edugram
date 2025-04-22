@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from pathlib import Path
+from rest_framework.decorators import api_view
 from .utils.summarize import QuotaFriendlyAnalyzer
 from .utils.flashcards import FlashcardGenerator
 import logging 
@@ -26,6 +27,7 @@ import traceback
 import subprocess
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 from django.utils.decorators import method_decorator
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -435,3 +437,59 @@ class SignLanguageView(APIView):
                 'status': 'error',
                 'message': 'Invalid endpoint'
             }, status=400)
+        
+@api_view(['GET'])
+def youtube_search(request):
+    """
+    Search YouTube videos based on query parameters
+    """
+    try:
+        # Get parameters from request
+        query = request.GET.get('query', '')
+        max_results = request.GET.get('max_results', 6)
+        
+        # YouTube Data API v3 endpoint
+        api_key = settings.YOUTUBE_API_KEY  # Add your YouTube API key to Django settings
+        youtube_url = "https://www.googleapis.com/youtube/v3/search"
+        
+        # Parameters for the API request
+        params = {
+            'part': 'snippet',
+            'q': query,
+            'maxResults': max_results,
+            'key': api_key,
+            'type': 'video',
+            'relevanceLanguage': 'en',
+            'videoEmbeddable': 'true',
+            'videoCategoryId': '27',  # Education category
+        }
+        
+        # Make the API request
+        response = requests.get(youtube_url, params=params)
+        data = response.json()
+        
+        # Format the response data
+        items = []
+        if 'items' in data:
+            for item in data['items']:
+                video_id = item['id']['videoId']
+                snippet = item['snippet']
+                
+                items.append({
+                    'id': video_id,
+                    'title': snippet['title'],
+                    'description': snippet['description'],
+                    'thumbnail': snippet['thumbnails']['high']['url'],
+                    'channelTitle': snippet['channelTitle'],
+                })
+        
+        return Response({
+            'success': True,
+            'items': items
+        })
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=500)

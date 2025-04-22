@@ -4,7 +4,8 @@ from .views import (
     SummarizeAPIView,
     GenerateMCQsAPIView,
     GenerateFlashcardsAPIView,
-    process_audio
+    process_audio,
+    youtube_search
 )
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 
@@ -16,4 +17,6 @@ urlpatterns = [
     path('process-audio/', process_audio),
     path('convert-text-to-gesture/', convert_text_to_gesture, name='convert-text-to-gesture'),
     path('speech-to-text/', speech_to_text, name='speech-to-text'),
+    path('youtube-search/', youtube_search, name='youtube_search'),
 ]
+
