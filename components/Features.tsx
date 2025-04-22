@@ -91,6 +91,7 @@ const Features = () => {
       description: "AI-powered learning paths with customizable quizzes, interactive flashcards, and progress tracking for all users.",
       icon: "🎯",
       color: "#FF4500",
+      link: "topic-explorer",
       hoverColor: "#ff6a30",
       bgGradient: "linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(255, 69, 0, 0.05) 100%)",
     },
