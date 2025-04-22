@@ -61,6 +61,7 @@ const Features = () => {
       message: "This is blind assistance",
       description: "Advanced tools designed specifically for visually impaired users, providing audio descriptions and enhanced navigation support.",
       icon: "👁️",
+      link:"/voice-assistant",
       color: "#8A2BE2",
       hoverColor: "#9d4df3",
       bgGradient: "linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(138, 43, 226, 0.05) 100%)",

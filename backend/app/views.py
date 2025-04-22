@@ -350,13 +350,16 @@ def process_audio(request):
         # Parse request body
         body = json.loads(request.body)
         base64_audio = body.get("audio")
-        print(base64_audio)
-
+        browser_transcript = body.get("browserTranscript", "")  # Get browser transcript
+        
         if not base64_audio:
             return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
 
         # Transcribe using Whisper
-        text = JarvisAI.speech_to_text(base64_audio)
+        whisper_text = JarvisAI.speech_to_text(base64_audio)
+        
+        # Choose the better transcript or combine them
+        text = choose_better_transcript(whisper_text, browser_transcript)
 
         if not text:
             return JsonResponse({
@@ -374,6 +377,8 @@ def process_audio(request):
         return JsonResponse({
             "status": "success",
             "text": text,
+            "whisper_text": whisper_text,
+            "browser_text": browser_transcript,
             "response": response,
             "voice_response": voice_response
         })
@@ -386,6 +391,31 @@ def process_audio(request):
             "status": "fail",
             "message": f"Server error: {str(e)}"
         }, status=500)
+
+def choose_better_transcript(whisper_text, browser_text):
+    """Choose the better transcript based on some heuristics."""
+    if not whisper_text and not browser_text:
+        return None
+    elif not whisper_text:
+        return browser_text
+    elif not browser_text:
+        return whisper_text
+    
+    # Here you could implement more sophisticated logic
+    # For technical terms, browser recognition might actually be better
+    
+    # Simple length-based heuristic as a starting point
+    if len(browser_text) > len(whisper_text) * 1.5:
+        return browser_text
+    
+    # Check for common technical terms that might be misheard
+    tech_terms = ["sort", "algorithm", "merge sort", "quick sort", "binary", "search"]
+    for term in tech_terms:
+        if term in browser_text.lower() and term not in whisper_text.lower():
+            return browser_text
+    
+    # Default to whisper_text which is likely more accurate for general speech
+    return whisper_text
 
 
 @method_decorator(csrf_exempt, name='dispatch')

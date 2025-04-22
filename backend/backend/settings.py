@@ -27,7 +27,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Add Gemini API Key directly (replace with your actual API key)
-GEMINI_API_KEY = "AIzaSyBq6UoUFN_6owyryo-F4mnZ4_Hj328O2Dw"  # Get this from Google AI Studio
+GEMINI_API_KEY = "AIzaSyAnkDvJrgLwnU8ALYcQ7uH1y4dBKXIpmfc"  # Get this from Google AI Studio
 
 # Application definition
 INSTALLED_APPS = [
