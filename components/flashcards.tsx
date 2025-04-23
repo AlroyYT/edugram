@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFileContext } from '../context/FileContext';
 import { useRouter } from 'next/router';
+import { jsPDF } from 'jspdf';
 
 const FlashcardsEnhanced: React.FC = () => {
   const [fcrd84StudyCards, setFcrd84StudyCards] = useState<{ question: string; answer: string }[]>([]);
@@ -86,7 +87,98 @@ const FlashcardsEnhanced: React.FC = () => {
     setFcrd84IsCardFlipped(!fcrd84IsCardFlipped);
   };
 
-  const handleBackToUpload = () => {
+  const saveFlashcardsToPDF = async () => {
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    const originalFileName = uploadedFile?.name?.split('.')[0] || 'flashcards';
+
+    try {
+      // Set initial margins and line height
+      const margin = 20;
+      const lineHeight = 7;
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      let y = margin;
+
+      // Add title and metadata
+      doc.setFontSize(16);
+      doc.text("Flashcards", margin, y);
+      y += lineHeight * 2;
+
+      doc.setFontSize(12);
+      doc.text(`File: ${originalFileName}`, margin, y);
+      y += lineHeight;
+      doc.text(`Date: ${date}`, margin, y);
+      y += lineHeight;
+      doc.text(`Total Cards: ${fcrd84StudyCards.length}`, margin, y);
+      y += lineHeight * 2;
+
+      // Add flashcards
+      doc.setFontSize(12);
+      fcrd84StudyCards.forEach((card, index) => {
+        // Check if we need a new page
+        if (y > pageHeight - margin - (lineHeight * 10)) {
+          doc.addPage();
+          y = margin;
+        }
+
+        // Add card number
+        doc.setFontSize(14);
+        doc.text(`Card ${index + 1}/${fcrd84StudyCards.length}`, margin, y);
+        y += lineHeight * 2;
+
+        // Add question
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 139); // Dark blue for question
+        const questionText = `Q: ${card.question}`;
+        const splitQuestion = doc.splitTextToSize(questionText, pageWidth - (margin * 2));
+        doc.text(splitQuestion, margin, y);
+        y += lineHeight * (splitQuestion.length + 1);
+
+        // Add answer
+        doc.setTextColor(0, 100, 0); // Dark green for answer
+        const answerText = `A: ${card.answer}`;
+        const splitAnswer = doc.splitTextToSize(answerText, pageWidth - (margin * 2));
+        doc.text(splitAnswer, margin, y);
+        y += lineHeight * (splitAnswer.length + 2);
+
+        // Reset color
+        doc.setTextColor(0, 0, 0);
+
+        // Add some space between cards
+        y += lineHeight * 2;
+      });
+
+      // Convert PDF to blob
+      const pdfBlob = doc.output('blob');
+
+      // Create FormData and append the PDF
+      const formData = new FormData();
+      formData.append('file', pdfBlob, `${originalFileName}_flashcards.pdf`);
+      formData.append('type', 'flashcards');
+      formData.append('content', JSON.stringify({
+        cards: fcrd84StudyCards,
+        date: date
+      }));
+      formData.append('fileName', `${originalFileName}_flashcards`);
+
+      // Send to backend using the save-material endpoint
+      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.status === 'success') {
+        console.log('Flashcards PDF saved successfully:', response.data.file_path);
+      }
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+    }
+  };
+
+  const handleDone = async () => {
+    await saveFlashcardsToPDF();
     router.push("/deaf");
   };
 
@@ -180,16 +272,27 @@ const FlashcardsEnhanced: React.FC = () => {
                   </motion.span>
                 </div>
                 
-                <button 
-                  onClick={fcrd84NavigateNext} 
-                  disabled={fcrd84CardIndex === fcrd84StudyCards.length - 1}
-                  className="fcrd84_nav_button fcrd84_next_button"
-                >
-                  Next
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
+                {fcrd84CardIndex === fcrd84StudyCards.length - 1 ? (
+                  <button 
+                    onClick={handleDone}
+                    className="fcrd84_nav_button fcrd84_done_button"
+                  >
+                    Done
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                ) : (
+                  <button 
+                    onClick={fcrd84NavigateNext} 
+                    className="fcrd84_nav_button fcrd84_next_button"
+                  >
+                    Next
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
@@ -213,7 +316,7 @@ const FlashcardsEnhanced: React.FC = () => {
               <p>Please try uploading a different document</p>
               <button 
                 className="fcrd84_back_button"
-                onClick={handleBackToUpload}
+                onClick={handleDone}
               >
                 Back to Upload
               </button>

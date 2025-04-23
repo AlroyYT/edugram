@@ -7,6 +7,7 @@ import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import { useFileContext } from "../context/FileContext";
 import { useRouter } from "next/router";
+import { jsPDF } from 'jspdf';
 
 const QuizExperience = () => {
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
@@ -123,7 +124,116 @@ const QuizExperience = () => {
     }
   };
   
-  const restartQuiz = () => {
+  const saveQuizToPDF = async () => {
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    const originalFileName = uploadedFile?.name?.split('.')[0] || 'quiz';
+
+    try {
+      // Set initial margins and line height
+      const margin = 20;
+      const lineHeight = 7;
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      let y = margin;
+
+      // Add title and metadata
+      doc.setFontSize(16);
+      doc.text("Quiz Results", margin, y);
+      y += lineHeight * 2;
+
+      doc.setFontSize(12);
+      doc.text(`File: ${originalFileName}`, margin, y);
+      y += lineHeight;
+      doc.text(`Date: ${date}`, margin, y);
+      y += lineHeight * 2;
+
+      // Add score information
+      doc.setFontSize(14);
+      doc.text(`Score: ${scoreData.correct}/${scoreData.total}`, margin, y);
+      y += lineHeight * 2;
+
+      // Add questions
+      doc.setFontSize(12);
+      quizQuestions.forEach((question, index) => {
+        // Check if we need a new page
+        if (y > pageHeight - margin - (lineHeight * 10)) {
+          doc.addPage();
+          y = margin;
+        }
+
+        // Add question number and text
+        const questionText = `Question ${index + 1}: ${question.question}`;
+        const splitQuestion = doc.splitTextToSize(questionText, pageWidth - (margin * 2));
+        doc.text(splitQuestion, margin, y);
+        y += lineHeight * (splitQuestion.length + 1);
+
+        // Add options
+        question.options.forEach((option: string, optIndex: number) => {
+          const prefix = String.fromCharCode(65 + optIndex);
+          const isCorrect = option === question.correct_answer;
+          const isChosen = option === chosenAnswer;
+          
+          doc.setFontSize(10);
+          if (isCorrect) {
+            doc.setTextColor(0, 128, 0); // Green for correct answer
+          } else if (isChosen) {
+            doc.setTextColor(255, 0, 0); // Red for wrong answer
+          }
+          
+          const optionText = `${prefix}. ${option}`;
+          const splitOption = doc.splitTextToSize(optionText, pageWidth - (margin * 2) - 20);
+          doc.text(splitOption, margin + 10, y);
+          y += lineHeight * splitOption.length;
+          
+          doc.setTextColor(0, 0, 0); // Reset color
+        });
+
+        // Add explanation
+        y += lineHeight;
+        doc.setFontSize(10);
+        const explanationText = `Explanation: ${question.explanation}`;
+        const splitExplanation = doc.splitTextToSize(explanationText, pageWidth - (margin * 2));
+        doc.text(splitExplanation, margin, y);
+        y += lineHeight * (splitExplanation.length + 2);
+
+        // Add some space between questions
+        y += lineHeight;
+      });
+
+      // Convert PDF to blob
+      const pdfBlob = doc.output('blob');
+
+      // Create FormData and append the PDF
+      const formData = new FormData();
+      formData.append('file', pdfBlob, `${originalFileName}_quiz.pdf`);
+      formData.append('type', 'quiz');
+      formData.append('content', JSON.stringify({
+        score: scoreData,
+        questions: quizQuestions,
+        date: date
+      }));
+      formData.append('fileName', `${originalFileName}_quiz`);
+
+      // Send to backend using the save-material endpoint
+      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.status === 'success') {
+        console.log('Quiz PDF saved successfully:', response.data.file_path);
+      }
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+    }
+  };
+
+  const restartQuiz = async () => {
+    if (quizCompleted) {
+      await saveQuizToPDF();
+    }
     setQuizCompleted(false);
     setShowConfetti(false);
     setQuizQuestions([]);
