@@ -9,6 +9,8 @@ const VoiceAssistant = () => {
   const [error, setError] = useState('');
   const [conversation, setConversation] = useState([]);  // Store chat history
   const [isReady, setIsReady] = useState(true);  // Flag to control when ready for next input
+  const [processingChunks, setProcessingChunks] = useState(false);  // New state for streaming
+  const [remainingChunks, setRemainingChunks] = useState([]);  // New state for audio queue
   
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -95,12 +97,61 @@ const VoiceAssistant = () => {
     };
   }, [isReady, triggered]);
 
+  // Handle playing audio chunks in sequence
+  useEffect(() => {
+    if (processingChunks && remainingChunks.length > 0 && !audioRef.current?.playing) {
+      playNextChunk();
+    }
+  }, [processingChunks, remainingChunks]);
+
   // Scroll to bottom of chat whenever conversation updates
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [conversation]);
+
+  // Function to play the next audio chunk
+  const playNextChunk = () => {
+    if (remainingChunks.length === 0) {
+      setProcessingChunks(false);
+      setIsReady(true);
+      
+      // Restart background recognition when all chunks are done
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+        } catch (e) {
+          console.error("Failed to restart recognition after audio chunks:", e);
+        }
+      }
+      return;
+    }
+
+    const chunk = remainingChunks[0].toString();
+    const base64Data = chunk.includes(',') ? chunk.split(',')[1] : chunk;
+    
+    const byteCharacters = atob(base64Data);
+    const byteArray = new Uint8Array([...byteCharacters].map(char => char.charCodeAt(0)));
+    const audioBlob = new Blob([byteArray], { type: 'audio/mp3' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    if (audioRef.current) {
+      audioRef.current.src = audioUrl;
+      audioRef.current.play();
+      
+      audioRef.current.onended = () => {
+        // Remove the chunk we just played
+        setRemainingChunks(prevChunks => prevChunks.slice(1));
+        
+        // Small delay between chunks for more natural speech
+        setTimeout(() => {
+          // This will trigger the useEffect to play the next chunk
+          setRemainingChunks(prevChunks => [...prevChunks]);
+        }, 300);
+      };
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -115,15 +166,15 @@ const VoiceAssistant = () => {
       setError(''); // Clear any previous errors
       
       // Ensure you're using high quality audio
-const stream = await navigator.mediaDevices.getUserMedia({ 
-  audio: {
-    echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true,
-    sampleRate: 48000,
-    channelCount: 1
-  } 
-});
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 1
+        } 
+      });
       mediaRecorderRef.current = new MediaRecorder(stream, {
         mimeType: 'audio/webm' // Explicitly set to webm as expected by backend
       });
@@ -180,18 +231,17 @@ const stream = await navigator.mediaDevices.getUserMedia({
           const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
           try {
-            // In the mediaRecorderRef.current.onstop function, modify the fetch:
-          const response = await fetch('http://localhost:8000/api/process-audio/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-              audio: base64Audio,
-              browserTranscript: browserTranscript  // Add this line
-            }),
-            signal: controller.signal,
-          });
+            const response = await fetch('http://localhost:8000/api/process-audio/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                audio: base64Audio,
+                browserTranscript: browserTranscript  // Add this line
+              }),
+              signal: controller.signal,
+            });
 
             clearTimeout(timeoutId);
 
@@ -207,8 +257,44 @@ const stream = await navigator.mediaDevices.getUserMedia({
               const newResponse = { role: 'jarvis', content: data.response };
               setConversation(prev => [...prev, newMessage, newResponse]);
 
-              // Check for voice_response, which is what the backend returns
-              if (data.voice_response) {
+              // Check for streaming response
+              if (data.streaming && data.voice_response) {
+                const base64Data = data.voice_response.includes(',') 
+                  ? data.voice_response.split(',')[1] 
+                  : data.voice_response;
+                
+                const byteCharacters = atob(base64Data);
+                const byteArray = new Uint8Array([...byteCharacters].map(char => char.charCodeAt(0)));
+                const audioBlob = new Blob([byteArray], { type: 'audio/mp3' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+
+                if (audioRef.current) {
+                  // Play the first chunk immediately
+                  audioRef.current.src = audioUrl;
+                  audioRef.current.play();
+                  
+                  // When first chunk ends, start processing additional chunks
+                  audioRef.current.onended = () => {
+                    if (data.additional_chunks && data.additional_chunks.length > 0) {
+                      setRemainingChunks(data.additional_chunks);
+                      setProcessingChunks(true);
+                    } else {
+                      // If no additional chunks, set ready
+                      setIsReady(true);
+                      
+                      // Restart background recognition
+                      if (recognitionRef.current) {
+                        try {
+                          recognitionRef.current.start();
+                        } catch (e) {
+                          console.error("Failed to restart recognition after audio playback:", e);
+                        }
+                      }
+                    }
+                  };
+                }
+              } else if (data.voice_response) {
+                // Fall back to non-streaming behavior if streaming not available
                 const base64Data = data.voice_response.includes(',') 
                   ? data.voice_response.split(',')[1] 
                   : data.voice_response;
@@ -327,7 +413,7 @@ const stream = await navigator.mediaDevices.getUserMedia({
       </div>
 
       <div className="status">
-        {isListening ? 'Listening...' : isReady ? 'Say "Jarvis" to activate' : 'Processing...'}
+        {isListening ? 'Listening...' : processingChunks ? 'Speaking...' : isReady ? 'Say "Jarvis" to activate' : 'Processing...'}
       </div>
 
       {/* Debug transcript display - only shown when not processing */}

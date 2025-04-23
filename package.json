@@ -15,6 +15,7 @@
     "dom": "^0.0.3",
     "express": "^4.21.2",
     "framer-motion": "^12.7.2",
+    "jspdf": "^3.0.1",
     "lucide-react": "^0.482.0",
     "multer": "^1.4.5-lts.1",
     "next": "^14.2.4",
@@ -30,6 +31,7 @@
     "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
+    "@types/jspdf": "^2.0.0",
     "@types/node": "^20",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

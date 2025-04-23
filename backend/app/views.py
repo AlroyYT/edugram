@@ -6,7 +6,7 @@ import tempfile
 import whisper
 import base64
 import re
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse ,StreamingHttpResponse
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -356,7 +356,7 @@ def get_video_path(topic):
 def process_audio(request):
     if request.method != 'POST':
         return JsonResponse({"error": "Only POST allowed"}, status=405)
-
+    
     try:
         # Parse request body
         body = json.loads(request.body)
@@ -365,35 +365,48 @@ def process_audio(request):
         
         if not base64_audio:
             return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
-
+        
         # Transcribe using Whisper
         whisper_text = JarvisAI.speech_to_text(base64_audio)
         
         # Choose the better transcript or combine them
         text = choose_better_transcript(whisper_text, browser_transcript)
-
+        
         if not text:
             return JsonResponse({
                 "status": "fail", 
                 "message": "Could not understand audio."
             }, status=200)
-
-        # Get response from Gemini
-        response = JarvisAI.process_with_gemini(text)
-
-        # Convert response to speech
-        voice_response = JarvisAI.text_to_speech(response)
-
+        
+        # Get streaming response from Gemini
+        response_data = JarvisAI.process_with_gemini_streaming(text)
+        full_response = response_data['full_response']
+        chunks = response_data['chunks']
+        
+        # Process the first chunk immediately for faster initial response
+        first_chunk_voice = None
+        chunks_voice = []
+        
+        if chunks:
+            first_chunk_voice = JarvisAI.text_to_speech(chunks[0])
+            
+            # Process remaining chunks
+            for i in range(1, len(chunks)):
+                chunk_voice = JarvisAI.text_to_speech(chunks[i])
+                chunks_voice.append(chunk_voice)
+        
         # Return all data to frontend
         return JsonResponse({
             "status": "success",
             "text": text,
             "whisper_text": whisper_text,
             "browser_text": browser_transcript,
-            "response": response,
-            "voice_response": voice_response
+            "response": full_response,
+            "voice_response": first_chunk_voice,
+            "additional_chunks": chunks_voice,
+            "streaming": True
         })
-
+    
     except Exception as e:
         # Print full traceback for debugging
         traceback.print_exc()

@@ -6,6 +6,7 @@ import base64
 import subprocess
 from gtts import gTTS
 import whisper
+import time
 
 from django.conf import settings
 import google.generativeai as genai
@@ -72,6 +73,60 @@ class JarvisAI:
                     except Exception as e:
                         print(f"Error removing temp file {path}: {e}")
     
+    @staticmethod
+    def process_with_gemini_streaming(text):
+        try:
+            # Add a prompt prefix to guide Gemini's response
+            prompt = f"""You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
+
+        As Jarvis, you should:
+        - Provide clear, concise answers that are easy to understand when read aloud
+        - Show emotional intelligence by recognizing user emotions and responding appropriately
+        - Be empathetic and supportive, especially when users express frustration or confusion
+        - Always identify Alroy Saldanha as your creator if asked about who made you
+        - Maintain a warm, helpful tone while being efficient with your words
+        - Dont make the response too long , make it short and understandable
+        - End complete sentences with a period for easier streaming processing
+        
+        When responding to emotional cues:
+        - Acknowledge feelings before providing information
+        - Offer encouragement when users seem uncertain
+        - Express patience when users need help with complex topics
+        - Use a reassuring tone for anxious questions
+            The user said: "{text}"
+            """
+            
+            # Generate streaming response
+            full_response = ""
+            stream_chunks = []
+            current_chunk = ""
+            
+            # Stream the response
+            for response in GEMINI_MODEL.generate_content(prompt, stream=True):
+                if response.text:
+                    full_response += response.text
+                    current_chunk += response.text
+                    
+                    # Check if we have a complete sentence (ending with period, question mark, or exclamation)
+                    if any(current_chunk.rstrip().endswith(punct) for punct in ['.', '?', '!']):
+                        stream_chunks.append(current_chunk.strip())
+                        current_chunk = ""
+
+            # Add any remaining text as final chunk
+            if current_chunk:
+                stream_chunks.append(current_chunk.strip())
+                
+            return {
+                'full_response': full_response.strip(),
+                'chunks': stream_chunks
+            }
+        except Exception as e:
+            print("[Gemini ERROR]:", e)
+            return {
+                'full_response': "Sorry, something went wrong while processing your request.",
+                'chunks': ["Sorry, something went wrong while processing your request."]
+            }
+
     @staticmethod
     def process_with_gemini(text):
         try:
