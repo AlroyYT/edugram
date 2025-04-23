@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styles from '../styles/sign.module.css'; // Import the CSS Module
+import styles from '../styles/sign.module.css';
 
 declare global {
   interface Window {
@@ -14,6 +14,7 @@ const App = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   
   // Use refs to store recognition instance
   const recognitionRef = useRef<any>(null);
@@ -23,6 +24,12 @@ const App = () => {
   // Only run this effect once on client-side
   useEffect(() => {
     setIsBrowser(true);
+    
+    // Check user's preferred theme
+    const savedTheme = localStorage.getItem('preferred-theme');
+    if (savedTheme === 'dark') {
+      setDarkMode(true);
+    }
     
     // Initialize SpeechRecognition only on client-side
     if (typeof window !== 'undefined') {
@@ -83,7 +90,7 @@ const App = () => {
       });
 
       const data = await response.json();
-      console.log('Response:', data); // Debug log
+      console.log('Response:', data);
 
       if (data.status === 'success') {
         setAnimation(data.animation);
@@ -122,7 +129,7 @@ const App = () => {
       });
 
       const data = await response.json();
-      console.log('Response:', data); // Debug log
+      console.log('Response:', data);
 
       if (data.status === 'success') {
         setAnimation(data.animation);
@@ -155,65 +162,110 @@ const App = () => {
     }
   };
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.formBox}>
-        <h2 className={styles.heading}>Convert Text or Voice to Sign Language</h2>
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('preferred-theme', newMode ? 'dark' : 'light');
+  };
 
-        {/* Section for Text to Sign Language */}
-        <div className="flex justify-center items-center space-x-8 mb-8">
-          <div className={styles.inputSection}>
-            <input
-              type="text"
-              value={textInput}
-              onChange={handleTextInputChange}
-              placeholder="Enter text"
-              className={styles.inputText}
-            />
-            <button
-              onClick={handleConvertTextToGesture}
-              disabled={loading}
-              className={styles.button}
-            >
-              {loading ? 'Converting...' : 'Convert Text'}
-            </button>
+  return (
+    <div className={`${styles.pageWrapper} ${darkMode ? styles.darkMode : ''}`}>
+      <button 
+        className={styles.themeToggle} 
+        onClick={toggleTheme}
+      >
+        {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+      </button>
+      
+      <div className={styles.container}>
+        <div className={styles.formBox}>
+          <div className={styles.headerSection}>
+            <h2 className={styles.heading}>Sign Language Translator</h2>
+            <p className={styles.subHeading}>Convert text or voice to sign language gestures</p>
+          </div>
+          
+          <div className={styles.inputWrapper}>
+            <div className={styles.inputContainer}>
+              <div className={styles.inputIconWrapper}>
+                <span className={styles.inputIcon}>✍️</span>
+              </div>
+              <input
+                type="text"
+                value={textInput}
+                onChange={handleTextInputChange}
+                placeholder="Enter text to translate..."
+                className={styles.inputText}
+              />
+            </div>
+            
+            <div className={styles.buttonGroup}>
+              <button
+                onClick={handleConvertTextToGesture}
+                disabled={loading}
+                className={`${styles.button} ${styles.convertButton}`}
+              >
+                {loading ? (
+                  <span className={styles.loadingSpinner}>
+                    <span className={styles.spinnerDot}></span>
+                  </span>
+                ) : (
+                  <>Convert to Sign</>
+                )}
+              </button>
+              
+              {isBrowser && (
+                <button
+                  onClick={handleStartStopRecording}
+                  disabled={loading}
+                  className={`${styles.button} ${styles.voiceButton} ${isRecording ? styles.recording : ''}`}
+                >
+                  {isRecording ? (
+                    <>
+                      <span className={styles.recordingPulse}></span>
+                      Stop Recording
+                    </>
+                  ) : (
+                    <>Use Voice Input</>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Section for Voice to Sign Language */}
-          {isBrowser && (
-            <div className={styles.inputSection}>
-              <button
-                onClick={handleStartStopRecording}
-                disabled={loading}
-                className={styles.button}
-              >
-                {isRecording ? 'Stop Recording' : 'Start Recording'}
-              </button>
+          {/* Display Transcribed Text */}
+          {textInput && (
+            <div className={styles.transcribedTextCard}>
+              <h3 className={styles.cardTitle}>Input Text</h3>
+              <p className={styles.transcribedText}>{textInput}</p>
             </div>
           )}
-        </div>
 
-        {/* Display Transcribed Text */}
-        <div className={styles.transcribedText}>
-          <p>{textInput}</p>
-        </div>
+          {/* Error Message */}
+          {error && (
+            <div className={styles.errorMessage}>
+              <span className={styles.errorIcon}>⚠️</span>
+              <p>{error}</p>
+            </div>
+          )}
 
-        {/* Error Message */}
-        {error && (
-          <div className={styles.errorMessage}>
-            <p>{error}</p>
+          {/* Animation Output */}
+          {animation && (
+            <div className={styles.resultSection}>
+              <h3 className={styles.resultTitle}>Sign Language Animation</h3>
+              <div className={styles.animationOutput}>
+                <img
+                  src={`data:image/gif;base64,${animation}`}
+                  alt="Sign Language Animation"
+                  className={styles.animationImage}
+                />
+              </div>
+            </div>
+          )}
+          
+          <div className={styles.footer}>
+            <p>Bridging communication gaps through technology</p>
           </div>
-        )}
-
-        {/* Animation Output */}
-        {animation && (
-          <div className={styles.animationOutput}>
-            <img
-              src={`data:image/gif;base64,${animation}`}
-              alt="Sign Language Animation"
-            />
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

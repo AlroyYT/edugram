@@ -27,8 +27,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Add Gemini API Key directly (replace with your actual API key)
-GEMINI_API_KEY = "AIzaSyCu06nViU9_X2Xs4zWodyYXMQMekO41sC0"  # Get this from Google AI Studio
-
+GEMINI_API_KEY = "AIzaSyAnkDvJrgLwnU8ALYcQ7uH1y4dBKXIpmfc"  # Get this from Google AI Studio
+YOUTUBE_API_KEY = 'AIzaSyDs7jM_P4DFtvgj3FVHK5480_GBp1Y8diI'
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from pathlib import Path
+from rest_framework.decorators import api_view
 from .utils.summarize import QuotaFriendlyAnalyzer
 from .utils.flashcards import FlashcardGenerator
 import logging 
@@ -28,12 +29,12 @@ from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 from rest_framework.decorators import api_view
 from datetime import datetime
 from django.shortcuts import render
-# from .utils.mcq import MCQGenerator
-# from .utils.audio import process_audio
 from .utils.models import SavedMaterial
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import uuid
+from django.utils.decorators import method_decorator
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -360,13 +361,16 @@ def process_audio(request):
         # Parse request body
         body = json.loads(request.body)
         base64_audio = body.get("audio")
-        print(base64_audio)
-
+        browser_transcript = body.get("browserTranscript", "")  # Get browser transcript
+        
         if not base64_audio:
             return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
 
         # Transcribe using Whisper
-        text = JarvisAI.speech_to_text(base64_audio)
+        whisper_text = JarvisAI.speech_to_text(base64_audio)
+        
+        # Choose the better transcript or combine them
+        text = choose_better_transcript(whisper_text, browser_transcript)
 
         if not text:
             return JsonResponse({
@@ -384,6 +388,8 @@ def process_audio(request):
         return JsonResponse({
             "status": "success",
             "text": text,
+            "whisper_text": whisper_text,
+            "browser_text": browser_transcript,
             "response": response,
             "voice_response": voice_response
         })
@@ -396,6 +402,31 @@ def process_audio(request):
             "status": "fail",
             "message": f"Server error: {str(e)}"
         }, status=500)
+
+def choose_better_transcript(whisper_text, browser_text):
+    """Choose the better transcript based on some heuristics."""
+    if not whisper_text and not browser_text:
+        return None
+    elif not whisper_text:
+        return browser_text
+    elif not browser_text:
+        return whisper_text
+    
+    # Here you could implement more sophisticated logic
+    # For technical terms, browser recognition might actually be better
+    
+    # Simple length-based heuristic as a starting point
+    if len(browser_text) > len(whisper_text) * 1.5:
+        return browser_text
+    
+    # Check for common technical terms that might be misheard
+    tech_terms = ["sort", "algorithm", "merge sort", "quick sort", "binary", "search"]
+    for term in tech_terms:
+        if term in browser_text.lower() and term not in whisper_text.lower():
+            return browser_text
+    
+    # Default to whisper_text which is likely more accurate for general speech
+    return whisper_text
 
 
 @api_view(['GET'])
@@ -511,3 +542,59 @@ class SaveMaterialAPIView(APIView):
                 "error": "Failed to save material",
                 "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+@api_view(['GET'])
+def youtube_search(request):
+    """
+    Search YouTube videos based on query parameters
+    """
+    try:
+        # Get parameters from request
+        query = request.GET.get('query', '')
+        max_results = request.GET.get('max_results', 6)
+        
+        # YouTube Data API v3 endpoint
+        api_key = settings.YOUTUBE_API_KEY  # Add your YouTube API key to Django settings
+        youtube_url = "https://www.googleapis.com/youtube/v3/search"
+        
+        # Parameters for the API request
+        params = {
+            'part': 'snippet',
+            'q': query,
+            'maxResults': max_results,
+            'key': api_key,
+            'type': 'video',
+            'relevanceLanguage': 'en',
+            'videoEmbeddable': 'true',
+            'videoCategoryId': '27',  # Education category
+        }
+        
+        # Make the API request
+        response = requests.get(youtube_url, params=params)
+        data = response.json()
+        
+        # Format the response data
+        items = []
+        if 'items' in data:
+            for item in data['items']:
+                video_id = item['id']['videoId']
+                snippet = item['snippet']
+                
+                items.append({
+                    'id': video_id,
+                    'title': snippet['title'],
+                    'description': snippet['description'],
+                    'thumbnail': snippet['thumbnails']['high']['url'],
+                    'channelTitle': snippet['channelTitle'],
+                })
+        
+        return Response({
+            'success': True,
+            'items': items
+        })
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=500)

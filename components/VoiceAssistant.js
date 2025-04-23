@@ -114,7 +114,16 @@ const VoiceAssistant = () => {
       setBrowserTranscript(''); // Clear browser transcript while processing
       setError(''); // Clear any previous errors
       
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Ensure you're using high quality audio
+const stream = await navigator.mediaDevices.getUserMedia({ 
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+    sampleRate: 48000,
+    channelCount: 1
+  } 
+});
       mediaRecorderRef.current = new MediaRecorder(stream, {
         mimeType: 'audio/webm' // Explicitly set to webm as expected by backend
       });
@@ -171,14 +180,18 @@ const VoiceAssistant = () => {
           const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
           try {
-            const response = await fetch('http://localhost:8000/api/process-audio/', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ audio: base64Audio }),
-              signal: controller.signal,
-            });
+            // In the mediaRecorderRef.current.onstop function, modify the fetch:
+          const response = await fetch('http://localhost:8000/api/process-audio/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              audio: base64Audio,
+              browserTranscript: browserTranscript  // Add this line
+            }),
+            signal: controller.signal,
+          });
 
             clearTimeout(timeoutId);
 
