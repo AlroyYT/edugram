@@ -57,7 +57,7 @@ const TopicExplorer = () => {
   };
   
   const goBackToHub = () => {
-    router.push("/");
+    router.push("/features");
   };
 
   return (

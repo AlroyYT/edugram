@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +30,7 @@ ALLOWED_HOSTS = []
 # Add Gemini API Key directly (replace with your actual API key)
 GEMINI_API_KEY = "AIzaSyAnkDvJrgLwnU8ALYcQ7uH1y4dBKXIpmfc"  # Get this from Google AI Studio
 YOUTUBE_API_KEY = 'AIzaSyDs7jM_P4DFtvgj3FVHK5480_GBp1Y8diI'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,16 +43,14 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework
     'corsheaders',  # For enabling CORS
     # Your app
-    
     'app',  # Replace 'app' with your app's actual name if different
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be at the top
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-      # For CORS support
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -138,10 +138,34 @@ REST_FRAMEWORK = {
 }
 
 # CORS configuration
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Allow your frontend's origin
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+CORS_URLS_REGEX = r'^/api/.*$'
 
 # Static and Media files
 STATIC_URL = '/static/'
@@ -168,6 +192,7 @@ LOGGING = {
         },
     },
 }
+
 # 1️⃣ Serve Media Files Correctly
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -184,12 +209,3 @@ mimetypes.add_type("video/webm", ".webm", True)
 # 4️⃣ Add 'whitenoise' for better file handling (optional)
 INSTALLED_APPS += ['whitenoise.runserver_nostatic']
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-
-# 5️⃣ Ensure CORS Works for Media Requests
-CORS_ALLOW_HEADERS = [
-    'content-type',
-    'authorization',
-    'x-csrftoken',
-]
-CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
-CORS_ALLOW_CREDENTIALS = True

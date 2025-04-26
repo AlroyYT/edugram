@@ -125,12 +125,26 @@ const DeafSupportHub = () => {
 
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
-      const response = await axios.get(filePath, {
+      setProcessStatus("Downloading...");
+      
+      // Log the download attempt
+      console.log('Attempting to download file:', fileName);
+      
+      // Use the download endpoint instead of direct media URL
+      const response = await axios({
+        method: 'get',
+        url: `http://127.0.0.1:8000/api/download/${encodeURIComponent(fileName)}/`,
         responseType: 'blob',
+        headers: {
+          'Accept': 'application/pdf,application/octet-stream',
+        }
       });
       
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      
       // Create a URL for the blob
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(blob);
       
       // Create a temporary link element
       const link = document.createElement('a');
@@ -140,13 +154,74 @@ const DeafSupportHub = () => {
       // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
-      // Clean up the URL
+      // Clean up
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
+      
+      displayNotification('File downloaded successfully');
+    } catch (error: any) {
       console.error('Error downloading file:', error);
-      displayNotification('Failed to download file');
+      if (error.response) {
+        displayNotification(error.response.data.message || 'Failed to download file');
+      } else if (error.request) {
+        displayNotification('No response from server. Please check your connection.');
+      } else {
+        displayNotification(error.message || 'Failed to download file');
+      }
+    } finally {
+      setProcessStatus("");
+    }
+  };
+
+  const handleDelete = async (material: any) => {
+    if (!material || !material.fileName) {
+      displayNotification('Invalid material');
+      return;
+    }
+    
+    setProcessStatus("Deleting...");
+    
+    try {
+      // Log the request details
+      console.log('Attempting to delete file:', material.fileName);
+      
+      // Send delete request to API with the filename
+      const response = await axios({
+        method: 'delete',
+        url: `http://127.0.0.1:8000/api/saved-materials/${encodeURIComponent(material.fileName)}/`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        withCredentials: false  // Changed to false since we're not using credentials
+      });
+      
+      // Log the response
+      console.log('Delete response:', response.data);
+      
+      if (response.data.success) {
+        // Remove from local state
+        setSavedMaterials(prevMaterials => prevMaterials.filter(m => m.fileName !== material.fileName));
+        displayNotification('Material deleted successfully');
+      } else {
+        throw new Error(response.data.message || 'Failed to delete material');
+      }
+    } catch (error: any) {
+      console.error('Error deleting material:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        displayNotification(error.response.data.message || 'Failed to delete material');
+      } else if (error.request) {
+        // The request was made but no response was received
+        displayNotification('No response from server. Please check your connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        displayNotification(error.message || 'Failed to delete material');
+      }
+    } finally {
+      setProcessStatus("");
     }
   };
 
@@ -180,35 +255,6 @@ const DeafSupportHub = () => {
       transition: { type: "spring", stiffness: 400, damping: 10 }
     }
   };
-  // First, let's add the handleDelete function in your DeafSupportHub component
-// Update the handleDelete function in your DeafSupportHub component
-
-const handleDelete = async (materialId: any) => {
-  if (!materialId) {
-    displayNotification('Invalid material ID');
-    return;
-  }
-  
-  setProcessStatus("Deleting...");
-  
-  try {
-    console.log(`Deleting material with ID: ${materialId}`); // Add this to debug
-    
-    // Send delete request to API
-    await axios.delete(`http://127.0.0.1:8000/api/saved-materials1/${materialId}/`);
-    
-    // Remove from local state
-    setSavedMaterials(savedMaterials.filter(material => material.id !== materialId));
-    
-    // Show success notification
-    displayNotification('Material deleted successfully');
-  } catch (error) {
-    console.error('Error deleting material:', error);
-    displayNotification(`Failed to delete material:`);
-  } finally {
-    setProcessStatus("");
-  }
-};
 
   const renderContentPanel = () => {
     switch (activeSection) {
@@ -323,7 +369,7 @@ const handleDelete = async (materialId: any) => {
                       Download
                     </button>
                     <button 
-                      onClick={() => handleDelete(material.id)}
+                      onClick={() => handleDelete(material)}
                       className="delete-button"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
