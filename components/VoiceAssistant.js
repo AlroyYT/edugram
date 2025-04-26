@@ -9,9 +9,9 @@ const VoiceAssistant = () => {
   const [error, setError] = useState('');
   const [conversation, setConversation] = useState([]);  // Store chat history
   const [isReady, setIsReady] = useState(true);  // Flag to control when ready for next input
-  const [processingChunks, setProcessingChunks] = useState(false);  // New state for streaming
-  const [remainingChunks, setRemainingChunks] = useState([]);  // New state for audio queue
-  
+  const [processingChunks, setProcessingChunks] = useState(false);  // State for streaming
+  const [remainingChunks, setRemainingChunks] = useState([]);  // State for audio queue
+
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -99,8 +99,21 @@ const VoiceAssistant = () => {
 
   // Handle playing audio chunks in sequence
   useEffect(() => {
-    if (processingChunks && remainingChunks.length > 0 && !audioRef.current?.playing) {
+    if (processingChunks && remainingChunks.length > 0) {
       playNextChunk();
+    } else if (processingChunks && remainingChunks.length === 0) {
+      // This ensures we set processing to false when there are no more chunks
+      setProcessingChunks(false);
+      setIsReady(true);
+      
+      // Restart background recognition when all chunks are done
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+        } catch (e) {
+          console.error("Failed to restart recognition after audio chunks:", e);
+        }
+      }
     }
   }, [processingChunks, remainingChunks]);
 
@@ -138,17 +151,17 @@ const VoiceAssistant = () => {
 
     if (audioRef.current) {
       audioRef.current.src = audioUrl;
-      audioRef.current.play();
+      audioRef.current.play()
+        .catch(err => {
+          console.error("Error playing audio:", err);
+          // If we can't play, move to the next chunk
+          setRemainingChunks(prevChunks => prevChunks.slice(1));
+        });
       
       audioRef.current.onended = () => {
+        URL.revokeObjectURL(audioUrl); // Clean up the URL
         // Remove the chunk we just played
         setRemainingChunks(prevChunks => prevChunks.slice(1));
-        
-        // Small delay between chunks for more natural speech
-        setTimeout(() => {
-          // This will trigger the useEffect to play the next chunk
-          setRemainingChunks(prevChunks => [...prevChunks]);
-        }, 300);
       };
     }
   };
@@ -271,15 +284,28 @@ const VoiceAssistant = () => {
                 if (audioRef.current) {
                   // Play the first chunk immediately
                   audioRef.current.src = audioUrl;
-                  audioRef.current.play();
+                  audioRef.current.play()
+                    .catch(err => {
+                      console.error("Error playing first audio chunk:", err);
+                      setIsReady(true);
+                      if (recognitionRef.current) {
+                        try {
+                          recognitionRef.current.start();
+                        } catch (e) {
+                          console.error("Failed to restart recognition after audio error:", e);
+                        }
+                      }
+                    });
                   
                   // When first chunk ends, start processing additional chunks
                   audioRef.current.onended = () => {
+                    URL.revokeObjectURL(audioUrl); // Clean up the URL
                     if (data.additional_chunks && data.additional_chunks.length > 0) {
                       setRemainingChunks(data.additional_chunks);
                       setProcessingChunks(true);
                     } else {
                       // If no additional chunks, set ready
+                      setProcessingChunks(false);
                       setIsReady(true);
                       
                       // Restart background recognition
@@ -306,27 +332,39 @@ const VoiceAssistant = () => {
 
                 if (audioRef.current) {
                   audioRef.current.src = audioUrl;
-                  audioRef.current.play();
-                  
-                  // Set up event listener for when audio playback ends
-                  audioRef.current.onended = () => {
-                    // Ready for next interaction after audio finishes
-                    setTimeout(() => {
+                  audioRef.current.play()
+                    .catch(err => {
+                      console.error("Error playing audio response:", err);
                       setIsReady(true);
-                      
-                      // Restart background recognition
                       if (recognitionRef.current) {
                         try {
                           recognitionRef.current.start();
                         } catch (e) {
-                          console.error("Failed to restart recognition after audio playback:", e);
+                          console.error("Failed to restart recognition after audio error:", e);
                         }
                       }
-                    }, 500); // Small delay after audio ends
+                    });
+                  
+                  // Set up event listener for when audio playback ends
+                  audioRef.current.onended = () => {
+                    URL.revokeObjectURL(audioUrl); // Clean up the URL
+                    // Ready for next interaction after audio finishes
+                    setProcessingChunks(false); // Ensure this is set to false
+                    setIsReady(true);
+                    
+                    // Restart background recognition
+                    if (recognitionRef.current) {
+                      try {
+                        recognitionRef.current.start();
+                      } catch (e) {
+                        console.error("Failed to restart recognition after audio playback:", e);
+                      }
+                    }
                   };
                 }
               } else {
                 // If no audio response, set ready immediately
+                setProcessingChunks(false);
                 setIsReady(true);
                 
                 // Restart background recognition
@@ -340,6 +378,7 @@ const VoiceAssistant = () => {
               }
             } else {
               setError(data.message || 'Could not understand audio.');
+              setProcessingChunks(false);
               setIsReady(true);  // Ready for new commands
               
               // Restart background recognition
@@ -358,6 +397,7 @@ const VoiceAssistant = () => {
               setError(`Error sending audio to server: ${err.message}`);
             }
             
+            setProcessingChunks(false);
             setIsReady(true);  // Ready for new commands
             
             // Restart background recognition
@@ -391,6 +431,7 @@ const VoiceAssistant = () => {
       setError(`Microphone error: ${err.message}`);
       setIsListening(false);
       setTriggered(false);
+      setProcessingChunks(false);
       setIsReady(true);  // Ready for new commands
       
       // Restart background recognition

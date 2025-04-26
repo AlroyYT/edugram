@@ -7,6 +7,7 @@ import whisper
 import base64
 import re
 from django.http import FileResponse, HttpResponse ,StreamingHttpResponse
+from django.views.decorators.http import require_http_methods
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -610,4 +611,40 @@ def youtube_search(request):
         return Response({
             'success': False,
             'error': str(e)
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_saved_material(request, material_id):
+    """Delete a saved material by ID"""
+    try:
+        material = SavedMaterial.objects.get(id=material_id)
+        
+        # Optional: Delete the actual file from storage
+        file_path = material.filePath
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                # Log the error but continue with deletion from DB
+                print(f"Error deleting file: {e}")
+        
+        # Delete from database
+        material.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Material "{material.fileName}" deleted successfully'
+        })
+    
+    except SavedMaterial.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Material not found'
+        }, status=404)
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error deleting material: {str(e)}'
         }, status=500)
