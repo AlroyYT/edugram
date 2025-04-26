@@ -1,7 +1,6 @@
 from django.conf import settings
 import mimetypes
 import os
-os.environ["PATH"] += os.pathsep + r"C:\Users\peter\Downloads\ffmpeg-7.1.1-essentials_build\ffmpeg-7.1.1-essentials_build\bin"
 import tempfile
 import whisper
 import base64
@@ -36,6 +35,12 @@ from django.core.files.base import ContentFile
 import uuid
 from django.utils.decorators import method_decorator
 import requests
+
+# Set up ffmpeg path using relative path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(current_dir))
+ffmpeg_path = os.path.join(project_root, 'ffmpeg-7.1.1-essentials_build', 'bin')
+os.environ["PATH"] += os.pathsep + ffmpeg_path
 
 logger = logging.getLogger(__name__)
 
@@ -614,37 +619,138 @@ def youtube_search(request):
         }, status=500)
 
 @csrf_exempt
-@require_http_methods(["DELETE"])
-def delete_saved_material(request, material_id):
-    """Delete a saved material by ID"""
+@require_http_methods(["DELETE", "OPTIONS"])
+def delete_saved_material(request, filename):
+    """Delete a saved material by filename"""
+    # Handle preflight OPTIONS request
+    if request.method == "OPTIONS":
+        response = JsonResponse({})
+        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Methods"] = "DELETE, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response["Access-Control-Max-Age"] = "86400"
+        return response
+
     try:
-        material = SavedMaterial.objects.get(id=material_id)
+        # Log the incoming request
+        logger.info(f"Attempting to delete file: {filename}")
         
-        # Optional: Delete the actual file from storage
-        file_path = material.filePath
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except OSError as e:
-                # Log the error but continue with deletion from DB
-                print(f"Error deleting file: {e}")
+        # Get the current directory and construct relative path to saved directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        saved_dir = os.path.join(current_dir, '..', 'media', 'saved')
+        file_path = os.path.join(saved_dir, filename)
         
-        # Delete from database
-        material.delete()
+        # Log the full file path
+        logger.info(f"Full file path: {file_path}")
         
-        return JsonResponse({
-            'success': True,
-            'message': f'Material "{material.fileName}" deleted successfully'
-        })
-    
-    except SavedMaterial.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': 'Material not found'
-        }, status=404)
+        # Check if file exists
+        if not os.path.exists(file_path):
+            logger.warning(f"File not found: {file_path}")
+            response = JsonResponse({
+                'success': False,
+                'message': f'File "{filename}" not found'
+            }, status=404)
+            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            return response
+        
+        # Check if we have permission to delete
+        if not os.access(file_path, os.W_OK):
+            logger.error(f"No permission to delete file: {file_path}")
+            response = JsonResponse({
+                'success': False,
+                'message': f'No permission to delete file "{filename}"'
+            }, status=403)
+            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            return response
+        
+        # Delete the file
+        try:
+            os.remove(file_path)
+            logger.info(f"Successfully deleted file: {file_path}")
+            response = JsonResponse({
+                'success': True,
+                'message': f'File "{filename}" deleted successfully'
+            }, status=200)
+            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            return response
+        except OSError as e:
+            logger.error(f"Error deleting file {file_path}: {str(e)}")
+            response = JsonResponse({
+                'success': False,
+                'message': f'Error deleting file: {str(e)}'
+            }, status=500)
+            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            return response
     
     except Exception as e:
-        return JsonResponse({
+        logger.error(f"Unexpected error in delete_saved_material: {str(e)}")
+        response = JsonResponse({
             'success': False,
-            'message': f'Error deleting material: {str(e)}'
+            'message': f'Error processing request: {str(e)}'
         }, status=500)
+        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        return response
+
+@csrf_exempt
+@require_http_methods(["GET", "OPTIONS"])
+def download_file(request, filename):
+    """Handle file downloads"""
+    # Handle preflight OPTIONS request
+    if request.method == "OPTIONS":
+        response = HttpResponse()
+        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response["Access-Control-Max-Age"] = "86400"
+        return response
+
+    try:
+        # Log the download attempt
+        logger.info(f"Attempting to download file: {filename}")
+        
+        # Get the current directory and construct relative path to saved directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        saved_dir = os.path.join(current_dir, '..', 'media', 'saved')
+        file_path = os.path.join(saved_dir, filename)
+        
+        # Log the full file path
+        logger.info(f"Full file path: {file_path}")
+        
+        # Check if file exists
+        if not os.path.exists(file_path):
+            logger.warning(f"File not found: {file_path}")
+            response = JsonResponse({
+                'success': False,
+                'message': f'File "{filename}" not found'
+            }, status=404)
+            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            return response
+        
+        # Get the file's mime type
+        content_type, _ = mimetypes.guess_type(file_path)
+        if not content_type:
+            content_type = 'application/octet-stream'
+        
+        # Open the file in binary mode
+        file = open(file_path, 'rb')
+        
+        # Create the response
+        response = FileResponse(file, as_attachment=True, filename=filename)
+        response['Content-Type'] = content_type
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        # Add CORS headers
+        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error downloading file {filename}: {str(e)}")
+        response = JsonResponse({
+            'success': False,
+            'message': f'Error downloading file: {str(e)}'
+        }, status=500)
+        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        return response

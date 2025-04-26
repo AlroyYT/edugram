@@ -9,6 +9,7 @@ from .views import (
     get_saved_materials,
     youtube_search,
     delete_saved_material,
+    download_file,
 )
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 
@@ -23,5 +24,6 @@ urlpatterns = [
     path('save-material/', SaveMaterialAPIView.as_view(), name='save-material'),
     path('saved-materials/', get_saved_materials, name='get_saved_materials'),
     path('youtube-search/', youtube_search, name='youtube_search'),
-    path('saved-materials1/<int:material_id>/', delete_saved_material, name='delete_saved_material'),
+    path('saved-materials/<str:filename>/', delete_saved_material, name='delete_saved_material'),
+    path('download/<str:filename>/', download_file, name='download_file'),
 ]
