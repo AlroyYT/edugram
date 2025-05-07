@@ -241,7 +241,7 @@ const VoiceAssistant = () => {
           const base64Audio = reader.result;
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+          const timeoutId = setTimeout(() => controller.abort(), 45000); // 30s timeout
 
           try {
             const response = await fetch('http://localhost:8000/api/process-audio/', {
@@ -446,51 +446,58 @@ const VoiceAssistant = () => {
   };
 
   return (
-    <div className="voice-assistant-container">
-      <div className="visualizer">
-        <div className={`circle ${isListening ? 'listening' : ''}`}>
-          <div className="innerCircle"></div>
-        </div>
-      </div>
+<div class="voice-assistant-container">
 
-      <div className="status">
-        {isListening ? 'Listening...' : processingChunks ? 'Speaking...' : isReady ? 'Say "Jarvis" to activate' : 'Processing...'}
-      </div>
+  <div class="hud-corner hud-corner-tl"></div>
+  <div class="hud-corner hud-corner-tr"></div>
+  <div class="hud-corner hud-corner-bl"></div>
+  <div class="hud-corner hud-corner-br"></div>
+  
 
-      {/* Debug transcript display - only shown when not processing */}
-      {browserTranscript && isReady && (
-        <div className="transcript">
-          <h3>Browser Heard:</h3>
-          <p>{browserTranscript}</p>
-        </div>
-      )}
-      
-      {/* Chat history container */}
-      <div className="chat-container" ref={chatContainerRef}>
-        {conversation.length > 0 ? (
-          conversation.map((message, index) => (
-            <div key={index} className={`chat-message ${message.role}`}>
-              <div className="chat-bubble">
-                <strong>{message.role === 'user' ? 'You' : 'Jarvis'}:</strong>
-                <p>{message.content}</p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="chat-empty">
-            <p>Your conversation with Jarvis will appear here</p>
-          </div>
-        )}
-      </div>
-
-      {error && (
-        <div className="error">
-          <p>{error}</p>
-        </div>
-      )}
-
-      <audio ref={audioRef} style={{ display: 'none' }} controls />
+  <div class="visualizer">
+    <div class={`circle ${isListening ? 'listening' : ''}`}>
+      <div class="innerCircle"></div>
     </div>
+  </div>
+
+  <div class="status">
+    {isListening ? 'Voice Input Active' : processingChunks ? 'Processing Response' : isReady ? 'Say "Jarvis" to activate' : 'Analyzing...'}
+  </div>
+
+  {/* Debug transcript display - only shown when not processing */}
+  {browserTranscript && isReady && (
+    <div class="transcript">
+      <h3>Audio Recognition:</h3>
+      <p>{browserTranscript}</p>
+    </div>
+  )}
+  
+  {/* Chat history container */}
+  <div class="chat-container" ref={chatContainerRef}>
+    {conversation.length > 0 ? (
+      conversation.map((message, index) => (
+        <div key={index} class={`chat-message ${message.role}`}>
+          <div class="chat-bubble">
+            <strong>{message.role === 'user' ? 'U.S.E.R' : 'J.A.R.V.I.S.'}</strong>
+            <p>{message.content}</p>
+          </div>
+        </div>
+      ))
+    ) : (
+      <div class="chat-empty">
+        <p>Communication logs will appear here, sir</p>
+      </div>
+    )}
+  </div>
+
+  {error && (
+    <div class="error">
+      <p>{error}</p>
+    </div>
+  )}
+
+  <audio ref={audioRef} style={{ display: 'none' }} controls />
+</div>
   );
 };
 

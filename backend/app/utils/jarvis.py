@@ -13,7 +13,7 @@ import google.generativeai as genai
 
 # Load models once
 genai.configure(api_key=settings.GEMINI_API_KEY)
-GEMINI_MODEL = genai.GenerativeModel("gemini-1.5-pro")
+GEMINI_MODEL = genai.GenerativeModel("gemini-1.5-pro-latest")
 WHISPER_MODEL = whisper.load_model("small")  # Use "base" if you have enough RAM
 
 class JarvisAI:
