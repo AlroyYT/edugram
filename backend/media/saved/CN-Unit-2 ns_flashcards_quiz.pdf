@@ -1,0 +1,751 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 2248
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 16 Tf
+18.3999999999999986 TL
+0 g
+56.6929133858267775 785.1970866141732586 Td
+(Quiz Results) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 745.5120472440944468 Td
+(File: CN-Unit-2 ns_flashcards) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 725.6695275590550409 Td
+(Date: 08-05-2025) Tj
+ET
+BT
+/F1 14 Tf
+16.0999999999999979 TL
+0 g
+56.6929133858267775 685.9844881889763428 Td
+(Score: 1/10) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 646.2994488188976447 Td
+(Question 1: What is the primary responsibility of the Network Layer?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+85.0393700787401627 606.614409448818833 Td
+(A. Frame delivery between directly connected nodes) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 586.7718897637794271 Td
+(B. End-to-end packet delivery across multiple hops) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 566.9293700787401349 Td
+(C. Managing application-level communication) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 547.086850393700729 Td
+(D. Encrypting data for secure transmission) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 507.4018110236219741 Td
+(Explanation: The Network Layer handles logical addressing and routing, ensuring packets reach their) Tj
+T* (destination across potentially many networks.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 408.1892125984251152 Td
+(Question 2: Which network service offers guaranteed delivery order and consistent performance but requires) Tj
+T* (initial setup overhead?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 348.6616535433070112 Td
+(A. Datagram \(connectionless\)) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 328.8191338582676053 Td
+(B. Virtual Circuit \(connection-oriented\)) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 308.9766141732283131 Td
+(C. Best-effort delivery) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 289.1340944881889072 Td
+(D. Unreliable datagram) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 249.4490551181102092 Td
+(Explanation: Virtual circuits establish a dedicated path before data transfer, ensuring reliable and ordered) Tj
+T* (delivery, unlike datagrams.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 2600
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 3: What is the core principle of Dijkstra's algorithm?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. Finding the longest path between nodes) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(B. Determining the optimal network topology) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 705.8270078740157487 Td
+(C. Finding the shortest path between nodes) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(D. Calculating the bandwidth of a network connection) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: Dijkstra's algorithm iteratively calculates the shortest path from a source node to all other) Tj
+T* (reachable nodes in a network.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 547.086850393700729 Td
+(Question 4: How does link state routing address the 'count-to-infinity' problem?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 507.4018110236219741 Td
+(A. By using distance vectors) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 487.559291338582625 Td
+(B. By distributing the entire network topology) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 467.716771653543276 Td
+(C. By limiting hop counts) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(D. By ignoring failed links) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 408.1892125984251152 Td
+(Explanation: Each router having a complete network map allows independent shortest path calculations,) Tj
+T* (avoiding the slow convergence of distance vector routing.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 308.9766141732283131 Td
+(Question 5: Why is hierarchical routing beneficial in large networks?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 269.2915748031495013 Td
+(A. It increases routing table size) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 249.4490551181102092 Td
+(B. It simplifies network management) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 229.6065354330708033 Td
+(C. It improves scalability by reducing routing table size) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 209.7640157480313974 Td
+(D. It reduces network security) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 170.0789763779526993 Td
+(Explanation: Hierarchical routing summarizes routing information for large groups of routers, making tables) Tj
+T* (smaller and more manageable.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 2670
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 6: What is a key advantage of multi-destination routing over sending distinct packets for) Tj
+T* (broadcasting?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(A. Increased bandwidth consumption) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(B. Simpler implementation) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 685.9844881889763428 Td
+(C. Conserved bandwidth) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 666.1419685039369369 Td
+(D. Requires knowledge of all destinations) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: Multi-destination routing efficiently creates copies of the packet only when necessary, saving) Tj
+T* (bandwidth compared to sending individual packets.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 527.2443307086614368 Td
+(Question 7: How does Reverse Path Forwarding \(RPF\) prevent broadcast storms?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 487.559291338582625 Td
+(A. By amplifying broadcast signals) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 467.716771653543276 Td
+(B. By discarding packets received on the preferred path) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(C. By forwarding all received broadcast packets) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(D. By discarding packets not received on the preferred path) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Explanation: RPF checks if the broadcast packet arrived on the shortest path; if not, it's likely a duplicate and) Tj
+T* (discarded, preventing loops.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 289.1340944881889072 Td
+(Question 8: What is the primary advantage of using a spanning tree for broadcasting?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 249.4490551181102092 Td
+(A. Increases redundant transmissions) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 229.6065354330708033 Td
+(B. Creates network loops) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 209.7640157480313974 Td
+(C. Ensures each router receives the broadcast exactly once) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 189.9214960629919915 Td
+(D. Complicates network management) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 150.2364566929132934 Td
+(Explanation: Spanning trees create a loop-free path for broadcasts, maximizing efficiency and minimizing) Tj
+T* (redundant packets.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 10 0 R
+>>
+endobj
+10 0 obj
+<<
+/Length 1772
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 9: Which multicast routing method proactively forwards traffic to all interfaces until explicitly pruned?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. Sparse mode) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 725.6695275590550409 Td
+(B. Dense mode) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(C. Anycast mode) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(D. Unicast mode) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: Dense mode floods the network initially and relies on pruning to reduce unnecessary traffic,) Tj
+T* (unlike sparse mode's on-demand forwarding.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 547.086850393700729 Td
+(Question 10: How do core-based trees address the resource issues associated with pruning in multicast) Tj
+T* (routing?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 487.559291338582625 Td
+(A. By increasing the number of trees per router) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 467.716771653543276 Td
+(B. By using a central core router for each multicast group) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(C. By disabling pruning altogether) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+1. 0. 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(D. By increasing multicast traffic) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Explanation: Core-based trees simplify multicast management and reduce router resource requirements by) Tj
+T* (creating a shared tree rooted at a core router.) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R 9 0 R ]
+/Count 4
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+23 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+24 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 11 0 R
+/F2 12 0 R
+/F3 13 0 R
+/F4 14 0 R
+/F5 15 0 R
+/F6 16 0 R
+/F7 17 0 R
+/F8 18 0 R
+/F9 19 0 R
+/F10 20 0 R
+/F11 21 0 R
+/F12 22 0 R
+/F13 23 0 R
+/F14 24 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+25 0 obj
+<<
+/Producer (jsPDF 3.0.1)
+/CreationDate (D:20250508125338+05'30')
+>>
+endobj
+26 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 27
+0000000000 65535 f 
+0000010063 00000 n 
+0000011903 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000002452 00000 n 
+0000002589 00000 n 
+0000005241 00000 n 
+0000005378 00000 n 
+0000008100 00000 n 
+0000008238 00000 n 
+0000010138 00000 n 
+0000010264 00000 n 
+0000010395 00000 n 
+0000010529 00000 n 
+0000010667 00000 n 
+0000010791 00000 n 
+0000010920 00000 n 
+0000011052 00000 n 
+0000011188 00000 n 
+0000011316 00000 n 
+0000011443 00000 n 
+0000011572 00000 n 
+0000011705 00000 n 
+0000011807 00000 n 
+0000012156 00000 n 
+0000012242 00000 n 
+trailer
+<<
+/Size 27
+/Root 26 0 R
+/Info 25 0 R
+/ID [ <1379DF532E19B68B5C9233CFC1B187E1> <1379DF532E19B68B5C9233CFC1B187E1> ]
+>>
+startxref
+12346
+%%EOF
