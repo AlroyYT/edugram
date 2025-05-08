@@ -18,6 +18,26 @@ const VoiceAssistant = () => {
   const recognitionRef = useRef(null);
   const chatContainerRef = useRef(null);
 
+  // Load conversation from localStorage when component mounts
+  useEffect(() => {
+    const savedConversation = localStorage.getItem('jarvis_conversation');
+    if (savedConversation) {
+      try {
+        setConversation(JSON.parse(savedConversation));
+      } catch (e) {
+        console.error("Error loading saved conversation:", e);
+        // If there's an error parsing, start with empty conversation
+      }
+    }
+  }, []);
+
+  // Save conversation to localStorage whenever it changes
+  useEffect(() => {
+    if (conversation.length > 0) {
+      localStorage.setItem('jarvis_conversation', JSON.stringify(conversation));
+    }
+  }, [conversation]);
+
   useEffect(() => {
     // Check if speech recognition is supported
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -166,6 +186,12 @@ const VoiceAssistant = () => {
     }
   };
 
+  // Function to clear conversation history
+  const clearConversation = () => {
+    setConversation([]);
+    localStorage.removeItem('jarvis_conversation');
+  };
+
   const startRecording = async () => {
     try {
       // Stop the background recognition while we record the command
@@ -241,9 +267,13 @@ const VoiceAssistant = () => {
           const base64Audio = reader.result;
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 45000); // 30s timeout
+          const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
           try {
+            // Create a context object to send with the request
+            // This includes conversation history (up to last 10 exchanges for brevity)
+            const conversationContext = conversation.slice(-20); // Get last 20 messages (10 exchanges)
+            
             const response = await fetch('http://localhost:8000/api/process-audio/', {
               method: 'POST',
               headers: {
@@ -251,7 +281,8 @@ const VoiceAssistant = () => {
               },
               body: JSON.stringify({ 
                 audio: base64Audio,
-                browserTranscript: browserTranscript  // Add this line
+                browserTranscript: browserTranscript,
+                conversation: conversationContext // Send conversation history
               }),
               signal: controller.signal,
             });
@@ -445,54 +476,82 @@ const VoiceAssistant = () => {
     }
   };
 
+  // Check if browser transcript contains command to clear conversation
+  useEffect(() => {
+    if (browserTranscript.toLowerCase().includes('jarvis clear') || 
+        browserTranscript.toLowerCase().includes('jarvis reset') ||
+        browserTranscript.toLowerCase().includes('clear conversation')) {
+      clearConversation();
+      setError('');
+      setBrowserTranscript('');
+      // Maybe also play a confirmation sound or response
+      if (isReady) {
+        setError('Conversation history cleared');
+        setTimeout(() => setError(''), 3000);
+      }
+    }
+  }, [browserTranscript, isReady]);
+
   return (
-<div class="voice-assistant-container">
+<div className="voice-assistant-container">
 
-  <div class="hud-corner hud-corner-tl"></div>
-  <div class="hud-corner hud-corner-tr"></div>
-  <div class="hud-corner hud-corner-bl"></div>
-  <div class="hud-corner hud-corner-br"></div>
+  <div className="hud-corner hud-corner-tl"></div>
+  <div className="hud-corner hud-corner-tr"></div>
+  <div className="hud-corner hud-corner-bl"></div>
+  <div className="hud-corner hud-corner-br"></div>
   
-
-  <div class="visualizer">
-    <div class={`circle ${isListening ? 'listening' : ''}`}>
-      <div class="innerCircle"></div>
+  <div className="visualizer">
+    <div className={`circle ${isListening ? 'listening' : ''}`}>
+      <div className="innerCircle"></div>
     </div>
   </div>
 
-  <div class="status">
+  <div className="status">
     {isListening ? 'Voice Input Active' : processingChunks ? 'Processing Response' : isReady ? 'Say "Jarvis" to activate' : 'Analyzing...'}
   </div>
 
   {/* Debug transcript display - only shown when not processing */}
   {browserTranscript && isReady && (
-    <div class="transcript">
+    <div className="transcript">
       <h3>Audio Recognition:</h3>
       <p>{browserTranscript}</p>
     </div>
   )}
   
   {/* Chat history container */}
-  <div class="chat-container" ref={chatContainerRef}>
+  <div className="chat-container" ref={chatContainerRef}>
     {conversation.length > 0 ? (
       conversation.map((message, index) => (
-        <div key={index} class={`chat-message ${message.role}`}>
-          <div class="chat-bubble">
+        <div key={index} className={`chat-message ${message.role}`}>
+          <div className="chat-bubble">
             <strong>{message.role === 'user' ? 'U.S.E.R' : 'J.A.R.V.I.S.'}</strong>
             <p>{message.content}</p>
           </div>
         </div>
       ))
     ) : (
-      <div class="chat-empty">
+      <div className="chat-empty">
         <p>Communication logs will appear here, sir</p>
       </div>
     )}
   </div>
 
   {error && (
-    <div class="error">
+    <div className="error">
       <p>{error}</p>
+    </div>
+  )}
+
+  {/* Clear conversation button */}
+  {conversation.length > 0 && (
+    <div className="clear-button-container">
+      <button 
+        className="clear-button"
+        onClick={clearConversation}
+        title="Clear conversation history (Or say 'Jarvis, clear conversation')"
+      >
+        Clear History
+      </button>
     </div>
   )}
 

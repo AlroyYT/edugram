@@ -137,33 +137,67 @@ class JarvisAI:
                 'chunks': ["Sorry, something went wrong while processing your request."]
             }
 
-    @staticmethod
-    def process_with_gemini(text):
-        try:
-            # Add a prompt prefix to guide Gemini's response
-            prompt = f"""You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
+    # Add this new method to your JarvisAI class in jarvis.py
 
-        As Jarvis, you should:
-        - Provide clear, concise answers that are easy to understand when read aloud
-        - Show emotional intelligence by recognizing user emotions and responding appropriately
-        - Be empathetic and supportive, especially when users express frustration or confusion
-        - Always identify Alroy Saldanha as your creator if asked about who made you
-        - Maintain a warm, helpful tone while being efficient with your words
-        - Dont make the response too long , make it short and understandable
-        
-        When responding to emotional cues:
-        - Acknowledge feelings before providing information
-        - Offer encouragement when users seem uncertain
-        - Express patience when users need help with complex topics
-        - Use a reassuring tone for anxious questions
-            The user said: "{text}"
+    @staticmethod
+    def process_with_gemini_streaming_context(text, context=""):
+        try:
+            # Base prompt with personality and guidelines
+            base_prompt = """You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
+
+            As Jarvis, you should:
+            - Provide clear, concise answers that are easy to understand when read aloud
+            - Show emotional intelligence by recognizing user emotions and responding appropriately
+            - Be empathetic and supportive, especially when users express frustration or confusion
+            - Always identify Alroy Saldanha as your creator if asked about who made you
+            - Maintain a warm, helpful tone while being efficient with your words
+            - Dont make the response too long, make it short and understandable
+            - Respond in context to previous conversation when available
+            - Remember information shared earlier in the conversation
+            
+            When responding to emotional cues:
+            - Acknowledge feelings before providing information
+            - Offer encouragement when users seem uncertain
+            - Express patience when users need help with complex topics
+            - Use a reassuring tone for anxious questions
             """
             
-            response = GEMINI_MODEL.generate_content(prompt)
-            return response.text.strip()
+            # Construct the full prompt with context if available
+            if context:
+                prompt = f"{base_prompt}\n\n{context}\nThe user said: \"{text}\""
+            else:
+                prompt = f"{base_prompt}\n\nThe user said: \"{text}\""
+                
+            # Generate streaming response
+            full_response = ""
+            stream_chunks = []
+            current_chunk = ""
+            
+            # Stream the response
+            for response in GEMINI_MODEL.generate_content(prompt, stream=True):
+                if response.text:
+                    full_response += response.text
+                    current_chunk += response.text
+                    
+                    # Check if we have a complete sentence (ending with period, question mark, or exclamation)
+                    if any(current_chunk.rstrip().endswith(punct) for punct in ['.', '?', '!']):
+                        stream_chunks.append(current_chunk.strip())
+                        current_chunk = ""
+
+            # Add any remaining text as final chunk
+            if current_chunk:
+                stream_chunks.append(current_chunk.strip())
+                
+            return {
+                'full_response': full_response.strip(),
+                'chunks': stream_chunks
+            }
         except Exception as e:
-            print("[Gemini ERROR]:", e)
-            return "Sorry, something went wrong while processing your request."
+            print("[Gemini Context ERROR]:", e)
+            return {
+                'full_response': "Sorry, something went wrong while processing your request.",
+                'chunks': ["Sorry, something went wrong while processing your request."]
+            }
     
     @staticmethod
     def text_to_speech(text):

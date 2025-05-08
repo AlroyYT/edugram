@@ -368,6 +368,7 @@ def process_audio(request):
         body = json.loads(request.body)
         base64_audio = body.get("audio")
         browser_transcript = body.get("browserTranscript", "")  # Get browser transcript
+        conversation_history = body.get("conversation", [])  # Get conversation history
         
         if not base64_audio:
             return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
@@ -384,8 +385,19 @@ def process_audio(request):
                 "message": "Could not understand audio."
             }, status=200)
         
-        # Get streaming response from Gemini
-        response_data = JarvisAI.process_with_gemini_streaming(text)
+        # Prepare context from conversation history for more contextual responses
+        context = ""
+        if conversation_history:
+            # Format the conversation history for inclusion in the prompt
+            # Limit to last 5-10 exchanges to keep context manageable
+            context = "Here's our conversation history so far:\n"
+            for msg in conversation_history[-10:]:  # last 10 messages (5 exchanges)
+                role = "User" if msg["role"] == "user" else "Jarvis"
+                context += f"{role}: {msg['content']}\n"
+            context += "\nNow, respond to the user's latest query:\n"
+        
+        # Get streaming response from Gemini with conversation context
+        response_data = JarvisAI.process_with_gemini_streaming_context(text, context)
         full_response = response_data['full_response']
         chunks = response_data['chunks']
         
@@ -421,7 +433,6 @@ def process_audio(request):
             "status": "fail",
             "message": f"Server error: {str(e)}"
         }, status=500)
-
 def choose_better_transcript(whisper_text, browser_text):
     """Choose the better transcript based on some heuristics."""
     if not whisper_text and not browser_text:
