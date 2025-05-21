@@ -1,0 +1,250 @@
+Received POST request to animation_view
+Received text: afternoon
+Error in animation_view: 
+**********************************************************************
+  Resource [93mpunkt_tab[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('punkt_tab')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mtokenizers/punkt_tab/english/[0m
+
+  Searched in:
+    - 'C:\\Users\\anike/nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\share\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\lib\\nltk_data'
+    - 'C:\\Users\\anike\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+
+Received POST request to animation_view
+Received text: age
+Error in animation_view: 
+**********************************************************************
+  Resource [93mpunkt_tab[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('punkt_tab')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mtokenizers/punkt_tab/english/[0m
+
+  Searched in:
+    - 'C:\\Users\\anike/nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\share\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\lib\\nltk_data'
+    - 'C:\\Users\\anike\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+
+Received POST request to animation_view
+Received text: age
+Error in animation_view: 
+**********************************************************************
+  Resource [93mpunkt_tab[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('punkt_tab')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mtokenizers/punkt_tab/english/[0m
+
+  Searched in:
+    - 'C:\\Users\\anike/nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\share\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\lib\\nltk_data'
+    - 'C:\\Users\\anike\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+
+Received POST request to animation_view
+Received text: afternoon
+Error in animation_view: 
+**********************************************************************
+  Resource [93mpunkt_tab[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('punkt_tab')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mtokenizers/punkt_tab/english/[0m
+
+  Searched in:
+    - 'C:\\Users\\anike/nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\share\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\lib\\nltk_data'
+    - 'C:\\Users\\anike\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+
+Received POST request to animation_view
+Received text: afternoon
+Error in animation_view: 
+**********************************************************************
+  Resource [93maveraged_perceptron_tagger_eng[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('averaged_perceptron_tagger_eng')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mtaggers/averaged_perceptron_tagger_eng/[0m
+
+  Searched in:
+    - 'C:\\Users\\anike/nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\share\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\lib\\nltk_data'
+    - 'C:\\Users\\anike\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+
+Received POST request to animation_view
+Received text: afternoon
+Error in animation_view: 
+**********************************************************************
+  Resource [93maveraged_perceptron_tagger_eng[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('averaged_perceptron_tagger_eng')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mtaggers/averaged_perceptron_tagger_eng/[0m
+
+  Searched in:
+    - 'C:\\Users\\anike/nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\share\\nltk_data'
+    - 'D:\\main_el\\edugram\\backend\\p9\\lib\\nltk_data'
+    - 'C:\\Users\\anike\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+
+Received POST request to animation_view
+Received text: afternoon
+Tokenized words: ['afternoon']
+Looking for animations for word 'afternoon': MP4=None, WebP=None
+Received POST request to animation_view
+Received text: all
+Tokenized words: ['all']
+Looking for animations for word 'all': MP4=None, WebP=None
+Received POST request to animation_view
+Received text: all
+Tokenized words: ['all']
+Looking for animations for word 'all': MP4=None, WebP=D:\main_el\new\edugram\backend\static\animations\webp\all.webp
+Received POST request to animation_view
+Received text: afternoon
+
+Tokenized words: ['afternoon']
+Looking for animations for word 'afternoon': MP4=None, WebP=D:\main_el\new\edugram\backend\static\animations\webp\afternoon.webp
+Received POST request to animation_view
+Received text: age
+Tokenized words: ['age']
+Looking for animations for word 'age': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\age.mp4, WebP=None
+Received POST request to animation_view
+Received text: hi how are you
+Tokenized words: ['hi', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=None, WebP=None
+Looking for animations for word 'you': MP4=None, WebP=None
+Received POST request to animation_view
+Received text: hi how are you
+Tokenized words: ['hi', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received POST request to animation_view
+Received text: hi how are you
+Tokenized words: ['hi', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received POST request to animation_view
+Received text: afternoon age
+
+Tokenized words: ['afternoon', 'age']
+Looking for animations for word 'afternoon': MP4=None, WebP=D:\main_el\new\edugram\backend\static\animations\webp\afternoon.webp
+Looking for animations for word 'age': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\age.mp4, WebP=None
+Received POST request to animation_view
+Received text: afternoon Age
+
+Tokenized words: ['afternoon', 'age']
+Looking for animations for word 'afternoon': MP4=None, WebP=D:\main_el\new\edugram\backend\static\animations\webp\afternoon.webp
+Looking for animations for word 'age': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\age.mp4, WebP=None
+Received POST request to animation_view
+Received text: afternoon Age
+
+Tokenized words: ['afternoon', 'age']
+Looking for animations for word 'afternoon': MP4=None, WebP=D:\main_el\new\edugram\backend\static\animations\webp\afternoon.webp
+Looking for animations for word 'age': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\age.mp4, WebP=None
+Received POST request to animation_view
+Received text: Age afternoon 
+Tokenized words: ['age', 'afternoon']
+Looking for animations for word 'age': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\age.mp4, WebP=None
+Looking for animations for word 'afternoon': MP4=None, WebP=D:\main_el\new\edugram\backend\static\animations\webp\afternoon.webp
+Received POST request to animation_view
+Received text: hi guys how are you
+
+Tokenized words: ['hi', 'guys', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'guy': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received POST request to animation_view
+Received text: hi guys how are you
+Tokenized words: ['hi', 'guys', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'guy': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received POST request to animation_view
+Received text: hi guys how are you
+Tokenized words: ['hi', 'guys', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received POST request to animation_view
+Received text: hi how are you
+Tokenized words: ['hi', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received POST request to animation_view
+Received text: hi how are you
+Tokenized words: ['hi', 'how', 'are', 'you']
+Looking for animations for word 'hi': MP4=None, WebP=None
+Looking for animations for word 'how': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\how.mp4, WebP=None
+Looking for animations for word 'you': MP4=D:\main_el\new\edugram\backend\static\animations\mp4\you.mp4, WebP=None
+Received request: <QueryDict: {'file': [<InMemoryUploadedFile: paper_2.pdf (application/pdf)>]}>
+Received files: <MultiValueDict: {'file': [<InMemoryUploadedFile: paper_2.pdf (application/pdf)>]}>
+Received POST request to animation_view
+Received text: joke
+Tokenized words: ['joke']
