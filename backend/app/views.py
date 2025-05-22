@@ -358,6 +358,8 @@ def get_video_path(topic):
     return video_path if os.path.exists(video_path) else None
 
     
+
+
 @csrf_exempt
 def process_audio(request):
     if request.method != 'POST':
@@ -385,6 +387,20 @@ def process_audio(request):
                 "message": "Could not understand audio."
             }, status=200)
         
+        # Check if the user is asking for news
+        is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
+        
+        # Fetch news if it's a news query
+        news_data = None
+        if is_news_query:
+            print(f"Detected news query. Category: {category}, Search term: {search_term}")
+            news_data = JarvisAI.fetch_latest_news(
+                query=search_term,
+                category=category,
+                count=5  # Limit to 5 news items for concise responses
+            )
+            print(f"Fetched news data: {news_data['status'] if news_data else 'None'}, Articles: {len(news_data.get('articles', [])) if news_data else 0}")
+        
         # Prepare context from conversation history for more contextual responses
         context = ""
         if conversation_history:
@@ -396,8 +412,8 @@ def process_audio(request):
                 context += f"{role}: {msg['content']}\n"
             context += "\nNow, respond to the user's latest query:\n"
         
-        # Get streaming response from Gemini with conversation context
-        response_data = JarvisAI.process_with_gemini_streaming_context(text, context)
+        # Get streaming response from Gemini with conversation context and news data
+        response_data = JarvisAI.process_with_gemini_streaming_context(text, context, news_data)
         full_response = response_data['full_response']
         chunks = response_data['chunks']
         
@@ -413,6 +429,14 @@ def process_audio(request):
                 chunk_voice = JarvisAI.text_to_speech(chunks[i])
                 chunks_voice.append(chunk_voice)
         
+        # Prepare news info for the response
+        news_info = None
+        if news_data and news_data.get("status") == "success":
+            news_info = {
+                "count": news_data.get("count", 0),
+                "timestamp": news_data.get("timestamp")
+            }
+        
         # Return all data to frontend
         return JsonResponse({
             "status": "success",
@@ -422,7 +446,9 @@ def process_audio(request):
             "response": full_response,
             "voice_response": first_chunk_voice,
             "additional_chunks": chunks_voice,
-            "streaming": True
+            "streaming": True,
+            "news_queried": is_news_query,
+            "news_info": news_info
         })
     
     except Exception as e:
@@ -433,6 +459,7 @@ def process_audio(request):
             "status": "fail",
             "message": f"Server error: {str(e)}"
         }, status=500)
+
 def choose_better_transcript(whisper_text, browser_text):
     """Choose the better transcript based on some heuristics."""
     if not whisper_text and not browser_text:
@@ -455,9 +482,14 @@ def choose_better_transcript(whisper_text, browser_text):
         if term in browser_text.lower() and term not in whisper_text.lower():
             return browser_text
     
+    # Check for news-related terms
+    news_terms = ["news", "headlines", "latest", "update", "current", "events", "world", "business"]
+    for term in news_terms:
+        if term in browser_text.lower() and term not in whisper_text.lower():
+            return browser_text
+    
     # Default to whisper_text which is likely more accurate for general speech
     return whisper_text
-
 
 @api_view(['GET'])
 def get_saved_materials(request):

@@ -8,6 +8,11 @@ from gtts import gTTS
 import whisper
 import time
 import torch  # Add torch import
+import requests
+from bs4 import BeautifulSoup
+import json
+from datetime import datetime
+import traceback  # Added for better error logging
 
 from django.conf import settings
 import google.generativeai as genai
@@ -84,6 +89,214 @@ class JarvisAI:
                         print(f"Error removing temp file {path}: {e}")
     
     @staticmethod
+    def fetch_latest_news(query=None, category=None, count=5):
+        """
+        Fetch the latest news from various sources using BeautifulSoup.
+        
+        Args:
+            query (str, optional): Search term for specific news
+            category (str, optional): News category (world, business, technology, etc.)
+            count (int, optional): Number of news items to return
+            
+        Returns:
+            dict: JSON response with news articles
+        """
+        try:
+            news_sources = []
+            print(f"Fetching news with query: {query}, category: {category}")
+            
+            # Mapping of category keywords to actual URL paths
+            category_mapping = {
+                "world": "world",
+                "business": "business",
+                "technology": "technology",
+                "science": "science_and_environment",
+                "health": "health",
+                "sports": "sport",
+                "entertainment": "entertainment_and_arts",
+                "politics": "politics"
+            }
+            
+            # Normalize category if present
+            bbc_category = None
+            if category and category in category_mapping:
+                bbc_category = category_mapping[category]
+            
+            # Try multiple news sources for better coverage
+            
+            # Fetch from BBC News
+            try:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                
+                bbc_url = "https://www.bbc.com/news"
+                if bbc_category:
+                    bbc_url = f"https://www.bbc.com/news/{bbc_category}"
+                
+                print(f"Fetching from BBC: {bbc_url}")
+                response = requests.get(bbc_url, headers=headers, timeout=15)
+                
+                if response.status_code == 200:
+                    print("BBC News request successful")
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # BBC News structure - look for headlines
+                    headlines = soup.find_all(['h3'])
+                    
+                    for headline in headlines[:count*2]:  # Get more than needed as some might be filtered out
+                        if len(news_sources) >= count:
+                            break
+                            
+                        # Skip navigation elements and other non-news headlines
+                        parent = headline.parent
+                        if parent and ('nav' in str(parent.get('class', [])) or headline.text.strip() in ['BBC World News TV', 'BBC World Service Radio']):
+                            continue
+                            
+                        title = headline.text.strip()
+                        
+                        # If searching for specific terms, filter headlines
+                        if query and query.lower() not in title.lower():
+                            continue
+                            
+                        if title and len(title) > 15:  # Avoid short menu items
+                            news_sources.append({
+                                "title": title,
+                                "source": "BBC News",
+                                "time": datetime.now().strftime("%Y-%m-%d"),
+                                "category": category or "general"
+                            })
+            except Exception as e:
+                print(f"[BBC News ERROR]: {e}")
+                traceback.print_exc()
+            
+            # Try CNN as another source
+            try:
+                cnn_url = "https://www.cnn.com"
+                if category:
+                    # Map category to CNN section
+                    cnn_categories = {
+                        "world": "world",
+                        "business": "business",
+                        "technology": "tech",
+                        "health": "health",
+                        "sports": "sports",
+                        "entertainment": "entertainment",
+                        "politics": "politics"
+                    }
+                    if category in cnn_categories:
+                        cnn_url = f"https://www.cnn.com/{cnn_categories[category]}"
+                
+                print(f"Fetching from CNN: {cnn_url}")
+                response = requests.get(cnn_url, headers=headers, timeout=15)
+                
+                if response.status_code == 200:
+                    print("CNN request successful")
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # CNN structure - headlines in various elements with headings
+                    headlines = soup.find_all(['h3', 'h2'])
+                    
+                    for headline in headlines[:count*2]:
+                        if len(news_sources) >= count:
+                            break
+                            
+                        title = headline.text.strip()
+                        
+                        # Filter out navigation and other non-news elements
+                        if len(title) < 15 or title.startswith('Section') or title in ['Watch', 'Live TV']:
+                            continue
+                            
+                        # Filter by query if specified
+                        if query and query.lower() not in title.lower():
+                            continue
+                            
+                        # Avoid duplicates
+                        if not any(item['title'] == title for item in news_sources):
+                            news_sources.append({
+                                "title": title,
+                                "source": "CNN",
+                                "time": datetime.now().strftime("%Y-%m-%d"),
+                                "category": category or "general"
+                            })
+            except Exception as e:
+                print(f"[CNN ERROR]: {e}")
+            
+            # If we still don't have enough news, try The Guardian
+            if len(news_sources) < count:
+                try:
+                    guardian_url = "https://www.theguardian.com/international"
+                    if category:
+                        # Map category to Guardian section
+                        guardian_categories = {
+                            "world": "world",
+                            "business": "business",
+                            "technology": "technology",
+                            "science": "science",
+                            "health": "society/health",
+                            "sports": "sport",
+                            "entertainment": "culture",
+                            "politics": "politics"
+                        }
+                        if category in guardian_categories:
+                            guardian_url = f"https://www.theguardian.com/{guardian_categories[category]}"
+                    
+                    print(f"Fetching from Guardian: {guardian_url}")
+                    response = requests.get(guardian_url, headers=headers, timeout=15)
+                    
+                    if response.status_code == 200:
+                        print("Guardian request successful")
+                        soup = BeautifulSoup(response.text, 'html.parser')
+                        
+                        # Guardian structure - headlines in various elements
+                        headlines = soup.find_all(['h3'])
+                        
+                        for headline in headlines[:count*2]:
+                            if len(news_sources) >= count:
+                                break
+                                
+                            title = headline.text.strip()
+                            
+                            # Filter out navigation and other non-news elements
+                            if len(title) < 20:
+                                continue
+                                
+                            # Filter by query if specified
+                            if query and query.lower() not in title.lower():
+                                continue
+                                
+                            # Avoid duplicates
+                            if not any(item['title'] == title for item in news_sources):
+                                news_sources.append({
+                                    "title": title,
+                                    "source": "The Guardian",
+                                    "time": datetime.now().strftime("%Y-%m-%d"),
+                                    "category": category or "general"
+                                })
+                except Exception as e:
+                    print(f"[Guardian ERROR]: {e}")
+            
+            print(f"Successfully fetched {len(news_sources)} news items")
+            
+            # Return the combined news
+            return {
+                "status": "success" if news_sources else "no_results",
+                "timestamp": datetime.now().isoformat(),
+                "count": len(news_sources),
+                "articles": news_sources[:count]
+            }
+            
+        except Exception as e:
+            print("[News Fetching ERROR]:", e)
+            import traceback
+            traceback.print_exc()
+            return {
+                "status": "error",
+                "message": f"Failed to fetch news: {str(e)}",
+                "articles": []
+            }
+    
+    @staticmethod
     def process_with_gemini_streaming(text):
         try:
             # Add a prompt prefix to guide Gemini's response
@@ -137,11 +350,71 @@ class JarvisAI:
                 'chunks': ["Sorry, something went wrong while processing your request."]
             }
 
-    # Add this new method to your JarvisAI class in jarvis.py
-
     @staticmethod
-    def process_with_gemini_streaming_context(text, context=""):
+    def process_with_gemini_streaming_context(text, context="", news_data=None):
         try:
+            # Check if this is a news query and we have news data
+            is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
+            
+            # If this is a news request and we have news data, create a direct response
+            if is_news_query and news_data and news_data.get("status") == "success" and news_data.get("articles"):
+                # Create a direct news response without using Gemini for this part
+                articles = news_data.get("articles", [])
+                
+                if not articles:
+                    intro = "I searched for the latest news, but couldn't find any relevant articles right now."
+                else:
+                    # Create appropriate introduction based on query
+                    if search_term:
+                        intro = f"Here are the latest news stories about {search_term}:"
+                    elif category:
+                        intro = f"Here are the latest {category} news stories:"
+                    else:
+                        intro = "Here are the latest news headlines:"
+                
+                # Format news as a complete response
+                full_response = intro
+                for i, article in enumerate(articles[:5]):  # Limit to 5 articles
+                    full_response += f"\n\n{i+1}. {article['title']}"
+                    if article['source']:
+                        full_response += f" - {article['source']}"
+                    if article['time']:
+                        full_response += f" ({article['time']})"
+                
+                # Add a closing statement
+                if articles:
+                    full_response += "\n\nThese are the most recent headlines I could find. Would you like me to read out more details on any specific story?"
+                
+                # Split response into chunks for streaming
+                chunks = []
+                current_chunk = intro
+                
+                # Process article lines into chunks
+                for i, article in enumerate(articles[:5]):
+                    article_text = f"\n\n{i+1}. {article['title']}"
+                    if article['source']:
+                        article_text += f" - {article['source']}"
+                    if article['time']:
+                        article_text += f" ({article['time']})"
+                    
+                    # If adding this article would make the chunk too long, start a new chunk
+                    if len(current_chunk) + len(article_text) > 150:  # Adjust size as needed
+                        chunks.append(current_chunk)
+                        current_chunk = article_text
+                    else:
+                        current_chunk += article_text
+                
+                # Add the last chunk with the closing statement
+                if articles:
+                    current_chunk += "\n\nThese are the most recent headlines I could find. Would you like me to read out more details on any specific story?"
+                chunks.append(current_chunk)
+                
+                return {
+                    'full_response': full_response.strip(),
+                    'chunks': chunks
+                }
+            
+            # For non-news queries or if news fetching failed, use Gemini as usual
             # Base prompt with personality and guidelines
             base_prompt = """You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
 
@@ -154,6 +427,7 @@ class JarvisAI:
             - Dont make the response too long, make it short and understandable
             - Respond in context to previous conversation when available
             - Remember information shared earlier in the conversation
+            - When asked about current news or events, acknowledge that you don't have real-time data but mention we can fetch the latest news headlines on request
             
             When responding to emotional cues:
             - Acknowledge feelings before providing information
@@ -226,3 +500,59 @@ class JarvisAI:
         except Exception as e:
             print("[gTTS ERROR]:", e)
             return None
+            
+    @staticmethod
+    def detect_news_intent(text):
+        """
+        Detect if the user is asking for news
+        
+        Args:
+            text (str): User query text
+            
+        Returns:
+            tuple: (is_news_query, category, search_term)
+        """
+        text = text.lower()
+        
+        # Keywords that indicate news intent
+        news_keywords = ["news", "headlines", "latest", "update", "current events", 
+                         "what's happening", "whats going on", "current affairs"]
+        
+        # News categories
+        categories = {
+            "world": ["world", "international", "global"],
+            "business": ["business", "economy", "financial", "finance", "market", "stocks"],
+            "technology": ["tech", "technology", "digital", "computers", "software"],
+            "science": ["science", "scientific", "research"],
+            "health": ["health", "healthcare", "medical", "medicine", "covid", "pandemic"],
+            "sports": ["sports", "sport", "football", "cricket", "tennis", "basketball"],
+            "entertainment": ["entertainment", "celebrity", "film", "movie", "cinema", "hollywood"],
+            "politics": ["politics", "political", "government", "election"]
+        }
+        
+        # Check if it's a news query
+        is_news_query = any(keyword in text for keyword in news_keywords)
+        
+        # Determine category
+        category = None
+        for cat, keywords in categories.items():
+            if any(keyword in text for keyword in keywords):
+                category = cat
+                break
+        
+        # Extract search term if any
+        search_term = None
+        search_indicators = ["about", "on", "regarding", "related to", "search for", "find"]
+        
+        for indicator in search_indicators:
+            if indicator in text:
+                parts = text.split(indicator, 1)
+                if len(parts) > 1 and parts[1].strip():
+                    search_term = parts[1].strip()
+                    # Remove any trailing phrases like "news"
+                    for keyword in news_keywords:
+                        if search_term.endswith(keyword):
+                            search_term = search_term.rsplit(keyword, 1)[0].strip()
+                    break
+        
+        return (is_news_query, category, search_term)

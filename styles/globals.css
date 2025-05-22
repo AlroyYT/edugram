@@ -3397,22 +3397,16 @@
     position: relative;
     overflow: hidden;
     
-    /* Advanced Stark Tech background */
-    background: radial-gradient(circle at center, #101a25 0%, #0a0f14 100%), #121212;
+    /* Deep space-inspired background with rich blue tones */
+    background: linear-gradient(135deg, #0a1a2f 0%, #0d1420 50%, #060c14 100%);
     
-    /* Add tech hexagon pattern */
-    background-image: 
-      linear-gradient(to right, rgba(0, 175, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 175, 255, 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
+    /* No grid pattern as requested */
     
-    /* Add distant city lights effect */
-    box-shadow: inset 0 -150px 200px -50px rgba(0, 100, 200, 0.15);
+    /* Add subtle depth with inset shadow */
+    box-shadow: inset 0 0 150px rgba(0, 90, 255, 0.15);
   }
   
-  /* === BACKGROUND ANIMATIONS === */
-  
-  /* Tech circuit traces that glow and pulse */
+  /* Elegant glowing accent layer */
   .container1::before {
     content: '';
     position: absolute;
@@ -3420,18 +3414,16 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: 
-      linear-gradient(90deg, transparent 98%, rgba(0, 140, 255, 0.2) 98%),
-      linear-gradient(transparent 96%, rgba(0, 140, 255, 0.15) 96%),
-      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 140, 255, 0.05) 10px, rgba(0, 140, 255, 0.05) 12px);
-    background-size: 200px 200px, 150px 150px, 100px 100px;
-    opacity: 0.7;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(10, 50, 90, 0.4) 0%, transparent 35%),
+      radial-gradient(circle at 80% 80%, rgba(0, 40, 120, 0.3) 0%, transparent 35%);
     z-index: 0;
+    opacity: 0.8;
     pointer-events: none;
-    animation: circuitPulse 8s infinite alternate;
+    animation: accentPulse 15s infinite alternate;
   }
   
-  /* Digital HUD particles */
+  /* Advanced holographic elements */
   .container1::after {
     content: '';
     position: absolute;
@@ -3439,413 +3431,16 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(0, 200, 255, 0.07) 0%, transparent 20%),
-      radial-gradient(circle at 80% 20%, rgba(0, 150, 255, 0.05) 0%, transparent 20%),
-      radial-gradient(circle at 40% 80%, rgba(0, 100, 255, 0.07) 0%, transparent 20%),
-      radial-gradient(circle at 70% 60%, rgba(0, 180, 255, 0.05) 0%, transparent 20%);
-    filter: blur(1px);
-    animation: backgroundPulse 15s infinite alternate;
+    background: 
+      radial-gradient(ellipse at 30% 40%, rgba(0, 150, 255, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 60%, rgba(0, 200, 255, 0.04) 0%, transparent 50%);
+    filter: blur(2px);
     z-index: 0;
     pointer-events: none;
+    animation: holoPulse 12s infinite;
   }
   
-  /* Floating holographic elements */
-  .container1 .holo-elements {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  /* Create 5 floating circular elements */
-  .container1 .holo-circle {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(0, 200, 255, 0.3);
-    box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
-    opacity: 0;
-    pointer-events: none;
-    animation: appearDisappear 10s infinite;
-  }
-  
-  .container1 .holo-circle:nth-child(1) {
-    width: 80px;
-    height: 80px;
-    top: 15%;
-    left: 10%;
-    animation-delay: 0s;
-  }
-  
-  .container1 .holo-circle:nth-child(2) {
-    width: 120px;
-    height: 120px;
-    top: 25%;
-    right: 15%;
-    animation-delay: 2s;
-  }
-  
-  .container1 .holo-circle:nth-child(3) {
-    width: 60px;
-    height: 60px;
-    bottom: 20%;
-    left: 20%;
-    animation-delay: 4s;
-  }
-  
-  .container1 .holo-circle:nth-child(4) {
-    width: 100px;
-    height: 100px;
-    bottom: 30%;
-    right: 25%;
-    animation-delay: 6s;
-  }
-  
-  .container1 .holo-circle:nth-child(5) {
-    width: 40px;
-    height: 40px;
-    top: 40%;
-    left: 40%;
-    animation-delay: 8s;
-  }
-  
-  /* Floating data streams */
-  .container1 .data-stream {
-    position: absolute;
-    height: 150px;
-    width: 1px;
-    background: linear-gradient(to bottom, transparent, rgba(0, 200, 255, 0.5), transparent);
-    opacity: 0;
-    animation: dataFlow 8s infinite;
-  }
-  
-  .container1 .data-stream:nth-child(6) {
-    left: 20%;
-    top: -150px;
-    height: 150px;
-    animation-delay: 0s;
-  }
-  
-  .container1 .data-stream:nth-child(7) {
-    left: 40%;
-    top: -150px;
-    height: 120px;
-    animation-delay: 1s;
-  }
-  
-  .container1 .data-stream:nth-child(8) {
-    left: 60%;
-    top: -150px;
-    height: 180px;
-    animation-delay: 2s;
-  }
-  
-  .container1 .data-stream:nth-child(9) {
-    left: 80%;
-    top: -150px;
-    height: 100px;
-    animation-delay: 3s;
-  }
-  
-  /* Scanning radar effect */
-  .container1 .radar-scan {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: transparent;
-    transform: translate(-50%, -50%);
-    z-index: 0;
-    pointer-events: none;
-  }
-  
-  .container1 .radar-scan::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: conic-gradient(
-      rgba(0, 200, 255, 0.5),
-      rgba(0, 200, 255, 0.3),
-      rgba(0, 200, 255, 0.1),
-      transparent 30%,
-      transparent
-    );
-    animation: radarRotate 6s linear infinite;
-    opacity: 0.4;
-  }
-  
-  /* Random floating particles */
-  .container1 .particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 0;
-    pointer-events: none;
-  }
-  
-  /* Pre-defined particles instead of using SCSS loops */
-  .container1 .particle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background: rgba(0, 200, 255, 0.5);
-    border-radius: 50%;
-    opacity: 0;
-    animation: floatParticle 15s infinite;
-  }
-  
-  /* Create 20 particles with static positions */
-  .container1 .particle:nth-child(1) {
-    left: 10%;
-    top: 20%;
-    animation-delay: 0s;
-  }
-  
-  .container1 .particle:nth-child(2) {
-    left: 20%;
-    top: 40%;
-    animation-delay: 1s;
-  }
-  
-  .container1 .particle:nth-child(3) {
-    left: 30%;
-    top: 60%;
-    animation-delay: 2s;
-  }
-  
-  .container1 .particle:nth-child(4) {
-    left: 40%;
-    top: 80%;
-    animation-delay: 3s;
-  }
-  
-  .container1 .particle:nth-child(5) {
-    left: 50%;
-    top: 10%;
-    animation-delay: 4s;
-  }
-  
-  .container1 .particle:nth-child(6) {
-    left: 60%;
-    top: 30%;
-    animation-delay: 5s;
-  }
-  
-  .container1 .particle:nth-child(7) {
-    left: 70%;
-    top: 50%;
-    animation-delay: 6s;
-  }
-  
-  .container1 .particle:nth-child(8) {
-    left: 80%;
-    top: 70%;
-    animation-delay: 7s;
-  }
-  
-  .container1 .particle:nth-child(9) {
-    left: 90%;
-    top: 90%;
-    animation-delay: 8s;
-  }
-  
-  .container1 .particle:nth-child(10) {
-    left: 5%;
-    top: 95%;
-    animation-delay: 9s;
-  }
-  
-  .container1 .particle:nth-child(11) {
-    left: 15%;
-    top: 75%;
-    animation-delay: 10s;
-  }
-  
-  .container1 .particle:nth-child(12) {
-    left: 25%;
-    top: 55%;
-    animation-delay: 11s;
-  }
-  
-  .container1 .particle:nth-child(13) {
-    left: 35%;
-    top: 35%;
-    animation-delay: 12s;
-  }
-  
-  .container1 .particle:nth-child(14) {
-    left: 45%;
-    top: 15%;
-    animation-delay: 13s;
-  }
-  
-  .container1 .particle:nth-child(15) {
-    left: 55%;
-    top: 85%;
-    animation-delay: 14s;
-  }
-  
-  .container1 .particle:nth-child(16) {
-    left: 65%;
-    top: 65%;
-    animation-delay: 0.5s;
-  }
-  
-  .container1 .particle:nth-child(17) {
-    left: 75%;
-    top: 45%;
-    animation-delay: 1.5s;
-  }
-  
-  .container1 .particle:nth-child(18) {
-    left: 85%;
-    top: 25%;
-    animation-delay: 2.5s;
-  }
-  
-  .container1 .particle:nth-child(19) {
-    left: 95%;
-    top: 5%;
-    animation-delay: 3.5s;
-  }
-  
-  .container1 .particle:nth-child(20) {
-    left: 50%;
-    top: 50%;
-    animation-delay: 4.5s;
-  }
-  
-  /* Horizontal scanning lines */
-  .container1 .scan-line {
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(to right, 
-      transparent 0%, 
-      rgba(0, 200, 255, 0.1) 30%, 
-      rgba(0, 200, 255, 0.5) 50%, 
-      rgba(0, 200, 255, 0.1) 70%, 
-      transparent 100%);
-    animation: scanLine 8s linear infinite;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  /* === ANIMATION KEYFRAMES === */
-  
-  /* Circuit pulse animation */
-  @keyframes circuitPulse {
-    0%, 100% {
-      opacity: 0.5;
-      background-position: 0% 0%;
-    }
-    50% {
-      opacity: 0.8;
-      background-position: 10px 10px;
-    }
-  }
-  
-  /* Background pulse animation */
-  @keyframes backgroundPulse {
-    0%, 100% {
-      opacity: 0.7;
-      background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%;
-    }
-    25% {
-      opacity: 1;
-      background-position: 1% 1%, -1% 1%, 1% -1%, -1% -1%;
-    }
-    50% {
-      opacity: 0.8;
-      background-position: -1% -1%, 1% -1%, -1% 1%, 1% 1%;
-    }
-    75% {
-      opacity: 0.9;
-      background-position: 0% -2%, -2% 0%, 0% 2%, 2% 0%;
-    }
-  }
-  
-  /* Holographic elements appear/disappear */
-  @keyframes appearDisappear {
-    0%, 100% {
-      opacity: 0;
-      transform: scale(0.8) rotate(0deg);
-    }
-    30%, 70% {
-      opacity: 0.7;
-      transform: scale(1) rotate(10deg);
-    }
-  }
-  
-  /* Data stream animation */
-  @keyframes dataFlow {
-    0% {
-      opacity: 0;
-      transform: translateY(-100%);
-    }
-    20% {
-      opacity: 0.8;
-    }
-    80% {
-      opacity: 0.8;
-    }
-    100% {
-      opacity: 0;
-      transform: translateY(100vh);
-    }
-  }
-  
-  /* Radar rotation animation */
-  @keyframes radarRotate {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  
-  /* Particle floating animation */
-  @keyframes floatParticle {
-    0%, 100% {
-      opacity: 0;
-      transform: translateY(0) translateX(0);
-    }
-    25% {
-      opacity: 0.8;
-      transform: translateY(-20px) translateX(10px);
-    }
-    50% {
-      opacity: 0.6;
-      transform: translateY(-40px) translateX(-10px);
-    }
-    75% {
-      opacity: 0.4;
-      transform: translateY(-60px) translateX(5px);
-    }
-  }
-  
-  /* Scanning line animation */
-  @keyframes scanLine {
-    0% {
-      transform: translateY(-100%);
-    }
-    100% {
-      transform: translateY(100vh);
-    }
-  }
+  /* Floating orbs of energy */
   
   /* Text Styling */
   .title {
@@ -3955,7 +3550,7 @@
   }
   
   .voice-assistant-container {
-    width: 100%;
+    width: 130%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -4046,8 +3641,8 @@
   
   /* Arc Reactor Layers */
   .circle {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     background: transparent;
     display: flex;
