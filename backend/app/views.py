@@ -390,10 +390,14 @@ def process_audio(request):
         # Check if the user is asking for news
         is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
         
-        # Fetch news if it's a news query
+        # NEW: Check if the user needs real-time data
+        realtime_info = JarvisAI.detect_realtime_data_need(text)
+        print(f"Real-time data needed: {realtime_info}")
+        
+        # Fetch news if it's a news query OR if real-time data includes current affairs
         news_data = None
-        if is_news_query:
-            print(f"Detected news query. Category: {category}, Search term: {search_term}")
+        if is_news_query or "news" in realtime_info.get("data_types", []) or "current_affairs" in realtime_info.get("data_types", []):
+            print(f"Fetching news/current affairs. Category: {category}, Search term: {search_term}")
             news_data = JarvisAI.fetch_latest_news(
                 query=search_term,
                 category=category,
@@ -412,10 +416,11 @@ def process_audio(request):
                 context += f"{role}: {msg['content']}\n"
             context += "\nNow, respond to the user's latest query:\n"
         
-        # Get streaming response from Gemini with conversation context and news data
+        # Get streaming response from Gemini with conversation context, news data, and real-time data
         response_data = JarvisAI.process_with_gemini_streaming_context(text, context, news_data)
         full_response = response_data['full_response']
         chunks = response_data['chunks']
+        used_realtime_data = response_data.get('used_realtime_data', False)
         
         # Process the first chunk immediately for faster initial response
         first_chunk_voice = None
@@ -448,7 +453,9 @@ def process_audio(request):
             "additional_chunks": chunks_voice,
             "streaming": True,
             "news_queried": is_news_query,
-            "news_info": news_info
+            "news_info": news_info,
+            "realtime_data_used": used_realtime_data,  # NEW: Flag indicating real-time data was used
+            "realtime_types": realtime_info.get("data_types", [])  # NEW: Types of real-time data accessed
         })
     
     except Exception as e:
@@ -488,9 +495,20 @@ def choose_better_transcript(whisper_text, browser_text):
         if term in browser_text.lower() and term not in whisper_text.lower():
             return browser_text
     
+    # NEW: Check for time-related terms
+    time_terms = ["time", "date", "today", "now", "current time", "what time"]
+    for term in time_terms:
+        if term in browser_text.lower() and term not in whisper_text.lower():
+            return browser_text
+    
+    # NEW: Check for current affairs terms
+    current_terms = ["current", "happening", "recent", "latest", "today's", "this week"]
+    for term in current_terms:
+        if term in browser_text.lower() and term not in whisper_text.lower():
+            return browser_text
+    
     # Default to whisper_text which is likely more accurate for general speech
     return whisper_text
-
 @api_view(['GET'])
 def get_saved_materials(request):
     try:

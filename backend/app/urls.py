@@ -12,6 +12,7 @@ from .views import (
     download_file,
 )
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
+from .utils.sign2 import animation_view
 
 urlpatterns = [
     path('upload/', FileUploadAPIView.as_view(), name='file-upload'),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('youtube-search/', youtube_search, name='youtube_search'),
     path('saved-materials/<str:filename>/', delete_saved_material, name='delete_saved_material'),
     path('download/<str:filename>/', download_file, name='download_file'),
+    path('animation_view/', animation_view, name='animation_view'),
 ]

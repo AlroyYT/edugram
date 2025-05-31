@@ -11,8 +11,9 @@ import torch  # Add torch import
 import requests
 from bs4 import BeautifulSoup
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import traceback  # Added for better error logging
+import re
 
 from django.conf import settings
 import google.generativeai as genai
@@ -295,6 +296,133 @@ class JarvisAI:
                 "message": f"Failed to fetch news: {str(e)}",
                 "articles": []
             }
+
+    @staticmethod
+    def fetch_current_time_data():
+        """
+        Fetch current time, date, and basic real-time information
+        """
+        try:
+            now = datetime.now()
+            return {
+                "current_time": now.strftime("%I:%M %p"),
+                "current_date": now.strftime("%A, %B %d, %Y"),
+                "timestamp": now.isoformat(),
+                "day_of_week": now.strftime("%A"),
+                "month": now.strftime("%B"),
+                "year": now.year
+            }
+        except Exception as e:
+            print(f"[Time Data ERROR]: {e}")
+            return None
+
+    @staticmethod
+    def detect_realtime_data_need(text):
+        """
+        Detect if the user is asking for real-time information that requires current data
+        
+        Args:
+            text (str): User query text
+            
+        Returns:
+            dict: Information about what real-time data is needed
+        """
+        text = text.lower()
+        
+        # Time/Date related queries
+        time_keywords = ["time", "what time", "current time", "date", "today", "now", 
+                        "what day", "what's the date", "what date"]
+        
+        # News/Current affairs keywords (expanded)
+        news_keywords = ["news", "headlines", "latest", "update", "current events", 
+                        "what's happening", "whats going on", "current affairs", "breaking news",
+                        "today's news", "recent news", "current situation", "what happened today"]
+        
+        # Current status queries
+        status_keywords = ["current", "latest", "recent", "now", "today", "this week", 
+                          "this month", "happening now", "right now"]
+        
+        # Weather queries (for future expansion)
+        weather_keywords = ["weather", "temperature", "forecast", "raining", "sunny", "cloudy"]
+        
+        # Stock/Finance queries (for future expansion)  
+        finance_keywords = ["stock price", "market", "bitcoin", "cryptocurrency", "exchange rate"]
+        
+        result = {
+            "needs_realtime": False,
+            "data_types": [],
+            "specific_query": None
+        }
+        
+        # Check for time/date queries
+        if any(keyword in text for keyword in time_keywords):
+            result["needs_realtime"] = True
+            result["data_types"].append("time")
+        
+        # Check for news queries
+        if any(keyword in text for keyword in news_keywords):
+            result["needs_realtime"] = True
+            result["data_types"].append("news")
+        
+        # Check for general current affairs
+        if any(keyword in text for keyword in status_keywords) and not result["data_types"]:
+            # If they're asking about current/recent things but not specifically time or news
+            if any(word in text for word in ["world", "country", "politics", "events", "situation"]):
+                result["needs_realtime"] = True
+                result["data_types"].append("current_affairs")
+        
+        # Store the original query for context
+        if result["needs_realtime"]:
+            result["specific_query"] = text
+        
+        return result
+
+    @staticmethod
+    def gather_realtime_context(realtime_info, original_query):
+        """
+        Gather relevant real-time data based on the detected needs
+        
+        Args:
+            realtime_info (dict): Information about what real-time data is needed
+            original_query (str): The user's original query
+            
+        Returns:
+            str: Formatted context string with real-time data
+        """
+        context_parts = []
+        
+        try:
+            # Add current time/date if needed
+            if "time" in realtime_info.get("data_types", []):
+                time_data = JarvisAI.fetch_current_time_data()
+                if time_data:
+                    context_parts.append(f"Current time: {time_data['current_time']}")
+                    context_parts.append(f"Current date: {time_data['current_date']}")
+            
+            # Add news context if needed
+            if "news" in realtime_info.get("data_types", []) or "current_affairs" in realtime_info.get("data_types", []):
+                # Try to determine what kind of news they want
+                is_news_query, category, search_term = JarvisAI.detect_news_intent(original_query)
+                
+                news_data = JarvisAI.fetch_latest_news(
+                    query=search_term,
+                    category=category,
+                    count=3  # Limit for context
+                )
+                
+                if news_data and news_data.get("status") == "success" and news_data.get("articles"):
+                    context_parts.append("Here are the latest news headlines:")
+                    for i, article in enumerate(news_data["articles"][:3], 1):
+                        context_parts.append(f"{i}. {article['title']} ({article['source']})")
+            
+            # Combine all context
+            if context_parts:
+                return "REAL-TIME DATA CONTEXT:\n" + "\n".join(context_parts) + "\n\nUse this current information to provide an accurate, up-to-date response."
+            
+        except Exception as e:
+            print(f"[Realtime Context ERROR]: {e}")
+        
+        return ""
     
     @staticmethod
     def process_with_gemini_streaming(text):
@@ -356,6 +484,9 @@ class JarvisAI:
             # Check if this is a news query and we have news data
             is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
             
+            # NEW: Check if we need real-time data for this query
+            realtime_info = JarvisAI.detect_realtime_data_need(text)
+            
             # If this is a news request and we have news data, create a direct response
             if is_news_query and news_data and news_data.get("status") == "success" and news_data.get("articles"):
                 # Create a direct news response without using Gemini for this part
@@ -414,9 +545,15 @@ class JarvisAI:
                     'chunks': chunks
                 }
             
-            # For non-news queries or if news fetching failed, use Gemini as usual
+            # NEW: Gather real-time context if needed
+            realtime_context = ""
+            if realtime_info.get("needs_realtime"):
+                print(f"Gathering real-time context for: {realtime_info['data_types']}")
+                realtime_context = JarvisAI.gather_realtime_context(realtime_info, text)
+            
+            # For non-news queries or if news fetching failed, use Gemini with enhanced real-time context
             # Base prompt with personality and guidelines
-            base_prompt = """You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
+            base_prompt = f"""You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
 
             As Jarvis, you should:
             - Provide clear, concise answers that are easy to understand when read aloud
@@ -427,20 +564,33 @@ class JarvisAI:
             - Dont make the response too long, make it short and understandable
             - Respond in context to previous conversation when available
             - Remember information shared earlier in the conversation
-            - When asked about current news or events, acknowledge that you don't have real-time data but mention we can fetch the latest news headlines on request
+            - Use any provided real-time data to give current, accurate information
+            - When you have access to current data, mention that you have up-to-date information
             
             When responding to emotional cues:
             - Acknowledge feelings before providing information
             - Offer encouragement when users seem uncertain
             - Express patience when users need help with complex topics
             - Use a reassuring tone for anxious questions
+            
+            Current date and time: {datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")}
             """
             
-            # Construct the full prompt with context if available
+            # Construct the full prompt with all available context
+            prompt_parts = [base_prompt]
+            
+            # Add real-time context if available
+            if realtime_context:
+                prompt_parts.append(realtime_context)
+            
+            # Add conversation context if available
             if context:
-                prompt = f"{base_prompt}\n\n{context}\nThe user said: \"{text}\""
-            else:
-                prompt = f"{base_prompt}\n\nThe user said: \"{text}\""
+                prompt_parts.append(f"\n{context}")
+            
+            # Add the user's query
+            prompt_parts.append(f"\nThe user said: \"{text}\"")
+            
+            prompt = "\n".join(prompt_parts)
                 
             # Generate streaming response
             full_response = ""
@@ -464,13 +614,15 @@ class JarvisAI:
                 
             return {
                 'full_response': full_response.strip(),
-                'chunks': stream_chunks
+                'chunks': stream_chunks,
+                'used_realtime_data': bool(realtime_context)  # Flag to indicate real-time data was used
             }
         except Exception as e:
             print("[Gemini Context ERROR]:", e)
             return {
                 'full_response': "Sorry, something went wrong while processing your request.",
-                'chunks': ["Sorry, something went wrong while processing your request."]
+                'chunks': ["Sorry, something went wrong while processing your request."],
+                'used_realtime_data': False
             }
     
     @staticmethod
