@@ -5,6 +5,9 @@ import tempfile
 import whisper
 import base64
 import re
+import time
+import traceback
+import concurrent.futures
 from django.http import FileResponse, HttpResponse ,StreamingHttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.files.storage import FileSystemStorage
@@ -359,7 +362,133 @@ def get_video_path(topic):
 
     
 
+@csrf_exempt
+def process_audio_optimized(request):
+    """Optimized audio processing with parallel execution and faster response"""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+    
+    start_time = time.time()
+    
+    try:
+        # Parse request body
+        body = json.loads(request.body)
+        base64_audio = body.get("audio")
+        browser_transcript = body.get("browserTranscript", "")
+        conversation_history = body.get("conversation", [])
+        
+        if not base64_audio:
+            return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
+        
+        print(f"Request parsed in {time.time() - start_time:.2f}s")
+        
+        # Use parallel processing for faster response
+        try:
+            result = JarvisAI.process_audio_parallel(
+                base64_audio, 
+                browser_transcript, 
+                conversation_history
+            )
+            
+            if not result:
+                return JsonResponse({
+                    "status": "fail", 
+                    "message": "Could not understand audio."
+                }, status=200)
+            
+            print(f"Audio processing completed in {time.time() - start_time:.2f}s")
+            
+            # Extract results
+            text = result['text']
+            whisper_text = result['whisper_text']
+            response_data = result['response_data']
+            is_news_query = result['is_news_query']
+            news_data = result['news_data']
+            
+            full_response = response_data['full_response']
+            chunks = response_data['chunks']
+            
+            print(f"Response generated in {time.time() - start_time:.2f}s")
+            
+            # Generate TTS for first chunk immediately (parallel processing)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                # Generate first chunk audio immediately
+                first_chunk_future = executor.submit(
+                    JarvisAI.text_to_speech_optimized, 
+                    chunks[0] if chunks else full_response
+                )
+                
+                # Generate remaining chunks in parallel if there are any
+                remaining_futures = []
+                if len(chunks) > 1:
+                    for chunk in chunks[1:3]:  # Limit to next 2 chunks for speed
+                        future = executor.submit(JarvisAI.text_to_speech_optimized, chunk)
+                        remaining_futures.append(future)
+                
+                # Get first chunk audio (this should be fast)
+                first_chunk_voice = first_chunk_future.result(timeout=5)
+                
+                # Get remaining chunk audio
+                chunks_voice = []
+                for future in remaining_futures:
+                    try:
+                        chunk_voice = future.result(timeout=3)
+                        if chunk_voice:
+                            chunks_voice.append(chunk_voice)
+                    except concurrent.futures.TimeoutError:
+                        print("TTS chunk timed out, skipping")
+                        continue
+            
+            print(f"TTS generation completed in {time.time() - start_time:.2f}s")
+            
+            # Prepare news info
+            news_info = None
+            if news_data and news_data.get("status") == "success":
+                news_info = {
+                    "count": news_data.get("count", 0),
+                    "timestamp": news_data.get("timestamp")
+                }
+            
+            total_time = time.time() - start_time
+            print(f"Total request processing time: {total_time:.2f}s")
+            
+            # Return optimized response
+            return JsonResponse({
+                "status": "success",
+                "text": text,
+                "whisper_text": whisper_text,
+                "browser_text": browser_transcript,
+                "response": full_response,
+                "voice_response": first_chunk_voice,
+                "additional_chunks": chunks_voice,
+                "streaming": True if len(chunks_voice) > 0 else False,
+                "news_queried": is_news_query,
+                "news_info": news_info,
+                "processing_time": round(total_time, 2)
+            })
+            
+        except concurrent.futures.TimeoutError:
+            return JsonResponse({
+                "status": "fail",
+                "message": "Processing timed out. Please try a shorter message."
+            }, status=200)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            "status": "fail",
+            "message": "Invalid JSON in request"
+        }, status=400)
+    
+    except Exception as e:
+        # Print full traceback for debugging
+        traceback.print_exc()
+        
+        return JsonResponse({
+            "status": "fail",
+            "message": f"Server error: {str(e)}"
+        }, status=500)
 
+# Keep the original function for backward compatibility
 @csrf_exempt
 def process_audio(request):
     if request.method != 'POST':
@@ -390,14 +519,10 @@ def process_audio(request):
         # Check if the user is asking for news
         is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
         
-        # NEW: Check if the user needs real-time data
-        realtime_info = JarvisAI.detect_realtime_data_need(text)
-        print(f"Real-time data needed: {realtime_info}")
-        
-        # Fetch news if it's a news query OR if real-time data includes current affairs
+        # Fetch news if it's a news query
         news_data = None
-        if is_news_query or "news" in realtime_info.get("data_types", []) or "current_affairs" in realtime_info.get("data_types", []):
-            print(f"Fetching news/current affairs. Category: {category}, Search term: {search_term}")
+        if is_news_query:
+            print(f"Detected news query. Category: {category}, Search term: {search_term}")
             news_data = JarvisAI.fetch_latest_news(
                 query=search_term,
                 category=category,
@@ -416,11 +541,10 @@ def process_audio(request):
                 context += f"{role}: {msg['content']}\n"
             context += "\nNow, respond to the user's latest query:\n"
         
-        # Get streaming response from Gemini with conversation context, news data, and real-time data
+        # Get streaming response from Gemini with conversation context and news data
         response_data = JarvisAI.process_with_gemini_streaming_context(text, context, news_data)
         full_response = response_data['full_response']
         chunks = response_data['chunks']
-        used_realtime_data = response_data.get('used_realtime_data', False)
         
         # Process the first chunk immediately for faster initial response
         first_chunk_voice = None
@@ -453,9 +577,7 @@ def process_audio(request):
             "additional_chunks": chunks_voice,
             "streaming": True,
             "news_queried": is_news_query,
-            "news_info": news_info,
-            "realtime_data_used": used_realtime_data,  # NEW: Flag indicating real-time data was used
-            "realtime_types": realtime_info.get("data_types", [])  # NEW: Types of real-time data accessed
+            "news_info": news_info
         })
     
     except Exception as e:
@@ -495,17 +617,8 @@ def choose_better_transcript(whisper_text, browser_text):
         if term in browser_text.lower() and term not in whisper_text.lower():
             return browser_text
     
-    # NEW: Check for time-related terms
-    time_terms = ["time", "date", "today", "now", "current time", "what time"]
-    for term in time_terms:
-        if term in browser_text.lower() and term not in whisper_text.lower():
-            return browser_text
-    
-    # NEW: Check for current affairs terms
-    current_terms = ["current", "happening", "recent", "latest", "today's", "this week"]
-    for term in current_terms:
-        if term in browser_text.lower() and term not in whisper_text.lower():
-            return browser_text
+    # Default to whisper_text which is likely more accurate for general speech
+    return whisper_text
     
     # Default to whisper_text which is likely more accurate for general speech
     return whisper_text

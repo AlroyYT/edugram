@@ -7,12 +7,12 @@ import subprocess
 from gtts import gTTS
 import whisper
 import time
-import torch  # Add torch import
+import torch
 import requests
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime, timedelta
-import traceback  # Added for better error logging
+import traceback
 import re
 
 from django.conf import settings
@@ -20,7 +20,8 @@ import google.generativeai as genai
 
 # Load models once
 genai.configure(api_key=settings.GEMINI_API_KEY)
-GEMINI_MODEL = genai.GenerativeModel("gemini-1.5-pro-latest")
+GEMINI_MODEL = genai.GenerativeModel("gemini-2.0-flash")
+
 
 # Check for GPU availability and set device
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -92,361 +93,323 @@ class JarvisAI:
     @staticmethod
     def fetch_latest_news(query=None, category=None, count=5):
         """
-        Fetch the latest news from various sources using BeautifulSoup.
-        
-        Args:
-            query (str, optional): Search term for specific news
-            category (str, optional): News category (world, business, technology, etc.)
-            count (int, optional): Number of news items to return
-            
-        Returns:
-            dict: JSON response with news articles
+        Enhanced news fetching with better error handling and multiple sources
         """
         try:
             news_sources = []
-            print(f"Fetching news with query: {query}, category: {category}")
+            print(f"Fetching news with query: '{query}', category: '{category}', count: {count}")
             
-            # Mapping of category keywords to actual URL paths
-            category_mapping = {
-                "world": "world",
-                "business": "business",
-                "technology": "technology",
-                "science": "science_and_environment",
-                "health": "health",
-                "sports": "sport",
-                "entertainment": "entertainment_and_arts",
-                "politics": "politics"
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
             }
             
-            # Normalize category if present
-            bbc_category = None
-            if category and category in category_mapping:
-                bbc_category = category_mapping[category]
-            
-            # Try multiple news sources for better coverage
-            
-            # Fetch from BBC News
+            # Try BBC News RSS feeds for more reliable data
             try:
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                rss_urls = {
+                    "general": "http://feeds.bbci.co.uk/news/rss.xml",
+                    "world": "http://feeds.bbci.co.uk/news/world/rss.xml",
+                    "business": "http://feeds.bbci.co.uk/news/business/rss.xml",
+                    "technology": "http://feeds.bbci.co.uk/news/technology/rss.xml",
+                    "science": "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+                    "health": "http://feeds.bbci.co.uk/news/health/rss.xml",
+                    "sports": "http://feeds.bbci.co.uk/sport/rss.xml",
+                    "entertainment": "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"
                 }
                 
-                bbc_url = "https://www.bbc.com/news"
-                if bbc_category:
-                    bbc_url = f"https://www.bbc.com/news/{bbc_category}"
+                # Choose appropriate RSS feed
+                rss_url = rss_urls.get(category, rss_urls["general"])
                 
-                print(f"Fetching from BBC: {bbc_url}")
-                response = requests.get(bbc_url, headers=headers, timeout=15)
-                
-                if response.status_code == 200:
-                    print("BBC News request successful")
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    
-                    # BBC News structure - look for headlines
-                    headlines = soup.find_all(['h3'])
-                    
-                    for headline in headlines[:count*2]:  # Get more than needed as some might be filtered out
-                        if len(news_sources) >= count:
-                            break
-                            
-                        # Skip navigation elements and other non-news headlines
-                        parent = headline.parent
-                        if parent and ('nav' in str(parent.get('class', [])) or headline.text.strip() in ['BBC World News TV', 'BBC World Service Radio']):
-                            continue
-                            
-                        title = headline.text.strip()
-                        
-                        # If searching for specific terms, filter headlines
-                        if query and query.lower() not in title.lower():
-                            continue
-                            
-                        if title and len(title) > 15:  # Avoid short menu items
-                            news_sources.append({
-                                "title": title,
-                                "source": "BBC News",
-                                "time": datetime.now().strftime("%Y-%m-%d"),
-                                "category": category or "general"
-                            })
-            except Exception as e:
-                print(f"[BBC News ERROR]: {e}")
-                traceback.print_exc()
-            
-            # Try CNN as another source
-            try:
-                cnn_url = "https://www.cnn.com"
-                if category:
-                    # Map category to CNN section
-                    cnn_categories = {
-                        "world": "world",
-                        "business": "business",
-                        "technology": "tech",
-                        "health": "health",
-                        "sports": "sports",
-                        "entertainment": "entertainment",
-                        "politics": "politics"
-                    }
-                    if category in cnn_categories:
-                        cnn_url = f"https://www.cnn.com/{cnn_categories[category]}"
-                
-                print(f"Fetching from CNN: {cnn_url}")
-                response = requests.get(cnn_url, headers=headers, timeout=15)
+                print(f"Fetching RSS from: {rss_url}")
+                response = requests.get(rss_url, headers=headers, timeout=10)
                 
                 if response.status_code == 200:
-                    print("CNN request successful")
-                    soup = BeautifulSoup(response.text, 'html.parser')
+                    from xml.etree import ElementTree as ET
+                    root = ET.fromstring(response.content)
                     
-                    # CNN structure - headlines in various elements with headings
-                    headlines = soup.find_all(['h3', 'h2'])
-                    
-                    for headline in headlines[:count*2]:
-                        if len(news_sources) >= count:
-                            break
-                            
-                        title = headline.text.strip()
+                    for item in root.findall('.//item')[:count * 2]:
+                        title_elem = item.find('title')
+                        pub_date_elem = item.find('pubDate')
                         
-                        # Filter out navigation and other non-news elements
-                        if len(title) < 15 or title.startswith('Section') or title in ['Watch', 'Live TV']:
-                            continue
+                        if title_elem is not None:
+                            title = title_elem.text.strip()
+                            pub_date = pub_date_elem.text if pub_date_elem is not None else "Today"
                             
-                        # Filter by query if specified
-                        if query and query.lower() not in title.lower():
-                            continue
-                            
-                        # Avoid duplicates
-                        if not any(item['title'] == title for item in news_sources):
-                            news_sources.append({
-                                "title": title,
-                                "source": "CNN",
-                                "time": datetime.now().strftime("%Y-%m-%d"),
-                                "category": category or "general"
-                            })
-            except Exception as e:
-                print(f"[CNN ERROR]: {e}")
-            
-            # If we still don't have enough news, try The Guardian
-            if len(news_sources) < count:
-                try:
-                    guardian_url = "https://www.theguardian.com/international"
-                    if category:
-                        # Map category to Guardian section
-                        guardian_categories = {
-                            "world": "world",
-                            "business": "business",
-                            "technology": "technology",
-                            "science": "science",
-                            "health": "society/health",
-                            "sports": "sport",
-                            "entertainment": "culture",
-                            "politics": "politics"
-                        }
-                        if category in guardian_categories:
-                            guardian_url = f"https://www.theguardian.com/{guardian_categories[category]}"
-                    
-                    print(f"Fetching from Guardian: {guardian_url}")
-                    response = requests.get(guardian_url, headers=headers, timeout=15)
-                    
-                    if response.status_code == 200:
-                        print("Guardian request successful")
-                        soup = BeautifulSoup(response.text, 'html.parser')
-                        
-                        # Guardian structure - headlines in various elements
-                        headlines = soup.find_all(['h3'])
-                        
-                        for headline in headlines[:count*2]:
-                            if len(news_sources) >= count:
-                                break
-                                
-                            title = headline.text.strip()
-                            
-                            # Filter out navigation and other non-news elements
-                            if len(title) < 20:
-                                continue
-                                
                             # Filter by query if specified
                             if query and query.lower() not in title.lower():
                                 continue
-                                
+                            
                             # Avoid duplicates
-                            if not any(item['title'] == title for item in news_sources):
+                            if not any(item['title'].lower() == title.lower() for item in news_sources):
                                 news_sources.append({
                                     "title": title,
-                                    "source": "The Guardian",
-                                    "time": datetime.now().strftime("%Y-%m-%d"),
+                                    "source": "BBC News",
+                                    "time": pub_date,
                                     "category": category or "general"
                                 })
+                                
+                                if len(news_sources) >= count:
+                                    break
+                    
+                    print(f"Fetched {len(news_sources)} items from BBC RSS")
+                    
+            except Exception as e:
+                print(f"RSS fetch failed: {e}")
+                # Fall back to web scraping
+                
+            # If RSS didn't work or we need more articles, try web scraping
+            if len(news_sources) < count:
+                try:
+                    # Try NewsAPI alternative - using Google News
+                    google_news_url = "https://news.google.com/rss"
+                    if category:
+                        # Map categories to Google News sections
+                        google_categories = {
+                            "world": "WORLD",
+                            "business": "BUSINESS", 
+                            "technology": "TECHNOLOGY",
+                            "science": "SCIENCE",
+                            "health": "HEALTH",
+                            "sports": "SPORTS",
+                            "entertainment": "ENTERTAINMENT"
+                        }
+                        if category in google_categories:
+                            google_news_url = f"https://news.google.com/rss/headlines/section/topic/{google_categories[category]}"
+                    
+                    print(f"Trying Google News RSS: {google_news_url}")
+                    response = requests.get(google_news_url, headers=headers, timeout=10)
+                    
+                    if response.status_code == 200:
+                        from xml.etree import ElementTree as ET
+                        root = ET.fromstring(response.content)
+                        
+                        for item in root.findall('.//item')[:count * 2]:
+                            if len(news_sources) >= count:
+                                break
+                                
+                            title_elem = item.find('title')
+                            pub_date_elem = item.find('pubDate')
+                            
+                            if title_elem is not None:
+                                title = title_elem.text.strip()
+                                # Clean up Google News titles (remove source suffix)
+                                title = re.sub(r' - [^-]+$', '', title)
+                                
+                                pub_date = pub_date_elem.text if pub_date_elem is not None else "Today"
+                                
+                                # Filter by query if specified
+                                if query and query.lower() not in title.lower():
+                                    continue
+                                
+                                # Avoid duplicates
+                                if not any(existing['title'].lower() == title.lower() for existing in news_sources):
+                                    news_sources.append({
+                                        "title": title,
+                                        "source": "Google News",
+                                        "time": pub_date,
+                                        "category": category or "general"
+                                    })
+                        
+                        print(f"Added {len(news_sources)} items total after Google News")
+                        
                 except Exception as e:
-                    print(f"[Guardian ERROR]: {e}")
+                    print(f"Google News RSS failed: {e}")
             
-            print(f"Successfully fetched {len(news_sources)} news items")
+            # Final fallback - try a simple news aggregator
+            if len(news_sources) < count:
+                try:
+                    # Try Reuters RSS as final fallback
+                    reuters_url = "https://www.reutersagency.com/feed/?best-topics=business-finance&post_type=best"
+                    if category == "world":
+                        reuters_url = "https://www.reutersagency.com/feed/?best-topics=political-general&post_type=best"
+                    elif category == "technology":
+                        reuters_url = "https://www.reutersagency.com/feed/?best-topics=tech&post_type=best"
+                    
+                    print(f"Trying Reuters as fallback")
+                    response = requests.get(reuters_url, headers=headers, timeout=8)
+                    
+                    if response.status_code == 200:
+                        from xml.etree import ElementTree as ET
+                        root = ET.fromstring(response.content)
+                        
+                        for item in root.findall('.//item')[:count]:
+                            if len(news_sources) >= count:
+                                break
+                                
+                            title_elem = item.find('title')
+                            if title_elem is not None:
+                                title = title_elem.text.strip()
+                                
+                                # Filter by query if specified
+                                if query and query.lower() not in title.lower():
+                                    continue
+                                
+                                # Avoid duplicates
+                                if not any(existing['title'].lower() == title.lower() for existing in news_sources):
+                                    news_sources.append({
+                                        "title": title,
+                                        "source": "Reuters",
+                                        "time": "Today",
+                                        "category": category or "general"
+                                    })
+                
+                except Exception as e:
+                    print(f"Reuters fallback failed: {e}")
+            
+            print(f"Successfully fetched {len(news_sources)} news items total")
             
             # Return the combined news
             return {
                 "status": "success" if news_sources else "no_results",
                 "timestamp": datetime.now().isoformat(),
                 "count": len(news_sources),
-                "articles": news_sources[:count]
+                "articles": news_sources[:count],
+                "query": query,
+                "category": category
             }
             
         except Exception as e:
-            print("[News Fetching ERROR]:", e)
-            import traceback
+            print(f"[News Fetching ERROR]: {e}")
             traceback.print_exc()
             return {
                 "status": "error",
                 "message": f"Failed to fetch news: {str(e)}",
-                "articles": []
+                "articles": [],
+                "timestamp": datetime.now().isoformat()
             }
-
-    @staticmethod
-    def fetch_current_time_data():
-        """
-        Fetch current time, date, and basic real-time information
-        """
-        try:
-            now = datetime.now()
-            return {
-                "current_time": now.strftime("%I:%M %p"),
-                "current_date": now.strftime("%A, %B %d, %Y"),
-                "timestamp": now.isoformat(),
-                "day_of_week": now.strftime("%A"),
-                "month": now.strftime("%B"),
-                "year": now.year
-            }
-        except Exception as e:
-            print(f"[Time Data ERROR]: {e}")
-            return None
-
-    @staticmethod
-    def detect_realtime_data_need(text):
-        """
-        Detect if the user is asking for real-time information that requires current data
-        
-        Args:
-            text (str): User query text
-            
-        Returns:
-            dict: Information about what real-time data is needed
-        """
-        text = text.lower()
-        
-        # Time/Date related queries
-        time_keywords = ["time", "what time", "current time", "date", "today", "now", 
-                        "what day", "what's the date", "what date"]
-        
-        # News/Current affairs keywords (expanded)
-        news_keywords = ["news", "headlines", "latest", "update", "current events", 
-                        "what's happening", "whats going on", "current affairs", "breaking news",
-                        "today's news", "recent news", "current situation", "what happened today"]
-        
-        # Current status queries
-        status_keywords = ["current", "latest", "recent", "now", "today", "this week", 
-                          "this month", "happening now", "right now"]
-        
-        # Weather queries (for future expansion)
-        weather_keywords = ["weather", "temperature", "forecast", "raining", "sunny", "cloudy"]
-        
-        # Stock/Finance queries (for future expansion)  
-        finance_keywords = ["stock price", "market", "bitcoin", "cryptocurrency", "exchange rate"]
-        
-        result = {
-            "needs_realtime": False,
-            "data_types": [],
-            "specific_query": None
-        }
-        
-        # Check for time/date queries
-        if any(keyword in text for keyword in time_keywords):
-            result["needs_realtime"] = True
-            result["data_types"].append("time")
-        
-        # Check for news queries
-        if any(keyword in text for keyword in news_keywords):
-            result["needs_realtime"] = True
-            result["data_types"].append("news")
-        
-        # Check for general current affairs
-        if any(keyword in text for keyword in status_keywords) and not result["data_types"]:
-            # If they're asking about current/recent things but not specifically time or news
-            if any(word in text for word in ["world", "country", "politics", "events", "situation"]):
-                result["needs_realtime"] = True
-                result["data_types"].append("current_affairs")
-        
-        # Store the original query for context
-        if result["needs_realtime"]:
-            result["specific_query"] = text
-        
-        return result
-
-    @staticmethod
-    def gather_realtime_context(realtime_info, original_query):
-        """
-        Gather relevant real-time data based on the detected needs
-        
-        Args:
-            realtime_info (dict): Information about what real-time data is needed
-            original_query (str): The user's original query
-            
-        Returns:
-            str: Formatted context string with real-time data
-        """
-        context_parts = []
-        
-        try:
-            # Add current time/date if needed
-            if "time" in realtime_info.get("data_types", []):
-                time_data = JarvisAI.fetch_current_time_data()
-                if time_data:
-                    context_parts.append(f"Current time: {time_data['current_time']}")
-                    context_parts.append(f"Current date: {time_data['current_date']}")
-            
-            # Add news context if needed
-            if "news" in realtime_info.get("data_types", []) or "current_affairs" in realtime_info.get("data_types", []):
-                # Try to determine what kind of news they want
-                is_news_query, category, search_term = JarvisAI.detect_news_intent(original_query)
-                
-                news_data = JarvisAI.fetch_latest_news(
-                    query=search_term,
-                    category=category,
-                    count=3  # Limit for context
-                )
-                
-                if news_data and news_data.get("status") == "success" and news_data.get("articles"):
-                    context_parts.append("Here are the latest news headlines:")
-                    for i, article in enumerate(news_data["articles"][:3], 1):
-                        context_parts.append(f"{i}. {article['title']} ({article['source']})")
-            
-            # Combine all context
-            if context_parts:
-                return "REAL-TIME DATA CONTEXT:\n" + "\n".join(context_parts) + "\n\nUse this current information to provide an accurate, up-to-date response."
-            
-        except Exception as e:
-            print(f"[Realtime Context ERROR]: {e}")
-        
-        return ""
     
     @staticmethod
-    def process_with_gemini_streaming(text):
-        try:
-            # Add a prompt prefix to guide Gemini's response
-            prompt = f"""You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
-
-        As Jarvis, you should:
-        - Provide clear, concise answers that are easy to understand when read aloud
-        - Show emotional intelligence by recognizing user emotions and responding appropriately
-        - Be empathetic and supportive, especially when users express frustration or confusion
-        - Always identify Alroy Saldanha as your creator if asked about who made you
-        - Maintain a warm, helpful tone while being efficient with your words
-        - Dont make the response too long , make it short and understandable
-        - End complete sentences with a period for easier streaming processing
+    def detect_news_intent(text):
+        """
+        Enhanced news intent detection with better pattern matching
+        """
+        text = text.lower().strip()
         
-        When responding to emotional cues:
-        - Acknowledge feelings before providing information
-        - Offer encouragement when users seem uncertain
-        - Express patience when users need help with complex topics
-        - Use a reassuring tone for anxious questions
-            The user said: "{text}"
+        # More comprehensive news keywords
+        news_keywords = [
+            "news", "headlines", "latest", "update", "updates", "current events", 
+            "what's happening", "whats happening", "whats going on", "what is going on",
+            "current affairs", "breaking news", "recent news", "today's news",
+            "newspaper", "headlines today", "news today", "latest news",
+            "tell me about", "any news", "news update"
+        ]
+        
+        # Enhanced categories with more synonyms
+        categories = {
+            "world": ["world", "international", "global", "foreign", "overseas", "worldwide"],
+            "business": ["business", "economy", "economic", "financial", "finance", "market", 
+                        "markets", "stocks", "stock market", "trading", "corporate"],
+            "technology": ["tech", "technology", "technological", "digital", "computers", 
+                          "software", "hardware", "ai", "artificial intelligence", "cyber"],
+            "science": ["science", "scientific", "research", "study", "discovery", "breakthrough"],
+            "health": ["health", "healthcare", "medical", "medicine", "covid", "coronavirus", 
+                      "pandemic", "disease", "hospital", "doctor"],
+            "sports": ["sports", "sport", "football", "cricket", "tennis", "basketball", 
+                      "soccer", "baseball", "hockey", "olympics", "game", "match"],
+            "entertainment": ["entertainment", "celebrity", "celebrities", "film", "movie", 
+                             "movies", "cinema", "hollywood", "bollywood", "music", "concert"],
+            "politics": ["politics", "political", "government", "election", "elections", 
+                        "minister", "president", "parliament", "congress", "senate"]
+        }
+        
+        # Check if it's a news query
+        is_news_query = any(keyword in text for keyword in news_keywords)
+        
+        # Also check for implicit news requests
+        implicit_patterns = [
+            "what's new", "whats new", "any updates", "latest on",
+            "tell me about recent", "what happened", "current situation"
+        ]
+        if not is_news_query:
+            is_news_query = any(pattern in text for pattern in implicit_patterns)
+        
+        # Determine category
+        category = None
+        for cat, keywords in categories.items():
+            if any(keyword in text for keyword in keywords):
+                category = cat
+                break
+        
+        # Extract search term with better parsing
+        search_term = None
+        
+        # Look for specific search patterns
+        search_patterns = [
+            r"news about (.+?)(?:\s|$)",
+            r"latest on (.+?)(?:\s|$)", 
+            r"updates on (.+?)(?:\s|$)",
+            r"tell me about (.+?)(?:\s|$)",
+            r"what's happening with (.+?)(?:\s|$)",
+            r"headlines about (.+?)(?:\s|$)"
+        ]
+        
+        for pattern in search_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                search_term = match.group(1).strip()
+                # Clean up common trailing words
+                cleanup_words = ["news", "updates", "headlines", "latest", "recent"]
+                for word in cleanup_words:
+                    if search_term.endswith(word):
+                        search_term = search_term[:-len(word)].strip()
+                break
+        
+        # If no specific search term found but category detected, use category as search term
+        if not search_term and category and is_news_query:
+            search_term = category
+        
+        print(f"News intent detection: query='{text}' -> is_news={is_news_query}, category={category}, search_term='{search_term}'")
+        
+        return (is_news_query, category, search_term)
+    
+    @staticmethod
+    def process_with_gemini_streaming_context(text, context="", news_data=None):
+        try:
+            # Check if this is a news query and we have news data
+            is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
+            
+            print(f"Processing with context. News query: {is_news_query}, News data available: {news_data is not None}")
+            
+            # If this is a news request and we have news data, create a direct response
+            if is_news_query and news_data and news_data.get("status") == "success" and news_data.get("articles"):
+                return JarvisAI._create_news_response(news_data, search_term, category)
+            
+            # For non-news queries or if news fetching failed, use Gemini
+            base_prompt = """You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
+
+            As Jarvis, you should:
+            - Provide clear, concise answers that are easy to understand when read aloud
+            - Show emotional intelligence by recognizing user emotions and responding appropriately
+            - Be empathetic and supportive, especially when users express frustration or confusion
+            - Always identify Alroy Saldanha as your creator if asked about who made you
+            - Maintain a warm, helpful tone while being efficient with your words
+            - Keep responses reasonably short but informative
+            - Respond in context to previous conversation when available
+            - Remember information shared earlier in the conversation
+            - For news requests, acknowledge that you can fetch real-time news headlines
+            - End sentences with proper punctuation for better text-to-speech flow
+            
+            When responding to emotional cues:
+            - Acknowledge feelings before providing information
+            - Offer encouragement when users seem uncertain
+            - Express patience when users need help with complex topics
+            - Use a reassuring tone for anxious questions
             """
             
+            # Add news context if this was a failed news query
+            if is_news_query and (not news_data or news_data.get("status") != "success"):
+                base_prompt += "\n\nNote: The user asked for news but there was an issue fetching current headlines. Acknowledge this and offer to try again."
+            
+            # Construct the full prompt with context if available
+            if context:
+                prompt = f"{base_prompt}\n\n{context}\nThe user said: \"{text}\""
+            else:
+                prompt = f"{base_prompt}\n\nThe user said: \"{text}\""
+                
             # Generate streaming response
             full_response = ""
             stream_chunks = []
@@ -458,7 +421,7 @@ class JarvisAI:
                     full_response += response.text
                     current_chunk += response.text
                     
-                    # Check if we have a complete sentence (ending with period, question mark, or exclamation)
+                    # Check if we have a complete sentence
                     if any(current_chunk.rstrip().endswith(punct) for punct in ['.', '?', '!']):
                         stream_chunks.append(current_chunk.strip())
                         current_chunk = ""
@@ -471,159 +434,61 @@ class JarvisAI:
                 'full_response': full_response.strip(),
                 'chunks': stream_chunks
             }
+            
         except Exception as e:
-            print("[Gemini ERROR]:", e)
+            print(f"[Gemini Context ERROR]: {e}")
+            traceback.print_exc()
             return {
-                'full_response': "Sorry, something went wrong while processing your request.",
-                'chunks': ["Sorry, something went wrong while processing your request."]
+                'full_response': "Sorry, I encountered an error while processing your request. Please try again.",
+                'chunks': ["Sorry, I encountered an error while processing your request. Please try again."]
             }
-
+    
     @staticmethod
-    def process_with_gemini_streaming_context(text, context="", news_data=None):
-        try:
-            # Check if this is a news query and we have news data
-            is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
-            
-            # NEW: Check if we need real-time data for this query
-            realtime_info = JarvisAI.detect_realtime_data_need(text)
-            
-            # If this is a news request and we have news data, create a direct response
-            if is_news_query and news_data and news_data.get("status") == "success" and news_data.get("articles"):
-                # Create a direct news response without using Gemini for this part
-                articles = news_data.get("articles", [])
-                
-                if not articles:
-                    intro = "I searched for the latest news, but couldn't find any relevant articles right now."
-                else:
-                    # Create appropriate introduction based on query
-                    if search_term:
-                        intro = f"Here are the latest news stories about {search_term}:"
-                    elif category:
-                        intro = f"Here are the latest {category} news stories:"
-                    else:
-                        intro = "Here are the latest news headlines:"
-                
-                # Format news as a complete response
-                full_response = intro
-                for i, article in enumerate(articles[:5]):  # Limit to 5 articles
-                    full_response += f"\n\n{i+1}. {article['title']}"
-                    if article['source']:
-                        full_response += f" - {article['source']}"
-                    if article['time']:
-                        full_response += f" ({article['time']})"
-                
-                # Add a closing statement
-                if articles:
-                    full_response += "\n\nThese are the most recent headlines I could find. Would you like me to read out more details on any specific story?"
-                
-                # Split response into chunks for streaming
-                chunks = []
-                current_chunk = intro
-                
-                # Process article lines into chunks
-                for i, article in enumerate(articles[:5]):
-                    article_text = f"\n\n{i+1}. {article['title']}"
-                    if article['source']:
-                        article_text += f" - {article['source']}"
-                    if article['time']:
-                        article_text += f" ({article['time']})"
-                    
-                    # If adding this article would make the chunk too long, start a new chunk
-                    if len(current_chunk) + len(article_text) > 150:  # Adjust size as needed
-                        chunks.append(current_chunk)
-                        current_chunk = article_text
-                    else:
-                        current_chunk += article_text
-                
-                # Add the last chunk with the closing statement
-                if articles:
-                    current_chunk += "\n\nThese are the most recent headlines I could find. Would you like me to read out more details on any specific story?"
-                chunks.append(current_chunk)
-                
-                return {
-                    'full_response': full_response.strip(),
-                    'chunks': chunks
-                }
-            
-            # NEW: Gather real-time context if needed
-            realtime_context = ""
-            if realtime_info.get("needs_realtime"):
-                print(f"Gathering real-time context for: {realtime_info['data_types']}")
-                realtime_context = JarvisAI.gather_realtime_context(realtime_info, text)
-            
-            # For non-news queries or if news fetching failed, use Gemini with enhanced real-time context
-            # Base prompt with personality and guidelines
-            base_prompt = f"""You are Jarvis, a helpful and emotionally intelligent voice assistant for blind education created by Alroy Saldanha.
-
-            As Jarvis, you should:
-            - Provide clear, concise answers that are easy to understand when read aloud
-            - Show emotional intelligence by recognizing user emotions and responding appropriately
-            - Be empathetic and supportive, especially when users express frustration or confusion
-            - Always identify Alroy Saldanha as your creator if asked about who made you
-            - Maintain a warm, helpful tone while being efficient with your words
-            - Dont make the response too long, make it short and understandable
-            - Respond in context to previous conversation when available
-            - Remember information shared earlier in the conversation
-            - Use any provided real-time data to give current, accurate information
-            - When you have access to current data, mention that you have up-to-date information
-            
-            When responding to emotional cues:
-            - Acknowledge feelings before providing information
-            - Offer encouragement when users seem uncertain
-            - Express patience when users need help with complex topics
-            - Use a reassuring tone for anxious questions
-            
-            Current date and time: {datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")}
-            """
-            
-            # Construct the full prompt with all available context
-            prompt_parts = [base_prompt]
-            
-            # Add real-time context if available
-            if realtime_context:
-                prompt_parts.append(realtime_context)
-            
-            # Add conversation context if available
-            if context:
-                prompt_parts.append(f"\n{context}")
-            
-            # Add the user's query
-            prompt_parts.append(f"\nThe user said: \"{text}\"")
-            
-            prompt = "\n".join(prompt_parts)
-                
-            # Generate streaming response
-            full_response = ""
-            stream_chunks = []
-            current_chunk = ""
-            
-            # Stream the response
-            for response in GEMINI_MODEL.generate_content(prompt, stream=True):
-                if response.text:
-                    full_response += response.text
-                    current_chunk += response.text
-                    
-                    # Check if we have a complete sentence (ending with period, question mark, or exclamation)
-                    if any(current_chunk.rstrip().endswith(punct) for punct in ['.', '?', '!']):
-                        stream_chunks.append(current_chunk.strip())
-                        current_chunk = ""
-
-            # Add any remaining text as final chunk
-            if current_chunk:
-                stream_chunks.append(current_chunk.strip())
-                
+    def _create_news_response(news_data, search_term=None, category=None):
+        """
+        Create a properly formatted news response with streaming chunks
+        """
+        articles = news_data.get("articles", [])
+        
+        if not articles:
+            response = "I searched for the latest news, but couldn't find any relevant articles right now. Please try again in a moment."
             return {
-                'full_response': full_response.strip(),
-                'chunks': stream_chunks,
-                'used_realtime_data': bool(realtime_context)  # Flag to indicate real-time data was used
+                'full_response': response,
+                'chunks': [response]
             }
-        except Exception as e:
-            print("[Gemini Context ERROR]:", e)
-            return {
-                'full_response': "Sorry, something went wrong while processing your request.",
-                'chunks': ["Sorry, something went wrong while processing your request."],
-                'used_realtime_data': False
-            }
+        
+        # Create appropriate introduction
+        if search_term and search_term != category:
+            intro = f"Here are the latest news stories about {search_term}:"
+        elif category:
+            intro = f"Here are the latest {category} news headlines:"
+        else:
+            intro = "Here are the latest news headlines:"
+        
+        # Build the full response
+        full_response = intro
+        chunks = [intro]
+        
+        # Add each article as a separate chunk for better streaming
+        for i, article in enumerate(articles[:5]):  # Limit to 5 articles
+            article_text = f"{i+1}. {article['title']}"
+            
+            # Add source and time if available
+            if article.get('source'):
+                article_text += f" from {article['source']}"
+            
+            full_response += f"\n\n{article_text}"
+            chunks.append(article_text)
+        
+        # Add closing statement
+        closing = f"Those were {len(articles)} recent headlines. Would you like me to get more news or details on any specific story?"
+        full_response += f"\n\n{closing}"
+        chunks.append(closing)
+        
+        return {
+            'full_response': full_response.strip(),
+            'chunks': chunks
+        }
     
     @staticmethod
     def text_to_speech(text):
@@ -652,59 +517,3 @@ class JarvisAI:
         except Exception as e:
             print("[gTTS ERROR]:", e)
             return None
-            
-    @staticmethod
-    def detect_news_intent(text):
-        """
-        Detect if the user is asking for news
-        
-        Args:
-            text (str): User query text
-            
-        Returns:
-            tuple: (is_news_query, category, search_term)
-        """
-        text = text.lower()
-        
-        # Keywords that indicate news intent
-        news_keywords = ["news", "headlines", "latest", "update", "current events", 
-                         "what's happening", "whats going on", "current affairs"]
-        
-        # News categories
-        categories = {
-            "world": ["world", "international", "global"],
-            "business": ["business", "economy", "financial", "finance", "market", "stocks"],
-            "technology": ["tech", "technology", "digital", "computers", "software"],
-            "science": ["science", "scientific", "research"],
-            "health": ["health", "healthcare", "medical", "medicine", "covid", "pandemic"],
-            "sports": ["sports", "sport", "football", "cricket", "tennis", "basketball"],
-            "entertainment": ["entertainment", "celebrity", "film", "movie", "cinema", "hollywood"],
-            "politics": ["politics", "political", "government", "election"]
-        }
-        
-        # Check if it's a news query
-        is_news_query = any(keyword in text for keyword in news_keywords)
-        
-        # Determine category
-        category = None
-        for cat, keywords in categories.items():
-            if any(keyword in text for keyword in keywords):
-                category = cat
-                break
-        
-        # Extract search term if any
-        search_term = None
-        search_indicators = ["about", "on", "regarding", "related to", "search for", "find"]
-        
-        for indicator in search_indicators:
-            if indicator in text:
-                parts = text.split(indicator, 1)
-                if len(parts) > 1 and parts[1].strip():
-                    search_term = parts[1].strip()
-                    # Remove any trailing phrases like "news"
-                    for keyword in news_keywords:
-                        if search_term.endswith(keyword):
-                            search_term = search_term.rsplit(keyword, 1)[0].strip()
-                    break
-        
-        return (is_news_query, category, search_term)

@@ -21,7 +21,7 @@ class QuotaFriendlyAnalyzer:
         self.api_key = api_key
         genai.configure(api_key=api_key)
         # Use the latest Gemini model
-        self.model = genai.GenerativeModel('gemini-1.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
         self.api_calls = 0  # Track number of API calls
         
     def extract_pdf_text(self, pdf_path: str) -> List[DocumentSection]:
