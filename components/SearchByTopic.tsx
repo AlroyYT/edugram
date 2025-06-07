@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { BACKEND_URL } from "./config";
 
 const SearchByTopic: React.FC = () => {
   const [topic, setTopic] = useState("");
@@ -19,7 +20,7 @@ const SearchByTopic: React.FC = () => {
     try {
       console.log("Making request for topic:", topic);
       
-      const response = await axios.get("http://127.0.0.1:8000/api/search-topic/", {
+      const response = await axios.get(`${BACKEND_URL}/api/search-topic/`, {
         params: { topic },
         responseType: 'blob'
       });

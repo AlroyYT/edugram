@@ -38,6 +38,9 @@ from django.core.files.base import ContentFile
 import uuid
 from django.utils.decorators import method_decorator
 import requests
+from config import FRONTEND_URL
+from config import BACKEND_URL
+
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -639,7 +642,7 @@ def get_saved_materials(request):
                 materials.append({
                     'fileName': filename,
                     'type': file_type,
-                    'filePath': f'http://127.0.0.1:8000/media/saved/{filename}',
+                    'filePath': f'BACKEND_URL/media/saved/{filename}',
                     'date': datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
                 })
 
@@ -799,7 +802,7 @@ def delete_saved_material(request, filename):
     # Handle preflight OPTIONS request
     if request.method == "OPTIONS":
         response = JsonResponse({})
-        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Origin"] = FRONTEND_URL
         response["Access-Control-Allow-Methods"] = "DELETE, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         response["Access-Control-Max-Age"] = "86400"
@@ -824,7 +827,7 @@ def delete_saved_material(request, filename):
                 'success': False,
                 'message': f'File "{filename}" not found'
             }, status=404)
-            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            response["Access-Control-Allow-Origin"] = FRONTEND_URL
             return response
         
         # Check if we have permission to delete
@@ -834,7 +837,7 @@ def delete_saved_material(request, filename):
                 'success': False,
                 'message': f'No permission to delete file "{filename}"'
             }, status=403)
-            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            response["Access-Control-Allow-Origin"] = FRONTEND_URL
             return response
         
         # Delete the file
@@ -845,7 +848,7 @@ def delete_saved_material(request, filename):
                 'success': True,
                 'message': f'File "{filename}" deleted successfully'
             }, status=200)
-            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            response["Access-Control-Allow-Origin"] = FRONTEND_URL
             return response
         except OSError as e:
             logger.error(f"Error deleting file {file_path}: {str(e)}")
@@ -853,7 +856,7 @@ def delete_saved_material(request, filename):
                 'success': False,
                 'message': f'Error deleting file: {str(e)}'
             }, status=500)
-            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            response["Access-Control-Allow-Origin"] = FRONTEND_URL
             return response
     
     except Exception as e:
@@ -862,7 +865,7 @@ def delete_saved_material(request, filename):
             'success': False,
             'message': f'Error processing request: {str(e)}'
         }, status=500)
-        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Origin"] = FRONTEND_URL
         return response
 
 @csrf_exempt
@@ -872,7 +875,7 @@ def download_file(request, filename):
     # Handle preflight OPTIONS request
     if request.method == "OPTIONS":
         response = HttpResponse()
-        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Origin"] = FRONTEND_URL
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         response["Access-Control-Max-Age"] = "86400"
@@ -897,7 +900,7 @@ def download_file(request, filename):
                 'success': False,
                 'message': f'File "{filename}" not found'
             }, status=404)
-            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            response["Access-Control-Allow-Origin"] = FRONTEND_URL
             return response
         
         # Get the file's mime type
@@ -914,7 +917,7 @@ def download_file(request, filename):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         
         # Add CORS headers
-        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Origin"] = FRONTEND_URL
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         
@@ -926,5 +929,5 @@ def download_file(request, filename):
             'success': False,
             'message': f'Error downloading file: {str(e)}'
         }, status=500)
-        response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response["Access-Control-Allow-Origin"] = FRONTEND_URL
         return response

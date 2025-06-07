@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { BACKEND_URL } from "./config";
 
 const VoiceAssistant = () => {
   const [isListening, setIsListening] = useState(false);
@@ -274,7 +275,7 @@ const VoiceAssistant = () => {
             // This includes conversation history (up to last 10 exchanges for brevity)
             const conversationContext = conversation.slice(-20); // Get last 20 messages (10 exchanges)
             
-            const response = await fetch('http://localhost:8000/api/process_audio/', {
+            const response = await fetch(`${BACKEND_URL}/api/process_audio/`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

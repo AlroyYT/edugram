@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFileContext } from '../context/FileContext';
 import { useRouter } from 'next/router';
 import { jsPDF } from 'jspdf';
+import { BACKEND_URL } from "./config";
+
 
 const FlashcardsEnhanced: React.FC = () => {
   const [fcrd84StudyCards, setFcrd84StudyCards] = useState<{ question: string; answer: string }[]>([]);
@@ -33,7 +35,7 @@ const FlashcardsEnhanced: React.FC = () => {
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/api/generate-flashcards/',
+          `${BACKEND_URL}/api/generate-flashcards/`,
           formData,
           { 
             headers: { 'Content-Type': 'multipart/form-data' },
@@ -163,7 +165,7 @@ const FlashcardsEnhanced: React.FC = () => {
       formData.append('fileName', `${originalFileName}_flashcards`);
 
       // Send to backend using the save-material endpoint
-      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+      const response = await axios.post(`${BACKEND_URL}/api/save-material/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

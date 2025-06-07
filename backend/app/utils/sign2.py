@@ -9,6 +9,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import nltk
 import logging
+from config import FRONTEND_URL
 
 logger = logging.getLogger(__name__)
 nltk.download('punkt_tab')
@@ -24,7 +25,7 @@ def animation_view(request):
 	"""
 	# Add CORS headers to response
 	def add_cors_headers(response):
-		response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+		response["Access-Control-Allow-Origin"] = FRONTEND_URL
 		response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
 		response["Access-Control-Allow-Headers"] = "Content-Type"
 		return response

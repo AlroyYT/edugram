@@ -3,6 +3,8 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFileContext } from "../context/FileContext";
+import { BACKEND_URL } from "./config";
+
 
 
 const DeafSupportHub = () => {
@@ -75,7 +77,7 @@ const DeafSupportHub = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/",
+        `${BACKEND_URL}/api/summarize/`,
         formData,
         {
           headers: {
@@ -107,7 +109,7 @@ const DeafSupportHub = () => {
   const fetchSavedMaterials = async () => {
     setIsLoadingMaterials(true);
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/saved-materials/');
+      const response = await axios.get(`${BACKEND_URL}/api/saved-materials/`);
       setSavedMaterials(response.data.materials);
     } catch (error) {
       console.error('Error fetching saved materials:', error);
@@ -133,7 +135,7 @@ const DeafSupportHub = () => {
       // Use the download endpoint instead of direct media URL
       const response = await axios({
         method: 'get',
-        url: `http://127.0.0.1:8000/api/download/${encodeURIComponent(fileName)}/`,
+        url: `${BACKEND_URL}/api/download/${encodeURIComponent(fileName)}/`,
         responseType: 'blob',
         headers: {
           'Accept': 'application/pdf,application/octet-stream',
@@ -189,7 +191,7 @@ const DeafSupportHub = () => {
       // Send delete request to API with the filename
       const response = await axios({
         method: 'delete',
-        url: `http://127.0.0.1:8000/api/saved-materials/${encodeURIComponent(material.fileName)}/`,
+        url: `${BACKEND_URL}/api/saved-materials/${encodeURIComponent(material.fileName)}/`,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

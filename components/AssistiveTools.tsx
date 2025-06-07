@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import SearchByTopic from "./SearchByTopic"; 
+import { BACKEND_URL } from "./config"; 
 
 const AssistiveTools = () => {
   const [currentView, setCurrentView] = useState<string>("default"); // Track which view to show
@@ -30,7 +31,7 @@ const AssistiveTools = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/upload/", // Your Django API URL for file upload
+        `${BACKEND_URL}/api/upload/`, // Your Django API URL for file upload
         formData,
         {
           headers: {
@@ -56,7 +57,7 @@ const AssistiveTools = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/generate-mcqs/", // Your API endpoint for MCQs
+        `${BACKEND_URL}/api/generate-mcqs/`, // Your API endpoint for MCQs
         formData,
         {
           headers: {
@@ -82,7 +83,7 @@ const AssistiveTools = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/", // Your API endpoint for summarization
+        `${BACKEND_URL}/api/summarize/`, // Your API endpoint for summarization
         formData,
         {
           headers: {
@@ -112,7 +113,7 @@ const AssistiveTools = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/generate-flashcards/", // Your API endpoint for flashcards
+        `${BACKEND_URL}/api/generate-flashcards/`, // Your API endpoint for flashcards
         formData,
         {
           headers: {

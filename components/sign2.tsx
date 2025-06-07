@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { BACKEND_URL } from "./config";
+
 
 type WordData = {
   word: string;
@@ -48,7 +50,7 @@ const AnimationView: React.FC = () => {
       const formData = new FormData();
       formData.append('sen', sentence);
 
-      const response = await fetch("http://localhost:8000/api/animation_view/", {
+      const response = await fetch(`${BACKEND_URL}/api/animation_view/`, {
         method: 'POST',
         body: formData,
       });
@@ -132,7 +134,7 @@ const AnimationView: React.FC = () => {
       );
     }
 
-    const mediaSrc = `http://localhost:8000/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    const mediaSrc = `${BACKEND_URL}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
     
     return (
       <div 

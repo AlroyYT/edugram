@@ -8,6 +8,7 @@ import { useWindowSize } from "react-use";
 import { useFileContext } from "../context/FileContext";
 import { useRouter } from "next/router";
 import { jsPDF } from 'jspdf';
+import { BACKEND_URL } from "./config";
 
 const QuizExperience = () => {
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
@@ -40,7 +41,7 @@ const QuizExperience = () => {
       formData.append("file", uploadedFile);
 
       try {
-        const response = await axios.post("http://127.0.0.1:8000/api/generate-mcqs/", formData, {
+        const response = await axios.post(`${BACKEND_URL}/api/generate-mcqs/`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
@@ -216,7 +217,7 @@ const QuizExperience = () => {
       formData.append('fileName', `${originalFileName}_quiz`);
 
       // Send to backend using the save-material endpoint
-      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+      const response = await axios.post(`${BACKEND_URL}/api/save-material/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

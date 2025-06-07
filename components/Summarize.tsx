@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import { BACKEND_URL } from "./config";
 
 const Summarize = ({ file }: { file: File | null }) => {
   const [uploadStatus, setUploadStatus] = useState<string>("");
@@ -22,7 +23,7 @@ const Summarize = ({ file }: { file: File | null }) => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/",
+        `${BACKEND_URL}/api/summarize/`,
         formData,
         {
           headers: {
