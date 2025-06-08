@@ -207,7 +207,7 @@ export default function Home() {
         </main>
 
         <footer className="footer">
-          <p>Built with Django & Next.js | Scraping data from stradresearch.org</p>
+          
         </footer>
       </div>
 

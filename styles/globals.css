@@ -2213,6 +2213,7 @@
     perspective: 1000px;
     cursor: pointer;
     margin-bottom: 2rem;
+    
   }
   
   .fcrd84_flashcard_inner {
@@ -2243,14 +2244,14 @@
   }
   
   .fcrd84_flashcard_front {
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
+    background: rgba(245, 242, 242, 0.9);
+    color: #df0c0c;
     text-align: center;
   }
   
   .fcrd84_flashcard_back {
     background: white;
-    color: #333;
+    color: #c71616;
     transform: rotateY(180deg);
     overflow-y: auto;
   }
@@ -5599,4 +5600,49 @@ body {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+/* CSS for Image Bot and Call Papers buttons */
+.image-bot-button,
+.call-papers-button {
+  padding: 8px 16px;
+  margin-right: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.image-bot-button:hover,
+.call-papers-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.image-bot-button:active,
+.call-papers-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Make sure header-actions has proper flexbox alignment */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .image-bot-button,
+  .call-papers-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-right: 8px;
+  }
 }
