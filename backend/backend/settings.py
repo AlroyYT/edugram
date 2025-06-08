@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Add Gemini API Key directly (replace with your actual API key)
-GEMINI_API_KEY = "AIzaSyAx09pwomEKT6ldSD2K0tobWd24oX_S-dk"  # Get this from Google AI Studio
+GEMINI_API_KEY = "AIzaSyBx5vSUiCM0uderHKx84sBzCBD_gIwCVek"  # Get this from Google AI Studio
 YOUTUBE_API_KEY = 'AIzaSyDs7jM_P4DFtvgj3FVHK5480_GBp1Y8diI'
 
 # Application definition
@@ -236,3 +236,5 @@ mimetypes.add_type("video/webm", ".webm", True)
 # 4️⃣ Add 'whitenoise' for better file handling (optional)
 INSTALLED_APPS += ['whitenoise.runserver_nostatic']
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB

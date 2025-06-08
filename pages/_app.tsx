@@ -4,6 +4,8 @@ import Head from 'next/head';
 import { FileProvider } from '../context/FileContext';
 import '../styles/globals.css';
 
+
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <FileProvider>

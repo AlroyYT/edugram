@@ -136,7 +136,7 @@ const Features = () => {
               transition={{ duration: 0.6, delay: 1.2 }}
             ></motion.div>
             <h1 className="page-title">
-              <span className="emp">Empower</span>Learn
+              <span className="emp">Empower-Learn</span>
             </h1>
             <motion.div
               className="title-line"

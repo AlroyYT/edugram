@@ -2,11 +2,15 @@ from django.conf import settings
 import mimetypes
 import os
 import tempfile
+
+import urllib
 import whisper
 import base64
 import re
 import time
 import traceback
+from bs4 import BeautifulSoup
+import uuid 
 import concurrent.futures
 from django.http import FileResponse, HttpResponse ,StreamingHttpResponse
 from django.views.decorators.http import require_http_methods
@@ -26,6 +30,7 @@ import json
 from .utils.mcq_generator import OptimizedMCQGenerator 
 from .utils.video_generation import get_video_path
 from .utils.jarvis import JarvisAI
+from .utils.image import ImageProcessor
 import traceback
 import subprocess
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
@@ -38,6 +43,11 @@ from django.core.files.base import ContentFile
 import uuid
 from django.utils.decorators import method_decorator
 import requests
+from django.views import View
+import re
+from urllib.parse import urljoin, quote
+import time
+
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -928,3 +938,485 @@ def download_file(request, filename):
         }, status=500)
         response["Access-Control-Allow-Origin"] = "http://localhost:3000"
         return response
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ImageAnalysisView(View):
+    """Handle image upload and analysis"""
+    
+    def post(self, request):
+        try:
+            # Check if image file is present
+            if 'image' not in request.FILES:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No image file provided'
+                }, status=400)
+            
+            image_file = request.FILES['image']
+            
+            # Validate file type
+            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp']
+            if image_file.content_type not in allowed_types:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid file type. Please upload an image file.'
+                }, status=400)
+            
+            # Validate file size (max 10MB)
+            max_size = 10 * 1024 * 1024  # 10MB
+            if image_file.size > max_size:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'File too large. Please upload an image smaller than 10MB.'
+                }, status=400)
+            
+            # Initialize image processor
+            processor = ImageProcessor()
+            
+            # Analyze the image
+            analysis_result = processor.analyze_image(image_file)
+            
+            if analysis_result['success']:
+                return JsonResponse({
+                    'success': True,
+                    'description': analysis_result['description'],
+                    'filename': image_file.name,
+                    'size': image_file.size,
+                    'content_type': image_file.content_type
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': analysis_result['error']
+                }, status=500)
+                
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Server error: {str(e)}'
+            }, status=500)
+    
+    def get(self, request):
+        """Return API information"""
+        return JsonResponse({
+            'message': 'Image Analysis API',
+            'method': 'POST',
+            'endpoint': '/analyze-image/',
+            'supported_formats': ['JPEG', 'PNG', 'GIF', 'BMP', 'WebP'],
+            'max_file_size': '10MB'
+        })
+
+
+@require_http_methods(["GET"])
+def health_check(request):
+    """Simple health check endpoint"""
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'Image Processing Bot'
+    })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def search_paper(request):
+    try:
+        data = json.loads(request.body)
+        topic = data.get('title', '').strip()  # Using 'title' field as topic
+        author = data.get('author', '').strip()
+        year = data.get('year', '').strip()
+        
+        if not topic:
+            return JsonResponse({
+                'success': False,
+                'error': 'Topic/Title is required'
+            }, status=400)
+        
+        # Search for papers by topic
+        search_results = search_papers_by_topic(topic, author, year)
+        
+        return JsonResponse({
+            'success': True,
+            'results': search_results
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+def search_papers_by_topic(topic, author="", year=""):
+    """
+    Search for papers by topic from multiple academic sources
+    """
+    all_results = []
+    
+    # Search from multiple sources
+    sources = [
+        search_arxiv_papers,
+        search_doaj_papers,
+        search_pubmed_papers,
+        search_ieee_papers,
+        search_semantic_scholar_papers
+    ]
+    
+    for search_func in sources:
+        try:
+            results = search_func(topic, author, year)
+            if results:
+                all_results.extend(results)
+                if len(all_results) >= 15:  # Limit total results
+                    break
+        except Exception as e:
+            print(f"Error in {search_func.__name__}: {e}")
+            continue
+    
+    # Remove duplicates and sort by relevance
+    unique_results = remove_duplicates(all_results)
+    
+    return unique_results[:10]  # Return top 10 results
+
+def search_arxiv_papers(topic, author="", year=""):
+    """
+    Search arXiv for papers
+    """
+    results = []
+    try:
+        # arXiv API
+        base_url = "http://export.arxiv.org/api/query"
+        
+        # Build search query
+        search_query = f"all:{topic}"
+        if author:
+            search_query += f" AND au:{author}"
+        if year:
+            search_query += f" AND submittedDate:[{year}0101 TO {year}1231]"
+        
+        params = {
+            'search_query': search_query,
+            'start': 0,
+            'max_results': 5,
+            'sortBy': 'relevance',
+            'sortOrder': 'descending'
+        }
+        
+        response = requests.get(base_url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            # Parse XML response
+            from xml.etree import ElementTree as ET
+            root = ET.fromstring(response.content)
+            
+            # Extract papers
+            for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
+                title_elem = entry.find('{http://www.w3.org/2005/Atom}title')
+                summary_elem = entry.find('{http://www.w3.org/2005/Atom}summary')
+                
+                authors = []
+                for author_elem in entry.findall('{http://www.w3.org/2005/Atom}author'):
+                    name_elem = author_elem.find('{http://www.w3.org/2005/Atom}name')
+                    if name_elem is not None:
+                        authors.append(name_elem.text)
+                
+                # Get publication date
+                published_elem = entry.find('{http://www.w3.org/2005/Atom}published')
+                pub_year = "Unknown"
+                if published_elem is not None:
+                    pub_year = published_elem.text[:4]
+                
+                # Get arXiv URL
+                id_elem = entry.find('{http://www.w3.org/2005/Atom}id')
+                url = id_elem.text if id_elem is not None else ""
+                
+                if title_elem is not None:
+                    results.append({
+                        'title': title_elem.text.strip(),
+                        'authors': ', '.join(authors) if authors else 'Unknown',
+                        'year': pub_year,
+                        'abstract': summary_elem.text.strip() if summary_elem is not None else 'No abstract available',
+                        'url': url,
+                        'source': 'arXiv'
+                    })
+    
+    except Exception as e:
+        print(f"arXiv search error: {e}")
+    
+    return results
+
+def search_doaj_papers(topic, author="", year=""):
+    """
+    Search Directory of Open Access Journals (DOAJ)
+    """
+    results = []
+    try:
+        base_url = "https://doaj.org/api/search/articles"
+        
+        params = {
+            'query': topic,
+            'page': 1,
+            'pageSize': 5
+        }
+        
+        response = requests.get(base_url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            for item in data.get('results', []):
+                bibjson = item.get('bibjson', {})
+                
+                title = bibjson.get('title', 'No title')
+                abstract = bibjson.get('abstract', 'No abstract available')
+                
+                # Get authors
+                authors = []
+                for author_info in bibjson.get('author', []):
+                    name = author_info.get('name', '')
+                    if name:
+                        authors.append(name)
+                
+                # Get year
+                pub_year = bibjson.get('year', 'Unknown')
+                
+                # Get URL
+                urls = bibjson.get('link', [])
+                paper_url = ""
+                for link in urls:
+                    if link.get('type') == 'fulltext':
+                        paper_url = link.get('url', '')
+                        break
+                
+                results.append({
+                    'title': title,
+                    'authors': ', '.join(authors) if authors else 'Unknown',
+                    'year': str(pub_year),
+                    'abstract': abstract[:500] + '...' if len(abstract) > 500 else abstract,
+                    'url': paper_url,
+                    'source': 'DOAJ'
+                })
+    
+    except Exception as e:
+        print(f"DOAJ search error: {e}")
+    
+    return results
+
+def search_pubmed_papers(topic, author="", year=""):
+    """
+    Search PubMed for papers
+    """
+    results = []
+    try:
+        # PubMed E-utilities API
+        search_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+        
+        search_params = {
+            'db': 'pubmed',
+            'term': topic,
+            'retmax': 5,
+            'retmode': 'json'
+        }
+        
+        if year:
+            search_params['term'] += f" AND {year}[pdat]"
+        if author:
+            search_params['term'] += f" AND {author}[au]"
+        
+        search_response = requests.get(search_url, params=search_params, timeout=10)
+        
+        if search_response.status_code == 200:
+            search_data = search_response.json()
+            pmids = search_data.get('esearchresult', {}).get('idlist', [])
+            
+            if pmids:
+                # Get details for each paper
+                fetch_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+                fetch_params = {
+                    'db': 'pubmed',
+                    'id': ','.join(pmids),
+                    'retmode': 'xml'
+                }
+                
+                fetch_response = requests.get(fetch_url, params=fetch_params, timeout=10)
+                
+                if fetch_response.status_code == 200:
+                    # Parse XML
+                    from xml.etree import ElementTree as ET
+                    root = ET.fromstring(fetch_response.content)
+                    
+                    for article in root.findall('.//PubmedArticle'):
+                        title_elem = article.find('.//ArticleTitle')
+                        abstract_elem = article.find('.//AbstractText')
+                        
+                        # Get authors
+                        authors = []
+                        for author in article.findall('.//Author'):
+                            fname = author.find('ForeName')
+                            lname = author.find('LastName')
+                            if fname is not None and lname is not None:
+                                authors.append(f"{fname.text} {lname.text}")
+                        
+                        # Get year
+                        year_elem = article.find('.//PubDate/Year')
+                        pub_year = year_elem.text if year_elem is not None else 'Unknown'
+                        
+                        # Get PMID for URL
+                        pmid_elem = article.find('.//PMID')
+                        pmid = pmid_elem.text if pmid_elem is not None else ''
+                        
+                        if title_elem is not None:
+                            results.append({
+                                'title': title_elem.text,
+                                'authors': ', '.join(authors) if authors else 'Unknown',
+                                'year': pub_year,
+                                'abstract': abstract_elem.text if abstract_elem is not None else 'No abstract available',
+                                'url': f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else '',
+                                'source': 'PubMed'
+                            })
+    
+    except Exception as e:
+        print(f"PubMed search error: {e}")
+    
+    return results
+
+def search_ieee_papers(topic, author="", year=""):
+    """
+    Search IEEE Xplore (limited without API key)
+    """
+    results = []
+    try:
+        # This is a simplified search - for full access, you'd need IEEE API key
+        base_url = "https://ieeexplore.ieee.org/search/searchresult.jsp"
+        
+        params = {
+            'queryText': topic,
+            'highlight': 'true',
+            'returnFacets': 'ALL',
+            'returnType': 'SEARCH',
+            'matchPubs': 'true',
+            'rowsPerPage': '5'
+        }
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
+        response = requests.get(base_url, params=params, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Extract paper information (this is simplified)
+            paper_elements = soup.find_all('div', class_='List-results-items')
+            
+            for element in paper_elements[:3]:  # Limit to 3 results
+                title_elem = element.find('h3')
+                if title_elem:
+                    title_link = title_elem.find('a')
+                    title = title_link.text.strip() if title_link else title_elem.text.strip()
+                    url = f"https://ieeexplore.ieee.org{title_link.get('href')}" if title_link and title_link.get('href') else ''
+                    
+                    results.append({
+                        'title': title,
+                        'authors': 'IEEE Authors',
+                        'year': year or 'Recent',
+                        'abstract': 'IEEE paper - visit link for full abstract',
+                        'url': url,
+                        'source': 'IEEE Xplore'
+                    })
+    
+    except Exception as e:
+        print(f"IEEE search error: {e}")
+    
+    return results
+
+def search_semantic_scholar_papers(topic, author="", year=""):
+    """
+    Search Semantic Scholar API
+    """
+    results = []
+    try:
+        base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
+        
+        params = {
+            'query': topic,
+            'limit': 5,
+            'fields': 'title,authors,year,abstract,url,venue'
+        }
+        
+        if year:
+            params['year'] = year
+        
+        response = requests.get(base_url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            for paper in data.get('data', []):
+                authors = []
+                for author_info in paper.get('authors', []):
+                    name = author_info.get('name', '')
+                    if name:
+                        authors.append(name)
+                
+                results.append({
+                    'title': paper.get('title', 'No title'),
+                    'authors': ', '.join(authors) if authors else 'Unknown',
+                    'year': str(paper.get('year', 'Unknown')),
+                    'abstract': paper.get('abstract', 'No abstract available'),
+                    'url': paper.get('url', ''),
+                    'source': 'Semantic Scholar'
+                })
+    
+    except Exception as e:
+        print(f"Semantic Scholar search error: {e}")
+    
+    return results
+
+def remove_duplicates(papers):
+    """
+    Remove duplicate papers based on title similarity
+    """
+    unique_papers = []
+    seen_titles = set()
+    
+    for paper in papers:
+        title = paper.get('title', '').lower().strip()
+        
+        # Simple deduplication based on title
+        is_duplicate = False
+        for seen_title in seen_titles:
+            if similarity_check(title, seen_title) > 0.8:
+                is_duplicate = True
+                break
+        
+        if not is_duplicate:
+            unique_papers.append(paper)
+            seen_titles.add(title)
+    
+    return unique_papers
+
+def similarity_check(text1, text2):
+    """
+    Simple similarity check between two strings
+    """
+    text1 = text1.lower().strip()
+    text2 = text2.lower().strip()
+    
+    if not text1 or not text2:
+        return 0
+    
+    # Simple word overlap similarity
+    words1 = set(text1.split())
+    words2 = set(text2.split())
+    
+    if not words1 or not words2:
+        return 0
+    
+    intersection = words1.intersection(words2)
+    union = words1.union(words2)
+    
+    return len(intersection) / len(union) if union else 0

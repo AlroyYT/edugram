@@ -10,7 +10,7 @@
 endobj
 4 0 obj
 <<
-/Length 2080
+/Length 1967
 >>
 stream
 0.5670000000000001 w
@@ -27,107 +27,107 @@ BT
 13.7999999999999989 TL
 0 g
 56.6929133858267775 745.5120472440944468 Td
-(File: quiz_results_21-04-2025) Tj
+(File: edugram_paper) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0 g
 56.6929133858267775 725.6695275590550409 Td
-(Date: 08-05-2025) Tj
+(Date: 08-06-2025) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0 g
 56.6929133858267775 685.9844881889763428 Td
-(Score: 2/10) Tj
+(Score: 0/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0 g
 56.6929133858267775 646.2994488188976447 Td
-(Question 1: What is the primary purpose of the VERTICAL tool?) Tj
+(Question 1: What is the name of the AI-driven educational framework presented in the) Tj
+T* (paper?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0 g
-85.0393700787401627 606.614409448818833 Td
-(A. To simulate commercial flight operations) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
 85.0393700787401627 586.7718897637794271 Td
-(B. To design and test Vertical Landing Aids \(VLAs\)) Tj
+(A. EduTech) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 566.9293700787401349 Td
-(C. To train pilots for VTOL aircraft) Tj
+(B. LearnAI) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
-0. g
+0. 0.502 0. rg
 85.0393700787401627 547.086850393700729 Td
-(D. To analyze weather patterns for shipboard landings) Tj
+(C. EDUGRAM) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 507.4018110236219741 Td
-(Explanation: The main goal of the VERTICAL tool is to facilitate the design and testing of VLAs for) Tj
-T* (VTOL/rotorcraft shipboard operations.) Tj
+85.0393700787401627 527.2443307086614368 Td
+(D. AdaptiveLearn) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 487.559291338582625 Td
+(Explanation: The paper introduces and focuses on a framework called EDUGRAM.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 408.1892125984251152 Td
-(Question 2: What software is the VERTICAL tool built upon?) Tj
+(Question 2: According to the paper, approximately how many people worldwide live with disabilities?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 368.5041732283464171 Td
-(A. X-Plane) Tj
+(A. 1.3 million) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 348.6616535433070112 Td
-(B. Prepar3D) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
-85.0393700787401627 328.8191338582676053 Td
-(C. Microsoft Flight Simulator) Tj
+(B. 13 million) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
+85.0393700787401627 328.8191338582676053 Td
+(C. 130 million) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
 85.0393700787401627 308.9766141732283131 Td
-(D. DCS World) Tj
+(D. 1.3 billion) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 269.2915748031495013 Td
-(Explanation: The text explicitly states that the tool utilizes Microsoft Flight Simulator for its visualization) Tj
-T* (engine.) Tj
+(Explanation: The abstract states that educational accessibility is a challenge for approximately 1.3 billion) Tj
+T* (people worldwide living with disabilities.) Tj
 ET
 endstream
 endobj
@@ -141,7 +141,7 @@ endobj
 endobj
 6 0 obj
 <<
-/Length 2382
+/Length 2392
 >>
 stream
 0.5670000000000001 w
@@ -151,128 +151,129 @@ BT
 11.5 TL
 0. g
 56.6929133858267775 785.1970866141732586 Td
-(Question 3: What is the advantage of using a readily available platform like a PC for the VERTICAL tool?) Tj
+(Question 3: What is the reported accuracy of the EDUGRAM system in American Sign Language \(ASL\)) Tj
+T* (recognition?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 745.5120472440944468 Td
-(A. Enhanced graphics capabilities) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
 85.0393700787401627 725.6695275590550409 Td
-(B. Increased accessibility for test team members) Tj
+(A. 90.2%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 705.8270078740157487 Td
-(C. Better compatibility with VR headsets) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 685.9844881889763428 Td
-(D. Simplified software development) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 646.2994488188976447 Td
-(Explanation: The text emphasizes that using PCs allows greater access to the tool for test team members as) Tj
-T* (PCs are widely available.) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 547.086850393700729 Td
-(Question 4: What does VLA stand for in this context?) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 507.4018110236219741 Td
-(A. Vertical Landing Area) Tj
+(B. 94.2%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
+85.0393700787401627 685.9844881889763428 Td
+(C. 96.8%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 666.1419685039369369 Td
+(D. 98.5%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: The paper states that the system achieves 96.8% accuracy in American Sign Language \(ASL\)) Tj
+T* (recognition across educational domains.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 527.2443307086614368 Td
+(Question 4: What type of architecture does EDUGRAM employ for gesture recognition?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
 85.0393700787401627 487.559291338582625 Td
-(B. Visual Landing Aids) Tj
+(A. Recurrent Neural Network) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 467.716771653543276 Td
-(C. VTOL Landing Assistance) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 447.8742519685038701 Td
-(D. Variable Landing Approach) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 408.1892125984251152 Td
-(Explanation: The text defines VLA as Visual Landing Aids.) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 328.8191338582676053 Td
-(Question 5: What type of aircraft are the VLAs primarily designed for?) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 289.1340944881889072 Td
-(A. Fixed-wing aircraft) Tj
+(B. Convolutional Neural Network) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
-85.0393700787401627 269.2915748031495013 Td
-(B. VTOL/rotorcraft) Tj
+85.0393700787401627 447.8742519685038701 Td
+(C. Hybrid CNN-Transformer) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
+85.0393700787401627 428.0317322834645211 Td
+(D. Generative Adversarial Network) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Explanation: The framework employs a hybrid CNN-Transformer architecture for gesture recognition.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 308.9766141732283131 Td
+(Question 5: What is one of the key innovations of EDUGRAM related to user privacy?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 269.2915748031495013 Td
+(A. Encrypted data storage) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
 85.0393700787401627 249.4490551181102092 Td
-(C. Commercial airliners) Tj
+(B. Federated learning implementation) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 229.6065354330708033 Td
-(D. Unmanned aerial vehicles) Tj
+(C. Anonymous data collection) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 189.9214960629919915 Td
-(Explanation: The tool is specifically intended to support VTOL \(Vertical Take-Off and Landing\) and rotorcraft) Tj
-T* (shipboard operations.) Tj
+85.0393700787401627 209.7640157480313974 Td
+(D. User authentication) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 170.0789763779526993 Td
+(Explanation: EDUGRAM uses Federated learning implementation ensuring privacy while enabling continuous) Tj
+T* (model improvement.) Tj
 ET
 endstream
 endobj
@@ -286,7 +287,7 @@ endobj
 endobj
 8 0 obj
 <<
-/Length 2398
+/Length 2399
 >>
 stream
 0.5670000000000001 w
@@ -296,128 +297,131 @@ BT
 11.5 TL
 0. g
 56.6929133858267775 785.1970866141732586 Td
-(Question 6: What is one of the goals of shipboard VLA systems mentioned in the text?) Tj
+(Question 6: What percentage increase in learning engagement was observed in the EDUGRAM user) Tj
+T* (studies?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 745.5120472440944468 Td
-(A. To increase aircraft speed during landing) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
 85.0393700787401627 725.6695275590550409 Td
-(B. To enable pilots to land in lower visibility conditions) Tj
+(A. 65%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 705.8270078740157487 Td
-(C. To reduce the need for pilot training) Tj
+(B. 73%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 685.9844881889763428 Td
-(D. To automate the landing process) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 646.2994488188976447 Td
-(Explanation: The text states that VLAs aim to allow safe operation in lower visibility conditions and higher sea) Tj
-T* (states.) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 547.086850393700729 Td
-(Question 7: What is the name of the design and test tool being developed?) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 507.4018110236219741 Td
-(A. VTOLSim) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 487.559291338582625 Td
-(B. LandingAidDesigner) Tj
+(C. 80%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
+85.0393700787401627 666.1419685039369369 Td
+(D. 87%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: Experimental validation demonstrated significant improvements in learning engagement \(87%) Tj
+T* (increase\).) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 527.2443307086614368 Td
+(Question 7: In which areas do commercial accessibility solutions \(like Google's Live Transcribe\) lack) Tj
+T* (compared to EDUGRAM?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
 85.0393700787401627 467.716771653543276 Td
-(C. VERTICAL) Tj
+(A. General accessibility features) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 447.8742519685038701 Td
-(D. FlightDeckSimulator) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 408.1892125984251152 Td
-(Explanation: The tool being developed is called VERTICAL \(VLA Experimental Resource for Testing) Tj
-T* (Innovative Configurations\).) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 308.9766141732283131 Td
-(Question 8: Aside from Microsoft Flight Simulator, what other technologies are used in VERTICAL?) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 269.2915748031495013 Td
-(A. Python and C++) Tj
+(B. Real-time transcription) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
-85.0393700787401627 249.4490551181102092 Td
-(B. FSUIPC and Java) Tj
+85.0393700787401627 428.0317322834645211 Td
+(C. Educational contexts requiring specialized vocabulary) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 408.1892125984251152 Td
+(D. Voice control) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 368.5041732283464171 Td
+(Explanation: Commercial solutions focus on general-purpose accessibility rather than educational contexts) Tj
+T* (requiring specialized vocabulary.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 269.2915748031495013 Td
+(Question 8: According to the paper, what percentage of people with disabilities reside in developing nations?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 229.6065354330708033 Td
-(C. C# and Unity) Tj
+(A. 50%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 209.7640157480313974 Td
-(D. Fortran and Assembly) Tj
+(B. 60%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 170.0789763779526993 Td
-(Explanation: The text mentions the use of FSUIPC and Java in conjunction with MS Flight Simulator.) Tj
+85.0393700787401627 189.9214960629919915 Td
+(C. 70%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 170.0789763779526993 Td
+(D. 80%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 130.3939370078738875 Td
+(Explanation: The challenge is particularly acute in developing nations, where 80% of people with disabilities) Tj
+T* (reside.) Tj
 ET
 endstream
 endobj
@@ -431,7 +435,7 @@ endobj
 endobj
 10 0 obj
 <<
-/Length 1462
+/Length 1709
 >>
 stream
 0.5670000000000001 w
@@ -441,85 +445,87 @@ BT
 11.5 TL
 0. g
 56.6929133858267775 785.1970866141732586 Td
-(Question 9: What feature of ship motion is important for VLA design but not yet implemented in the LHD) Tj
-T* (model?) Tj
+(Question 9: What accuracy was achieved by Jiang et al. in their skeleton-aware multimodal recognition on) Tj
+T* (continuous sign language datasets?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 725.6695275590550409 Td
-(A. Yaw) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
-85.0393700787401627 705.8270078740157487 Td
-(B. Forward motion) Tj
+(A. 85.2%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
+85.0393700787401627 705.8270078740157487 Td
+(B. 88.2%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
 85.0393700787401627 685.9844881889763428 Td
-(C. Heave) Tj
+(C. 91.2%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 666.1419685039369369 Td
-(D. Pitch) Tj
+(D. 94.2%) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 626.4569291338582389 Td
-(Explanation: The provided text mentions forward motion of the ship as not yet implemented.) Tj
+(Explanation: Jiang et al. [4] introduced skeleton-aware multimodal recognition achieving 91.2% accuracy on) Tj
+T* (continuous sign language datasets.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 547.086850393700729 Td
-(Question 10: What type of ship is the focus of the prototype development?) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 507.4018110236219741 Td
-(A. Aircraft Carrier) Tj
+56.6929133858267775 527.2443307086614368 Td
+(Question 10: How does the EDUGRAM framework dynamically weight different input modalities?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 487.559291338582625 Td
-(B. Destroyer) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
-85.0393700787401627 467.716771653543276 Td
-(C. LHD) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-1. 0. 0. rg
-85.0393700787401627 447.8742519685038701 Td
-(D. Submarine) Tj
+(A. Randomly) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 408.1892125984251152 Td
-(Explanation: The text specifies that a custom LHD ship model is used in the prototype application.) Tj
+85.0393700787401627 467.716771653543276 Td
+(B. Based on a fixed hierarchy) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 447.8742519685038701 Td
+(C. Based on user proficiency and contextual relevance) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+1. 0. 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(D. Equally) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Explanation: Our framework contributes a novel attention-based fusion mechanism that dynamically weights) Tj
+T* (different input modalities based on user proficiency and contextual relevance.) Tj
 ET
 endstream
 endobj
@@ -693,7 +699,7 @@ endobj
 25 0 obj
 <<
 /Producer (jsPDF 3.0.1)
-/CreationDate (D:20250508154910+05'30')
+/CreationDate (D:20250608161320+05'30')
 >>
 endobj
 26 0 obj
@@ -707,39 +713,39 @@ endobj
 xref
 0 27
 0000000000 65535 f 
-0000009095 00000 n 
-0000010935 00000 n 
+0000009240 00000 n 
+0000011080 00000 n 
 0000000015 00000 n 
 0000000152 00000 n 
-0000002284 00000 n 
-0000002421 00000 n 
-0000004855 00000 n 
-0000004992 00000 n 
-0000007442 00000 n 
-0000007580 00000 n 
-0000009170 00000 n 
-0000009296 00000 n 
-0000009427 00000 n 
-0000009561 00000 n 
-0000009699 00000 n 
-0000009823 00000 n 
-0000009952 00000 n 
-0000010084 00000 n 
-0000010220 00000 n 
-0000010348 00000 n 
-0000010475 00000 n 
-0000010604 00000 n 
-0000010737 00000 n 
-0000010839 00000 n 
-0000011188 00000 n 
-0000011274 00000 n 
+0000002171 00000 n 
+0000002308 00000 n 
+0000004752 00000 n 
+0000004889 00000 n 
+0000007340 00000 n 
+0000007478 00000 n 
+0000009315 00000 n 
+0000009441 00000 n 
+0000009572 00000 n 
+0000009706 00000 n 
+0000009844 00000 n 
+0000009968 00000 n 
+0000010097 00000 n 
+0000010229 00000 n 
+0000010365 00000 n 
+0000010493 00000 n 
+0000010620 00000 n 
+0000010749 00000 n 
+0000010882 00000 n 
+0000010984 00000 n 
+0000011333 00000 n 
+0000011419 00000 n 
 trailer
 <<
 /Size 27
 /Root 26 0 R
 /Info 25 0 R
-/ID [ <2D75874679836A8879F0077EFC434986> <2D75874679836A8879F0077EFC434986> ]
+/ID [ <714ADA19ECB7F87EC74402E9F034B862> <714ADA19ECB7F87EC74402E9F034B862> ]
 >>
 startxref
-11378
+11523
 %%EOF

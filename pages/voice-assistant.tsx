@@ -75,7 +75,7 @@ export default function Home() {
           Educational Voice Assistant
         </h1>
         
-        <p className="description">
+        <p className="description1">
           An accessible learning experience for all
         </p>
 
