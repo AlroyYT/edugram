@@ -743,6 +743,7 @@
     border: 1px solid;
     opacity: 0.5;
     animation: pulse 2s infinite;
+    
   }
   
   @keyframes pulse {
@@ -2943,11 +2944,7 @@
   }
   
   /* Animations */
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
+  
   
   @keyframes float {
     0% { transform: translateY(0px); }
@@ -3972,10 +3969,6 @@ body::before {
     right: 20px;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
-    50% { opacity: 0.5; transform: translateY(-50%) scale(1.2); }
-}
 
 /* Premium Transcript Styling */
 .transcript {
@@ -5644,5 +5637,89 @@ html {
     padding: 6px 12px;
     font-size: 12px;
     margin-right: 8px;
+  }
+}
+/* LtmButton.css */
+.ltm-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+  outline: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  transform:translate(-100%);
+}
+
+.ltm-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.ltm-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.ltm-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.ltm-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+  background: #cccccc;
+}
+
+/* Add ripple effect */
+.ltm-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: width 0.6s, height 0.6s;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+.ltm-button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+.ltm-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ltm-button {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ltm-button {
+    font-size: 12px;
+    padding: 8px 16px;
   }
 }

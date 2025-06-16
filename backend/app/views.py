@@ -373,202 +373,92 @@ def get_video_path(topic):
     
 
 @csrf_exempt
-def process_audio_optimized(request):
-    """Optimized audio processing with parallel execution and faster response"""
-    if request.method != 'POST':
-        return JsonResponse({"error": "Only POST allowed"}, status=405)
-    
+@require_http_methods(["POST"])
+def process_audio_ultra_fast(request):
+    """Ultra-fast audio processing optimized for Alexa-like speed"""
     start_time = time.time()
     
     try:
-        # Parse request body
+        # Parse request body quickly
         body = json.loads(request.body)
         base64_audio = body.get("audio")
         browser_transcript = body.get("browserTranscript", "")
         conversation_history = body.get("conversation", [])
         
         if not base64_audio:
-            return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
+            return JsonResponse({"error": "Missing audio"}, status=400)
         
-        print(f"Request parsed in {time.time() - start_time:.2f}s")
+        print(f"[{time.time() - start_time:.2f}s] Request parsed")
         
-        # Use parallel processing for faster response
-        try:
-            result = JarvisAI.process_audio_parallel(
-                base64_audio, 
-                browser_transcript, 
-                conversation_history
-            )
-            
-            if not result:
-                return JsonResponse({
-                    "status": "fail", 
-                    "message": "Could not understand audio."
-                }, status=200)
-            
-            print(f"Audio processing completed in {time.time() - start_time:.2f}s")
-            
-            # Extract results
-            text = result['text']
-            whisper_text = result['whisper_text']
-            response_data = result['response_data']
-            is_news_query = result['is_news_query']
-            news_data = result['news_data']
-            
-            full_response = response_data['full_response']
-            chunks = response_data['chunks']
-            
-            print(f"Response generated in {time.time() - start_time:.2f}s")
-            
-            # Generate TTS for first chunk immediately (parallel processing)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-                # Generate first chunk audio immediately
-                first_chunk_future = executor.submit(
-                    JarvisAI.text_to_speech_optimized, 
-                    chunks[0] if chunks else full_response
-                )
-                
-                # Generate remaining chunks in parallel if there are any
-                remaining_futures = []
-                if len(chunks) > 1:
-                    for chunk in chunks[1:3]:  # Limit to next 2 chunks for speed
-                        future = executor.submit(JarvisAI.text_to_speech_optimized, chunk)
-                        remaining_futures.append(future)
-                
-                # Get first chunk audio (this should be fast)
-                first_chunk_voice = first_chunk_future.result(timeout=5)
-                
-                # Get remaining chunk audio
-                chunks_voice = []
-                for future in remaining_futures:
-                    try:
-                        chunk_voice = future.result(timeout=3)
-                        if chunk_voice:
-                            chunks_voice.append(chunk_voice)
-                    except concurrent.futures.TimeoutError:
-                        print("TTS chunk timed out, skipping")
-                        continue
-            
-            print(f"TTS generation completed in {time.time() - start_time:.2f}s")
-            
-            # Prepare news info
-            news_info = None
-            if news_data and news_data.get("status") == "success":
-                news_info = {
-                    "count": news_data.get("count", 0),
-                    "timestamp": news_data.get("timestamp")
-                }
-            
-            total_time = time.time() - start_time
-            print(f"Total request processing time: {total_time:.2f}s")
-            
-            # Return optimized response
-            return JsonResponse({
-                "status": "success",
-                "text": text,
-                "whisper_text": whisper_text,
-                "browser_text": browser_transcript,
-                "response": full_response,
-                "voice_response": first_chunk_voice,
-                "additional_chunks": chunks_voice,
-                "streaming": True if len(chunks_voice) > 0 else False,
-                "news_queried": is_news_query,
-                "news_info": news_info,
-                "processing_time": round(total_time, 2)
-            })
-            
-        except concurrent.futures.TimeoutError:
-            return JsonResponse({
-                "status": "fail",
-                "message": "Processing timed out. Please try a shorter message."
-            }, status=200)
+        # Use the ultra-fast parallel processing
+        result = JarvisAI.process_audio_parallel(
+            base64_audio, 
+            browser_transcript, 
+            conversation_history
+        )
         
-    except json.JSONDecodeError:
-        return JsonResponse({
-            "status": "fail",
-            "message": "Invalid JSON in request"
-        }, status=400)
-    
-    except Exception as e:
-        # Print full traceback for debugging
-        traceback.print_exc()
-        
-        return JsonResponse({
-            "status": "fail",
-            "message": f"Server error: {str(e)}"
-        }, status=500)
-
-# Keep the original function for backward compatibility
-@csrf_exempt
-def process_audio(request):
-    if request.method != 'POST':
-        return JsonResponse({"error": "Only POST allowed"}, status=405)
-    
-    try:
-        # Parse request body
-        body = json.loads(request.body)
-        base64_audio = body.get("audio")
-        browser_transcript = body.get("browserTranscript", "")  # Get browser transcript
-        conversation_history = body.get("conversation", [])  # Get conversation history
-        
-        if not base64_audio:
-            return JsonResponse({"status": "fail", "message": "Missing audio"}, status=400)
-        
-        # Transcribe using Whisper
-        whisper_text = JarvisAI.speech_to_text(base64_audio)
-        
-        # Choose the better transcript or combine them
-        text = choose_better_transcript(whisper_text, browser_transcript)
-        
-        if not text:
+        if not result:
             return JsonResponse({
                 "status": "fail", 
-                "message": "Could not understand audio."
-            }, status=200)
+                "message": "Could not understand audio"
+            })
         
-        # Check if the user is asking for news
-        is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
+        print(f"[{time.time() - start_time:.2f}s] Audio processed")
         
-        # Fetch news if it's a news query
-        news_data = None
-        if is_news_query:
-            print(f"Detected news query. Category: {category}, Search term: {search_term}")
-            news_data = JarvisAI.fetch_latest_news(
-                query=search_term,
-                category=category,
-                count=5  # Limit to 5 news items for concise responses
-            )
-            print(f"Fetched news data: {news_data['status'] if news_data else 'None'}, Articles: {len(news_data.get('articles', [])) if news_data else 0}")
+        # Extract results
+        text = result['text']
+        whisper_text = result['whisper_text']
+        response_data = result['response_data']
+        is_news_query = result['is_news_query']
+        news_data = result['news_data']
         
-        # Prepare context from conversation history for more contextual responses
-        context = ""
-        if conversation_history:
-            # Format the conversation history for inclusion in the prompt
-            # Limit to last 5-10 exchanges to keep context manageable
-            context = "Here's our conversation history so far:\n"
-            for msg in conversation_history[-10:]:  # last 10 messages (5 exchanges)
-                role = "User" if msg["role"] == "user" else "Jarvis"
-                context += f"{role}: {msg['content']}\n"
-            context += "\nNow, respond to the user's latest query:\n"
-        
-        # Get streaming response from Gemini with conversation context and news data
-        response_data = JarvisAI.process_with_gemini_streaming_context(text, context, news_data)
         full_response = response_data['full_response']
         chunks = response_data['chunks']
         
-        # Process the first chunk immediately for faster initial response
+        print(f"[{time.time() - start_time:.2f}s] Response generated: '{full_response[:50]}...'")
+        
+        # Ultra-fast TTS generation with parallel processing
         first_chunk_voice = None
-        chunks_voice = []
+        additional_chunks = []
         
-        if chunks:
-            first_chunk_voice = JarvisAI.text_to_speech(chunks[0])
+        # Use ThreadPoolExecutor for maximum TTS speed
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as tts_executor:
+            tts_futures = {}
             
-            # Process remaining chunks
-            for i in range(1, len(chunks)):
-                chunk_voice = JarvisAI.text_to_speech(chunks[i])
-                chunks_voice.append(chunk_voice)
+            # Start TTS for first chunk immediately
+            if chunks:
+                first_chunk = chunks[0]
+                tts_futures['first'] = tts_executor.submit(JarvisAI.text_to_speech_cached, first_chunk)
+                
+                # Start additional chunks in parallel (limit to 2 for speed)
+                for i, chunk in enumerate(chunks[1:3]):  # Max 2 additional chunks
+                    tts_futures[f'chunk_{i}'] = tts_executor.submit(JarvisAI.text_to_speech_cached, chunk)
+            else:
+                # Fallback to full response
+                tts_futures['first'] = tts_executor.submit(JarvisAI.text_to_speech_cached, full_response)
+            
+            # Collect TTS results with timeout
+            # Collect TTS results without timeout
+            try:
+                # Get first chunk (priority) - no timeout, wait as long as needed
+                first_chunk_voice = tts_futures['first'].result()
+                print(f"[{time.time() - start_time:.2f}s] First TTS ready")
+                
+                # Get additional chunks - no timeout
+                for key, future in tts_futures.items():
+                    if key != 'first':
+                        chunk_voice = future.result()
+                        if chunk_voice:
+                            additional_chunks.append(chunk_voice)
+                
+                print(f"[{time.time() - start_time:.2f}s] All TTS completed")
+    
+            except Exception as e:
+                print(f"TTS error: {e}")
+                # Only fallback on actual errors, not timeouts
+                first_chunk_voice = JarvisAI.text_to_speech_cached(full_response)
         
-        # Prepare news info for the response
+        # Prepare news info
         news_info = None
         if news_data and news_data.get("status") == "success":
             news_info = {
@@ -576,7 +466,10 @@ def process_audio(request):
                 "timestamp": news_data.get("timestamp")
             }
         
-        # Return all data to frontend
+        total_time = time.time() - start_time
+        print(f"[TOTAL] Request completed in {total_time:.2f}s")
+        
+        # Return optimized response
         return JsonResponse({
             "status": "success",
             "text": text,
@@ -584,54 +477,117 @@ def process_audio(request):
             "browser_text": browser_transcript,
             "response": full_response,
             "voice_response": first_chunk_voice,
-            "additional_chunks": chunks_voice,
-            "streaming": True,
+            "additional_chunks": additional_chunks,
+            "streaming": len(additional_chunks) > 0,
             "news_queried": is_news_query,
-            "news_info": news_info
+            "news_info": news_info,
+            "processing_time": round(total_time, 2),
+            "speed_optimized": True
         })
     
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    
     except Exception as e:
-        # Print full traceback for debugging
         traceback.print_exc()
-        
         return JsonResponse({
             "status": "fail",
             "message": f"Server error: {str(e)}"
         }, status=500)
 
+@csrf_exempt  
+def process_audio_streaming(request):
+    """Streaming response version for real-time audio feedback"""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+    
+    start_time = time.time()
+    
+    try:
+        body = json.loads(request.body)
+        base64_audio = body.get("audio")
+        browser_transcript = body.get("browserTranscript", "")
+        conversation_history = body.get("conversation", [])
+        
+        if not base64_audio:
+            return JsonResponse({"error": "Missing audio"}, status=400)
+        
+        # Quick transcript selection
+        if browser_transcript and len(browser_transcript.strip()) > 5:
+            text = browser_transcript
+            print(f"[{time.time() - start_time:.2f}s] Using browser transcript: '{text}'")
+        else:
+            # Fall back to Whisper
+            text = JarvisAI.speech_to_text_fast(base64_audio)
+            print(f"[{time.time() - start_time:.2f}s] Whisper transcription: '{text}'")
+        
+        if not text:
+            return JsonResponse({"status": "fail", "message": "Could not understand audio"})
+        
+        # Immediate response generation
+        is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
+        
+        # Parallel news fetch and AI processing
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            news_future = None
+            if is_news_query:
+                news_future = executor.submit(JarvisAI.fetch_latest_news_fast, search_term, category, 3)
+            
+            # Start AI processing immediately
+            context = ""
+            if conversation_history:
+                context = "Recent: " + " ".join([
+                    f"{msg['role']}: {msg['content'][:50]}" 
+                    for msg in conversation_history[-3:]
+                ])
+            
+            # Get news data with timeout
+            news_data = None
+            if news_future:
+                try:
+                    news_data = news_future.result(timeout=3)
+                except concurrent.futures.TimeoutError:
+                    news_data = {"status": "timeout", "articles": []}
+            
+            # Generate AI response
+            ai_response = JarvisAI.process_with_gemini_streaming_fast(text, context, news_data)
+        
+        # Immediate TTS for first response
+        first_response = ai_response['chunks'][0] if ai_response['chunks'] else ai_response['full_response']
+        first_voice = JarvisAI.text_to_speech_cached(first_response)
+        
+        total_time = time.time() - start_time
+        print(f"[STREAMING] Response ready in {total_time:.2f}s")
+        
+        return JsonResponse({
+            "status": "success",
+            "text": text,
+            "response": ai_response['full_response'],
+            "voice_response": first_voice,
+            "streaming": len(ai_response['chunks']) > 1,
+            "chunks": ai_response['chunks'],
+            "news_queried": is_news_query,
+            "processing_time": round(total_time, 2)
+        })
+    
+    except Exception as e:
+        traceback.print_exc()
+        return JsonResponse({"status": "fail", "message": str(e)}, status=500)
+
+# Keep original functions for backward compatibility
+@csrf_exempt
+def process_audio_optimized(request):
+    """Redirect to ultra-fast version"""
+    return process_audio_ultra_fast(request)
+
+@csrf_exempt
+def process_audio(request):
+    """Redirect to ultra-fast version"""
+    return process_audio_ultra_fast(request)
+
 def choose_better_transcript(whisper_text, browser_text):
-    """Choose the better transcript based on some heuristics."""
-    if not whisper_text and not browser_text:
-        return None
-    elif not whisper_text:
-        return browser_text
-    elif not browser_text:
-        return whisper_text
-    
-    # Here you could implement more sophisticated logic
-    # For technical terms, browser recognition might actually be better
-    
-    # Simple length-based heuristic as a starting point
-    if len(browser_text) > len(whisper_text) * 1.5:
-        return browser_text
-    
-    # Check for common technical terms that might be misheard
-    tech_terms = ["sort", "algorithm", "merge sort", "quick sort", "binary", "search"]
-    for term in tech_terms:
-        if term in browser_text.lower() and term not in whisper_text.lower():
-            return browser_text
-    
-    # Check for news-related terms
-    news_terms = ["news", "headlines", "latest", "update", "current", "events", "world", "business"]
-    for term in news_terms:
-        if term in browser_text.lower() and term not in whisper_text.lower():
-            return browser_text
-    
-    # Default to whisper_text which is likely more accurate for general speech
-    return whisper_text
-    
-    # Default to whisper_text which is likely more accurate for general speech
-    return whisper_text
+    """Fast transcript selection"""
+    return JarvisAI.choose_better_transcript_fast(whisper_text, browser_text)
 @api_view(['GET'])
 def get_saved_materials(request):
     try:

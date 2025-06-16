@@ -3,6 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFileContext } from "../context/FileContext";
+import LtmButton from '../components/ltmbutton';
 
 
 const DeafSupportHub = () => {
@@ -533,7 +534,9 @@ const DeafSupportHub = () => {
             <h1>AccessLearn Hub</h1>
           </div>
           <nav className="headerNav">
+            
             <button className="nav-button active">Learning Hub</button>
+            
             <button className="nav-button">Accessibility Tools</button>
             <button className="nav-button" onClick={() => navigator.push("/sign2")}>Sign Language Resources</button>
           </nav>
