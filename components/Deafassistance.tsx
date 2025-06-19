@@ -76,7 +76,7 @@ const DeafSupportHub = () => {
 
     try {
       const response = await axios.post(
-        "http://edugram-574544346633.asia-south1.run.app/api/summarize/",
+        "https://edugram-574544346633.asia-south1.run.app/api/summarize/",
         formData,
         {
           headers: {
@@ -108,7 +108,7 @@ const DeafSupportHub = () => {
   const fetchSavedMaterials = async () => {
     setIsLoadingMaterials(true);
     try {
-      const response = await axios.get('http://edugram-574544346633.asia-south1.run.app/api/saved-materials/');
+      const response = await axios.get('https://edugram-574544346633.asia-south1.run.app/api/saved-materials/');
       setSavedMaterials(response.data.materials);
     } catch (error) {
       console.error('Error fetching saved materials:', error);
@@ -134,7 +134,7 @@ const DeafSupportHub = () => {
       // Use the download endpoint instead of direct media URL
       const response = await axios({
         method: 'get',
-        url: `http://edugram-574544346633.asia-south1.run.app/api/download/${encodeURIComponent(fileName)}/`,
+        url: `https://edugram-574544346633.asia-south1.run.app/api/download/${encodeURIComponent(fileName)}/`,
         responseType: 'blob',
         headers: {
           'Accept': 'application/pdf,application/octet-stream',
@@ -186,7 +186,7 @@ const DeafSupportHub = () => {
   try {
     // Simple axios DELETE request
     const response = await axios.delete(
-      `http://edugram-574544346633.asia-south1.run.app/api/saved-materials/${encodeURIComponent(material.fileName)}/`
+      `https://edugram-574544346633.asia-south1.run.app/api/saved-materials/${encodeURIComponent(material.fileName)}/`
     );
     
     console.log('Delete response:', response.data);

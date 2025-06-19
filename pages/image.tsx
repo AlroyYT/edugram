@@ -82,7 +82,7 @@ const ImageAnalyzer: React.FC = () => {
       console.log('Sending request to analyze image...');
       
       // Updated URL - adjust based on your Django setup
-      const response = await fetch('http://edugram-574544346633.asia-south1.run.app/api/analyze-image/', {
+      const response = await fetch('https://edugram-574544346633.asia-south1.run.app/api/analyze-image/', {
         method: 'POST',
         body: formData,
       });
@@ -111,7 +111,7 @@ const ImageAnalyzer: React.FC = () => {
   // Test connection
   const testConnection = async () => {
     try {
-      const response = await fetch('http://edugram-574544346633.asia-south1.run.app/api/health/', {
+      const response = await fetch('https://edugram-574544346633.asia-south1.run.app/api/health/', {
         method: 'GET',
       });
       const result = await response.json();

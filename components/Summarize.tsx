@@ -22,7 +22,7 @@ const Summarize = ({ file }: { file: File | null }) => {
 
     try {
       const response = await axios.post(
-        "http://edugram-574544346633.asia-south1.run.app/api/summarize/",
+        "https://edugram-574544346633.asia-south1.run.app/api/summarize/",
         formData,
         {
           headers: {

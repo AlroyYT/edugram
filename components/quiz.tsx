@@ -40,7 +40,7 @@ const QuizExperience = () => {
       formData.append("file", uploadedFile);
 
       try {
-        const response = await axios.post("http://edugram-574544346633.asia-south1.run.app/api/generate-mcqs/", formData, {
+        const response = await axios.post("https://edugram-574544346633.asia-south1.run.app/api/generate-mcqs/", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
@@ -216,7 +216,7 @@ const QuizExperience = () => {
       formData.append('fileName', `${originalFileName}_quiz`);
 
       // Send to backend using the save-material endpoint
-      const response = await axios.post('http://edugram-574544346633.asia-south1.run.app/api/save-material/', formData, {
+      const response = await axios.post('https://edugram-574544346633.asia-south1.run.app/api/save-material/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
