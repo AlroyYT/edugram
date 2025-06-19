@@ -76,7 +76,7 @@ const DeafSupportHub = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/",
+        "http://edugram-574544346633.asia-south1.run.app/api/summarize/",
         formData,
         {
           headers: {
@@ -108,7 +108,7 @@ const DeafSupportHub = () => {
   const fetchSavedMaterials = async () => {
     setIsLoadingMaterials(true);
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/saved-materials/');
+      const response = await axios.get('http://edugram-574544346633.asia-south1.run.app/api/saved-materials/');
       setSavedMaterials(response.data.materials);
     } catch (error) {
       console.error('Error fetching saved materials:', error);
@@ -134,7 +134,7 @@ const DeafSupportHub = () => {
       // Use the download endpoint instead of direct media URL
       const response = await axios({
         method: 'get',
-        url: `http://127.0.0.1:8000/api/download/${encodeURIComponent(fileName)}/`,
+        url: `http://edugram-574544346633.asia-south1.run.app/api/download/${encodeURIComponent(fileName)}/`,
         responseType: 'blob',
         headers: {
           'Accept': 'application/pdf,application/octet-stream',
@@ -176,56 +176,38 @@ const DeafSupportHub = () => {
   };
 
   const handleDelete = async (material: any) => {
-    if (!material || !material.fileName) {
-      displayNotification('Invalid material');
-      return;
-    }
+  if (!material || !material.fileName) {
+    displayNotification('Invalid material');
+    return;
+  }
+  
+  setProcessStatus("Deleting...");
+  
+  try {
+    // Simple axios DELETE request
+    const response = await axios.delete(
+      `http://edugram-574544346633.asia-south1.run.app/api/saved-materials/${encodeURIComponent(material.fileName)}/`
+    );
     
-    setProcessStatus("Deleting...");
+    console.log('Delete response:', response.data);
     
-    try {
-      // Log the request details
-      console.log('Attempting to delete file:', material.fileName);
-      
-      // Send delete request to API with the filename
-      const response = await axios({
-        method: 'delete',
-        url: `http://127.0.0.1:8000/api/saved-materials/${encodeURIComponent(material.fileName)}/`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        withCredentials: false  // Changed to false since we're not using credentials
-      });
-      
-      // Log the response
-      console.log('Delete response:', response.data);
-      
-      if (response.data.success) {
-        // Remove from local state
-        setSavedMaterials(prevMaterials => prevMaterials.filter(m => m.fileName !== material.fileName));
-        displayNotification('Material deleted successfully');
-      } else {
-        throw new Error(response.data.message || 'Failed to delete material');
-      }
-    } catch (error: any) {
-      console.error('Error deleting material:', error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        displayNotification(error.response.data.message || 'Failed to delete material');
-      } else if (error.request) {
-        // The request was made but no response was received
-        displayNotification('No response from server. Please check your connection.');
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        displayNotification(error.message || 'Failed to delete material');
-      }
-    } finally {
-      setProcessStatus("");
+    // Update local state
+    setSavedMaterials(prevMaterials => 
+      prevMaterials.filter(m => m.fileName !== material.fileName)
+    );
+    displayNotification('Material deleted successfully');
+    
+  } catch (error: any) {
+    console.error('Delete error:', error);
+    if (error.response) {
+      displayNotification(`Error: ${error.response.status} - ${error.response.data?.message || 'Delete failed'}`);
+    } else {
+      displayNotification('Network error - please try again');
     }
-  };
-
+  } finally {
+    setProcessStatus("");
+  }
+};
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },

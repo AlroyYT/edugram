@@ -47,7 +47,7 @@ export default function Home() {
     setResults([]);
 
     try {
-      const response = await fetch('http://localhost:8000/api/search-paper/', {
+      const response = await fetch('http://edugram-574544346633.asia-south1.run.app/api/search-paper/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
