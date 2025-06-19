@@ -274,7 +274,7 @@ const VoiceAssistant = () => {
             // This includes conversation history (up to last 10 exchanges for brevity)
             const conversationContext = conversation.slice(-20); // Get last 20 messages (10 exchanges)
             
-            const response = await fetch('http://localhost:8000/api/process_audio/', {
+            const response = await fetch('https://edugram-574544346633.asia-south1.run.app/api/process_audio/', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
