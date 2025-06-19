@@ -84,7 +84,7 @@ const App = () => {
       const formData = new FormData();
       formData.append('text', text.trim());
 
-      const response = await fetch('http://127.0.0.1:8000/api/convert-text-to-gesture/', {
+      const response = await fetch('https://127.0.0.1:8000/api/convert-text-to-gesture/', {
         method: 'POST',
         body: formData,
       });

@@ -109,7 +109,7 @@ const Summary = () => {
       formData.append('fileName', `${originalFileName}_summary`);
 
       // Send to backend using the save-material endpoint
-      const response = await axios.post('http://edugram-574544346633.asia-south1.run.app/api/save-material/', formData, {
+      const response = await axios.post('https://edugram-574544346633.asia-south1.run.app/api/save-material/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
