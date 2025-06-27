@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Add Gemini API Key directly (replace with your actual API key)
-GEMINI_API_KEY = "AIzaSyBx5vSUiCM0uderHKx84sBzCBD_gIwCVek"  # Get this from Google AI Studio
+GEMINI_API_KEY = ""  # Get this from Google AI Studio
 YOUTUBE_API_KEY = 'AIzaSyDs7jM_P4DFtvgj3FVHK5480_GBp1Y8diI'
 
 # Application definition
