@@ -1,0 +1,52 @@
+# Django and REST Framework
+Django
+djangorestframework
+
+# PDF and Document Processing
+PyMuPDF
+pdfplumber
+python-pptx
+python-docx
+
+# AI and ML Libraries
+google-generativeai
+#openai-whisper
+sentence-transformers
+
+# TensorFlow
+#tensorflow
+
+# PyTorch ecosystem - CPU ONLY (no CUDA dependencies)
+torch
+torchvision
+torchaudio
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Image Processing
+Pillow
+opencv-python
+
+# Audio Processing
+gTTS
+SpeechRecognition
+pyttsx3
+
+# NLP Libraries
+nltk
+beautifulsoup4
+
+# Google Cloud Services
+google-cloud-texttospeech
+
+# HTTP and Web Scraping
+requests
+aiohttp
+
+# Data Processing
+numpy
+
+# Utilities
+python-decouple
+django-cors-headers
+
+gunicorn
