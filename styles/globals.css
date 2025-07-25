@@ -5937,3 +5937,406 @@ html {
     padding: 8px 16px;
   }
 }
+/* If you're not using Tailwind, use these custom CSS styles */
+.calculator-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Main calculator container with glassmorphism */
+.calculator-popup {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+  transform-origin: center;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header section */
+.calculator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.calculator-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Close button */
+.close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.close-button:active {
+  transform: scale(0.95);
+}
+
+/* Display screen */
+.calculator-display {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: right;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.display-text {
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  max-width: 100%;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Button grid container */
+.calculator-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+/* Base button styles */
+.btn {
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 4px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Number buttons */
+.btn-number {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.btn-number:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.25));
+}
+
+/* Zero button spans two columns */
+.btn-zero {
+  grid-column: span 2;
+}
+
+/* Operator buttons */
+.btn-operator {
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.8), rgba(56, 103, 214, 0.8));
+  border: 1px solid rgba(74, 144, 226, 0.9);
+  color: #ffffff;
+}
+
+.btn-operator:hover {
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(56, 103, 214, 0.9));
+}
+
+/* Equals button */
+.btn-equals {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.8), rgba(22, 163, 74, 0.8));
+  border: 1px solid rgba(34, 197, 94, 0.9);
+  color: #ffffff;
+}
+
+.btn-equals:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
+}
+
+/* Scientific function buttons */
+.btn-scientific {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.8), rgba(147, 51, 234, 0.8));
+  border: 1px solid rgba(168, 85, 247, 0.9);
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.btn-scientific:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(147, 51, 234, 0.9));
+}
+
+/* Clear button */
+.btn-clear {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(220, 38, 38, 0.8));
+  border: 1px solid rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+}
+
+.btn-clear:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+}
+
+/* Backspace button */
+.btn-backspace {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.8), rgba(249, 115, 22, 0.8));
+  border: 1px solid rgba(251, 146, 60, 0.9);
+  color: #ffffff;
+}
+
+.btn-backspace:hover {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.9), rgba(249, 115, 22, 0.9));
+}
+
+/* Spacer for grid alignment */
+.btn-spacer {
+  height: 0;
+  visibility: hidden;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .calculator-popup {
+    margin: 10px;
+    padding: 20px;
+    max-width: calc(100vw - 20px);
+    border-radius: 20px;
+  }
+  
+  .calculator-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .display-text {
+    font-size: 1.6rem;
+  }
+  
+  .btn {
+    height: 45px;
+    font-size: 1rem;
+  }
+  
+  .btn-scientific {
+    font-size: 0.8rem;
+  }
+  
+  .calculator-buttons {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .display-text {
+    font-size: 1.4rem;
+  }
+  
+  .btn {
+    height: 40px;
+    font-size: 0.9rem;
+  }
+  
+  .btn-scientific {
+    font-size: 0.7rem;
+  }
+  
+  .calculator-buttons {
+    gap: 8px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .calculator-popup {
+    background: rgba(17, 24, 39, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .calculator-display {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .calculator-backdrop,
+  .calculator-popup,
+  .btn {
+    animation: none;
+    transition: none;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.btn:focus {
+  outline: 2px solid rgba(74, 144, 226, 0.8);
+  outline-offset: 2px;
+}
+
+.close-button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+.calculator-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  text-decoration: none;
+}
+
+.calculator-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.calculator-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.calculator-button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Ensure header actions maintain proper spacing */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .calculator-button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .calculator-button svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .header-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calculator-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  /* On very small screens, you might want to show just the icon */
+  .calculator-button span {
+    display: none;
+  }
+}

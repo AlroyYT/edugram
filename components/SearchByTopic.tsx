@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { backend_url } from '../components/config';
 const SearchByTopic: React.FC = () => {
   const [topic, setTopic] = useState("");
   const [videoURL, setVideoURL] = useState<string | null>(null);
@@ -19,7 +19,7 @@ const SearchByTopic: React.FC = () => {
     try {
       console.log("Making request for topic:", topic);
       
-      const response = await axios.get("http://127.0.0.1:8000/api/search-topic/", {
+      const response = await axios.get(`${backend_url}/api/search-topic/`, {
         params: { topic },
         responseType: 'blob'
       });

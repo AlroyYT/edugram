@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { backend_url } from '../components/config';
 
 type WordData = {
   word: string;
@@ -43,7 +44,7 @@ const Summarize = ({ file }: { file: File | null }) => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/",
+        `${backend_url}/api/summarize/`,
         formData,
         {
           headers: {

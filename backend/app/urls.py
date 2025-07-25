@@ -13,10 +13,14 @@ from .views import (
     youtube_search,
     delete_saved_material,
     download_file,
-    ImageAnalysisView,  # Add this import
-    health_check,       # Add this import
-    search_paper,       # Add this import for paper search
+    ImageAnalysisView,
+    health_check,
+    search_paper,
+    # Add the new hand sign detection functions
+   
+    
 )
+
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 from .utils.sign2 import animation_view
 
@@ -36,10 +40,11 @@ urlpatterns = [
     path('download/<str:filename>/', download_file, name='download_file'),
     path('animation_view/', animation_view, name='animation_view'),
     
-    # New Image Analysis URLs
+    # Image Analysis URLs
     path('analyze-image/', ImageAnalysisView.as_view(), name='analyze_image'),
-    path('health/', health_check, name='health_check'),
     
-    # Paper Search URL - ADD THIS LINE
+    # Paper Search URL
     path('search-paper/', search_paper, name='search_paper'),
+    
+    
 ]

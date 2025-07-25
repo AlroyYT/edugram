@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFileContext } from "../context/FileContext";
 import LtmButton from '../components/ltmbutton';
+import { backend_url } from '../components/config';
 
 
 const DeafSupportHub = () => {
@@ -76,7 +77,7 @@ const DeafSupportHub = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/",
+        `${backend_url}/api/summarize/`,
         formData,
         {
           headers: {
@@ -108,7 +109,7 @@ const DeafSupportHub = () => {
   const fetchSavedMaterials = async () => {
     setIsLoadingMaterials(true);
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/saved-materials/');
+      const response = await axios.get(`${backend_url}/api/saved-materials/`);
       setSavedMaterials(response.data.materials);
     } catch (error) {
       console.error('Error fetching saved materials:', error);
@@ -134,7 +135,7 @@ const DeafSupportHub = () => {
       // Use the download endpoint instead of direct media URL
       const response = await axios({
         method: 'get',
-        url: `http://127.0.0.1:8000/api/download/${encodeURIComponent(fileName)}/`,
+        url: `${backend_url}/api/download/${encodeURIComponent(fileName)}/`,
         responseType: 'blob',
         headers: {
           'Accept': 'application/pdf,application/octet-stream',
@@ -186,7 +187,7 @@ const DeafSupportHub = () => {
   try {
     // Simple axios DELETE request
     const response = await axios.delete(
-      `http://127.0.0.1:8000/api/saved-materials/${encodeURIComponent(material.fileName)}/`
+      `${backend_url}/api/saved-materials/${encodeURIComponent(material.fileName)}/`
     );
     
     console.log('Delete response:', response.data);

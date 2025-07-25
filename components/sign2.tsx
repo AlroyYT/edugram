@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { backend_url } from '../components/config';
 
 type WordData = {
   word: string;
@@ -48,7 +49,7 @@ const AnimationView: React.FC = () => {
       const formData = new FormData();
       formData.append('sen', sentence);
 
-      const response = await fetch("http://127.0.0.1:8000/api/animation_view/", {
+      const response = await fetch(`${backend_url}/api/animation_view/`, {
         method: 'POST',
         body: formData,
       });
@@ -132,7 +133,7 @@ const AnimationView: React.FC = () => {
       );
     }
 
-    const mediaSrc = `http://127.0.0.1:8000/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    const mediaSrc = `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
     
     return (
       <div 
@@ -897,9 +898,10 @@ const AnimationView: React.FC = () => {
             </div>
 
             <div className="footer">
-              <p>🚀 Empowering inclusive communication with cutting-edge AI technology</p>
-              <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', opacity: 0.6 }}>
-                Built with React, TypeScript & Modern Web Technologies
+              <p>🚀 Empowering inclusive communication with cutting-edge AI technology Built by EDUGRAM core developers</p>
+              <p style={{ fontSize: '0.9rem', marginTop: '0.2rem', opacity: 0.6 }}>
+                
+                
               </p>
             </div>
           </div>
