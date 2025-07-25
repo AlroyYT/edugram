@@ -48,7 +48,7 @@ const AnimationView: React.FC = () => {
       const formData = new FormData();
       formData.append('sen', sentence);
 
-      const response = await fetch("https://edugram-574544346633.asia-south1.run.app/api/animation_view/", {
+      const response = await fetch("http://127.0.0.1:8000/api/animation_view/", {
         method: 'POST',
         body: formData,
       });
@@ -132,7 +132,7 @@ const AnimationView: React.FC = () => {
       );
     }
 
-    const mediaSrc = `https://edugram-574544346633.asia-south1.run.app/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    const mediaSrc = `http://127.0.0.1:8000/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
     
     return (
       <div 

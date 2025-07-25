@@ -263,7 +263,7 @@ class GenerateFlashcardsAPIView(APIView):
         file = request.FILES.get('file')
         num_cards = int(request.data.get('num_cards', 10))
         api_key = settings.GEMINI_API_KEY
-        model = request.data.get('model', 'gemini-1.5-pro')  # Allow model selection with default
+        model = request.data.get('model', 'gemini-2.0-flash')  # Allow model selection with default
         
         # Validate inputs
         if not file:
@@ -280,7 +280,7 @@ class GenerateFlashcardsAPIView(APIView):
         
         # Validate model (only allow Gemini models)
         if not model.startswith('gemini-'):
-            model = 'gemini-1.5-pro'
+            model = 'gemini-2.0-flash'
             
         # Create upload directory if it doesn't exist
         upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")

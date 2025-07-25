@@ -8,6 +8,7 @@ import { useWindowSize } from "react-use";
 import { useFileContext } from "../context/FileContext";
 import { useRouter } from "next/router";
 import { jsPDF } from 'jspdf';
+import SignLanguageAnimation from "../components/SignLanguageAnimation";
 
 const QuizExperience = () => {
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
@@ -40,7 +41,7 @@ const QuizExperience = () => {
       formData.append("file", uploadedFile);
 
       try {
-        const response = await axios.post("https://edugram-574544346633.asia-south1.run.app/api/generate-mcqs/", formData, {
+        const response = await axios.post("http://127.0.0.1:8000/api/generate-mcqs/", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
@@ -216,7 +217,7 @@ const QuizExperience = () => {
       formData.append('fileName', `${originalFileName}_quiz`);
 
       // Send to backend using the save-material endpoint
-      const response = await axios.post('https://edugram-574544346633.asia-south1.run.app/api/save-material/', formData, {
+      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -244,6 +245,9 @@ const QuizExperience = () => {
     router.push("/deaf");
   };
 
+  const currentQuestion = quizQuestions[activeProblemIndex];
+  const cleanText = currentQuestion?.question?.replace(/[^a-zA-Z0-9\s]/g, "").trim() || "";
+  
   return (
     <div className="quizMasterContainer">
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} />}
@@ -327,33 +331,36 @@ const QuizExperience = () => {
                   transition={{ duration: 0.3 }}
                   className="quizQuestionContainer"
                 >
-                  <h2 className="quizQuestionText">{quizQuestions[activeProblemIndex].question}</h2>
-                  
-                  <div className="quizOptionsGrid">
-                    {quizQuestions[activeProblemIndex].options.map((option: string, index: number) => (
-                      <motion.button
-                        key={index}
-                        className={`quizOptionButton ${
-                          chosenAnswer
-                            ? option === quizQuestions[activeProblemIndex].correct_answer
-                              ? "quizCorrectOption"
-                              : chosenAnswer === option
-                              ? "quizWrongOption"
-                              : "quizNeutralOption"
-                            : ""
-                        }`}
-                        onClick={() => !chosenAnswer && handleAnswerSelection(option)}
-                        disabled={!!chosenAnswer}
-                        whileHover={{ scale: chosenAnswer ? 1 : 1.02 }}
-                        whileTap={{ scale: chosenAnswer ? 1 : 0.98 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <span className="quizOptionLetter">{String.fromCharCode(65 + index)}</span>
-                        <span className="quizOptionText">{option}</span>
-                      </motion.button>
-                    ))}
+                  <div className="quizContentGrid">
+                    <div className="quizQuestionLeft">
+                      <h2 className="quizQuestionText">{currentQuestion.question}</h2>
+                      <div className="quizOptionsGrid">
+                        {currentQuestion.options.map((option: string, index: number) => (
+                          <motion.button
+                            key={index}
+                            className={`quizOptionButton ${
+                              chosenAnswer
+                                ? option === currentQuestion.correct_answer
+                                  ? "quizCorrectOption"
+                                  : chosenAnswer === option
+                                  ? "quizWrongOption"
+                                  : "quizNeutralOption"
+                                : ""
+                            }`}
+                            onClick={() => !chosenAnswer && handleAnswerSelection(option)}
+                            disabled={!!chosenAnswer}
+                            whileHover={{ scale: chosenAnswer ? 1 : 1.02 }}
+                            whileTap={{ scale: chosenAnswer ? 1 : 0.98 }}
+                          >
+                            <span className="quizOptionLetter">{String.fromCharCode(65 + index)}</span>
+                            <span className="quizOptionText">{option}</span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="quizAnimationRight">
+                      <SignLanguageAnimation text={cleanText} />
+                    </div>
                   </div>
                 </motion.div>
               )}
