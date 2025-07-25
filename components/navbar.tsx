@@ -38,7 +38,7 @@ const Navbar = () => {
         </li>
         <li>
           <button onClick={() => signOut()} className="edu-logout-btn">
-            Log Out
+            Sign Up
           </button>
         </li>
       </ul>

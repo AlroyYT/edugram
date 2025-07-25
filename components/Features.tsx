@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import dbConnect from "../lib/mongodb";
+import User from "../lib/user";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 const Features = () => {
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   const lastUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [activeCard, setActiveCard] = useState<number | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     // Initialize speech synthesis
@@ -53,6 +57,18 @@ const Features = () => {
   const handleMouseLeave = () => {
     if (debounceTimer) clearTimeout(debounceTimer);
     setActiveCard(null);
+  };
+
+  const handleFeatureClick = async (featureName: string) => {
+    if (!session?.user?.email) return;
+    await fetch("/api/feature-visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: session.user.email,
+        feature: featureName.replace(/\s/g, ""), // Remove spaces for DB key
+      }),
+    });
   };
 
   const features = [
@@ -214,11 +230,16 @@ const Features = () => {
             );
 
             return feature.link ? (
-              <Link href={feature.link} key={index} className="feature-link">
+              <Link
+                href={feature.link}
+                key={index}
+                className="feature-link"
+                onClick={() => handleFeatureClick(feature.title)}
+              >
                 {itemContent}
               </Link>
             ) : (
-              <div className="feature-link" key={index}>
+              <div className="feature-link" key={index} onClick={() => handleFeatureClick(feature.title)}>
                 {itemContent}
               </div>
             );

@@ -1,0 +1,52 @@
+# Django and REST Framework
+Django==5.2
+djangorestframework==3.16.0
+
+# PDF and Document Processing
+PyMuPDF==1.25.5
+pdfplumber==0.11.6
+python-pptx==1.0.2
+python-docx==1.1.2
+
+# AI and ML Libraries
+google-generativeai==0.8.2
+openai-whisper==20240930
+sentence-transformers==3.4.0
+
+# TensorFlow
+tensorflow==2.19.0
+
+# PyTorch ecosystem - CPU ONLY (no CUDA dependencies)
+torch==2.5.1+cpu
+torchvision==0.20.1+cpu
+torchaudio==2.5.1+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Image Processing
+Pillow==11.0.0
+opencv-python==4.10.0.84
+
+# Audio Processing
+gTTS==2.5.4
+SpeechRecognition==3.14.1
+pyttsx3==2.98
+
+# NLP Libraries
+nltk==3.9.1
+beautifulsoup4==4.11.2
+
+# Google Cloud Services
+google-cloud-texttospeech==2.17.2
+
+# HTTP and Web Scraping
+requests==2.32.3
+aiohttp==3.11.12
+
+# Data Processing
+numpy>=1.26.0,<2.1.0
+
+# Utilities
+python-decouple==3.8
+django-cors-headers==4.7.0
+
+gunicorn
