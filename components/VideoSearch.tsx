@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { backend_url } from '../components/config';
 
 // Define types for video results
 interface VideoResult {
@@ -74,7 +75,7 @@ const VideoSearch: React.FC<VideoSearchProps> = ({ initialQuery = "" }) => {
       setIsSearching(true);
       
       // Make API call to your Django backend
-      const response = await axios.get("http://127.0.0.1:8000/api/youtube-search/", {
+      const response = await axios.get(`${backend_url}/api/youtube-search/`, {
         params: {
           query: searchQuery + " tutorial",
           max_results: 6

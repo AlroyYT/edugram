@@ -2,11 +2,13 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import VideoSearch from "../components/VideoSearch";
+import CalculatorPopup from "../components/CalculatorPopup"; // Adjust path as needed
 import { useRouter } from "next/router";
 import Head from "next/head";
 
 const TopicExplorer = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const router = useRouter();
   
   // Animation variants
@@ -60,6 +62,10 @@ const TopicExplorer = () => {
     router.push("/features");
   };
 
+  // Calculator functions
+  const openCalculator = () => setIsCalculatorOpen(true);
+  const closeCalculator = () => setIsCalculatorOpen(false);
+
   return (
     <>
       <Head>
@@ -83,6 +89,13 @@ const TopicExplorer = () => {
           </button>
           <h1>Topic Explorer</h1>
           <div className="header-actions">
+            <button className="calculator-button" onClick={openCalculator}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
+                <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/>
+              </svg>
+              Calculator
+            </button>
             <button className="image-bot-button" onClick={() => router.push("/image")}>
               Image Bot
             </button>
@@ -133,6 +146,12 @@ const TopicExplorer = () => {
             </motion.div>
           </motion.div>
         </main>
+
+        {/* Calculator Popup */}
+        <CalculatorPopup 
+          isOpen={isCalculatorOpen} 
+          onClose={closeCalculator} 
+        />
       </div>
     </>
   );

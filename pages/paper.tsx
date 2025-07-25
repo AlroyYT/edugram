@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import { backend_url } from '../components/config';
 
 interface Paper {
   title: string;
@@ -47,7 +48,7 @@ export default function Home() {
     setResults([]);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/search-paper/', {
+      const response = await fetch(`${backend_url}/api/search-paper/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Strad Research Paper Finder</title>
+        <title>EDUGRAM Research paper</title>
         <meta name="description" content="Search and find research papers from Strad Research" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -89,8 +90,8 @@ export default function Home() {
 
       <div className="container">
         <header className="header">
-          <h1>📚 Strad Research Paper Finder</h1>
-          <p>Search for research papers from stradresearch.org</p>
+          <h1>📚 EDUGRAM Research Paper Finder</h1>
+          <p>Search for research papers from EDUGRAM</p>
         </header>
 
         <main className="main">
@@ -464,7 +465,7 @@ export default function Home() {
           .search-form {
             padding: 20px;
           }
-          
+          z
           .form-buttons {
             flex-direction: column;
           }

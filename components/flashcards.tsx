@@ -5,6 +5,7 @@ import { useFileContext } from '../context/FileContext';
 import { useRouter } from 'next/router';
 import { jsPDF } from 'jspdf';
 import SignLanguageAnimation from '../components/SignLanguageAnimation';
+import { backend_url } from '../components/config';
 
 const FlashcardsEnhanced: React.FC = () => {
   const [fcrd84StudyCards, setFcrd84StudyCards] = useState<{ question: string; answer: string }[]>([]);
@@ -34,7 +35,7 @@ const FlashcardsEnhanced: React.FC = () => {
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/api/generate-flashcards/',
+          `${backend_url}/api/generate-flashcards/`,
           formData,
           {
             headers: { 'Content-Type': 'multipart/form-data' },
@@ -155,7 +156,7 @@ const FlashcardsEnhanced: React.FC = () => {
       formData.append('content', JSON.stringify({ cards: fcrd84StudyCards, date }));
       formData.append('fileName', `${originalFileName}_flashcards`);
 
-      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+      const response = await axios.post(`${backend_url}/api/save-material/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

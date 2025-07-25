@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { backend_url } from '../components/config';
 const Features = () => {
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   const lastUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);

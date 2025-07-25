@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
+import { backend_url } from '../components/config';
 
 type WordData = {
   word: string;
@@ -399,7 +400,7 @@ const Summary = () => {
       formData.append('content', cleanText);
       formData.append('fileName', originalFileName);
 
-      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+      const response = await axios.post(`${backend_url}/api/save-material/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

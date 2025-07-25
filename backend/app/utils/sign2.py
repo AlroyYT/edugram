@@ -86,12 +86,12 @@ def animation_view(request):
 			probable_tense = max(tense, key=tense.get)
 
 			if probable_tense == "past" and tense["past"] >= 1:
-				words = ["Before"] + words
+				words =  words
 			elif probable_tense == "future" and tense["future"] >= 1:
 				if "Will" not in words:
-					words = ["Will"] + words
+					words =  words
 			elif probable_tense == "present" and tense["present_continuous"] >= 1:
-				words = ["Now"] + words
+				words =  words
 
 			# Final animation data list
 			final_words = []

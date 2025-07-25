@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { backend_url } from '../components/config';
 
 type WordData = { word: string; format: "mp4" | "webp" | "none" };
 
@@ -21,7 +22,7 @@ const SignLanguageAnimation: React.FC<{ text: string }> = ({ text }) => {
       try {
         const formData = new FormData();
         formData.append('sen', text);
-        const res = await fetch("http://localhost:8000/api/animation_view/", {
+        const res = await fetch(`${backend_url}/api/animation_view/`, {
           method: 'POST',
           body: formData,
         });

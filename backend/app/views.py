@@ -2,16 +2,18 @@ from django.conf import settings
 import mimetypes
 import os
 import tempfile
-
+import google.generativeai as genai
 import urllib
 import whisper
 import base64
 import re
 import time
 import traceback
+import mediapipe as mp
 from bs4 import BeautifulSoup
 import uuid 
 import concurrent.futures
+import numpy as np
 from django.http import FileResponse, HttpResponse ,StreamingHttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.files.storage import FileSystemStorage
@@ -27,6 +29,7 @@ from .utils.summarize import QuotaFriendlyAnalyzer
 from .utils.flashcards import FlashcardGenerator
 import logging 
 import json 
+import cv2
 from .utils.mcq_generator import OptimizedMCQGenerator 
 from .utils.video_generation import get_video_path
 from .utils.jarvis import JarvisAI
@@ -34,6 +37,7 @@ from .utils.image import ImageProcessor
 import traceback
 import subprocess
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
+from .utils.cv2 import process_image_for_gestures, get_supported_gestures
 from rest_framework.decorators import api_view
 from datetime import datetime
 from django.shortcuts import render
@@ -1376,3 +1380,4 @@ def similarity_check(text1, text2):
     union = words1.union(words2)
     
     return len(intersection) / len(union) if union else 0
+

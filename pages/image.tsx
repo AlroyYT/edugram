@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Head from 'next/head';
+import { backend_url } from '../components/config';
 
 interface AnalysisResult {
   success: boolean;
@@ -82,7 +83,7 @@ const ImageAnalyzer: React.FC = () => {
       console.log('Sending request to analyze image...');
       
       // Updated URL - adjust based on your Django setup
-      const response = await fetch('http://127.0.0.1:8000/api/analyze-image/', {
+      const response = await fetch(`${backend_url}/api/analyze-image/`, {
         method: 'POST',
         body: formData,
       });
@@ -111,7 +112,7 @@ const ImageAnalyzer: React.FC = () => {
   // Test connection
   const testConnection = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/health/', {
+      const response = await fetch(`${backend_url}/api/health/`, {
         method: 'GET',
       });
       const result = await response.json();
