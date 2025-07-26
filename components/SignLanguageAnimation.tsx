@@ -57,7 +57,7 @@ const SignLanguageAnimation: React.FC<{ text: string }> = ({ text }) => {
   if (animationData.length === 0) return null;
 
   const word = animationData[currentIndex];
-  const mediaSrc = `http://localhost:8000/static/animations/${word.format}/${word.word}.${word.format}`;
+  const mediaSrc = `${backend_url}/static/animations/${word.format}/${word.word}.${word.format}`;
 
   return (
     <div className="sign-animation-box">
