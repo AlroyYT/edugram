@@ -42,15 +42,27 @@ const DeafSupportHub = () => {
         
         // Automatically trigger file processing with a slight delay
         setTimeout(() => {
+          console.log("Auto-processing uploaded file");
+          handleAssetUpload();
+        }, 100);
+      } else if (event.detail && event.detail.file) {
+        // If there's a file in the event detail, use it
+        console.log("File found in event detail:", event.detail.fileName);
+        setUploadedFile(event.detail.file);
+        setAssetLabel(event.detail.fileName);
+        displayNotification(`File ready: ${event.detail.fileName}`);
+        
+        setTimeout(() => {
+          console.log("Processing file from event detail");
           handleAssetUpload();
         }, 100);
       } else {
-        console.error("Event received but no file found in context!");
+        console.error("Event received but no file found in context or event!");
         displayNotification("File upload issue - please try again");
       }
     };
     
-    // Add event listener
+    // Add event listener for direct uploads
     window.addEventListener('jarvis-file-uploaded', handleJarvisFileUpload);
     
     // Check for an existing uploaded file in context when component mounts
@@ -61,6 +73,7 @@ const DeafSupportHub = () => {
       
       // Automatically process the file if it exists
       setTimeout(() => {
+        console.log("Processing file from context (component mount)");
         handleAssetUpload();
       }, 300);
     }
@@ -98,26 +111,42 @@ const DeafSupportHub = () => {
     // Log the file details
     console.log("Processing file:", uploadedFile.name, "Type:", uploadedFile.type, "Size:", Math.round(uploadedFile.size/1024), "KB");
     
+    // Important: Update the UI immediately to show the file as fully processed
+    // This is crucial for proper state synchronization
+    if (assetLabel !== uploadedFile.name) {
+      setAssetLabel(uploadedFile.name);
+    }
+    
     // Process file - we'll use a small delay to show the processing status
     // but the file is already in context and ready to use
     setTimeout(() => {
+      // Clear processing status and show success notification
       setProcessStatus("");
       displayNotification(`File "${uploadedFile.name}" ready for use`);
       
       // Create and dispatch a custom event to notify any listeners that the file is processed
       try {
+        // Make sure the file is marked as fully processed
         const fileProcessedEvent = new CustomEvent('file-processed', {
           detail: { 
             fileName: uploadedFile.name,
-            success: true
+            success: true,
+            file: uploadedFile
           }
         });
         window.dispatchEvent(fileProcessedEvent);
         console.log("File processed event dispatched");
+        
+        // Also set a flag on the window to indicate file is processed
+        // This can be checked by other components
+        (window as any).lastProcessedFile = {
+          name: uploadedFile.name,
+          timestamp: Date.now()
+        };
       } catch (eventErr) {
         console.error("Failed to dispatch file processed event:", eventErr);
       }
-    }, 1000);
+    }, 800);
   };
 
   const launchQuizModule = () => {

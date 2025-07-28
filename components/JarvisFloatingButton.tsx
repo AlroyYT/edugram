@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useFileContext } from '../context/FileContext';
-import { useFileUpload, detectFileUploadCommand } from './FileUploadHelper';
+import { detectFileUploadCommand } from './FileUploadHelper';
+import useDirectFileUploader from './DirectFileUploader';
 
 interface ConversationMessage {
   role: 'user' | 'assistant' | 'jarvis';
@@ -57,8 +58,39 @@ const JarvisFloatingButton = () => {
   const [isInMeeting, setIsInMeeting] = useState(false); // Track if user is in a meeting (like Google Meet)
   const [usedKeyboardNavigation, setUsedKeyboardNavigation] = useState(false); // Track if keyboard navigation is being used
   
-  // Use our new file upload helper
-  const fileUploadHelper = useFileUpload();
+  // Create an instance of our direct file uploader using our custom hook
+  const directFileUploader = useDirectFileUploader({
+    onUploadSuccess: (fileName: string) => {
+      console.log(`File upload success: ${fileName}`);
+      // Add success message to conversation
+      setConversation(prev => [...prev, { 
+        role: 'jarvis', 
+        content: `I've successfully uploaded "${fileName}". You can now use it to generate quizzes, flashcards, or summaries.` 
+      }]);
+    },
+    onError: (error: string) => {
+      console.error(`File upload error: ${error}`);
+      // Add error message to conversation
+      setConversation(prev => [...prev, { 
+        role: 'jarvis', 
+        content: `I encountered an error uploading the file: ${error}` 
+      }]);
+    },
+    onStatusUpdate: (message: string) => {
+      // Add status updates to conversation
+      setConversation(prev => [...prev, { 
+        role: 'jarvis', 
+        content: message 
+      }]);
+      
+      // Speak the status message
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.8;
+      window.speechSynthesis.speak(utterance);
+    }
+  });
 
   const router = useRouter();
   
@@ -2499,47 +2531,29 @@ const JarvisFloatingButton = () => {
         const lowerInput = input.toLowerCase();
         
         // SPEED OPTIMIZATION: Check for common keywords first to quickly filter options
-        // Document upload command - Using our new helper
+        // Document upload command
         const fileCommand = detectFileUploadCommand(lowerInput);
         
         if (fileCommand.isFileUpload) {
           const { fileName, location } = fileCommand;
+          const specificFile = fileName || "document";
+          const specificLocation = location || "downloads";
           
           // This function will be called asynchronously, but we need to return something immediately
-          setTimeout(() => {
-            fileUploadHelper.handleNamedFileUpload(
-              fileName || "document", 
-              location || "downloads",
-              (statusMessage) => {
-                // Add status updates to the conversation
-                const statusUpdate: ConversationMessage = { 
-                  role: 'jarvis', 
-                  content: statusMessage
-                };
-                setConversation(prev => [...prev, statusUpdate]);
-                
-                // Speak the status
-                const utterance = new SpeechSynthesisUtterance(statusMessage);
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                utterance.volume = 0.8;
-                window.speechSynthesis.speak(utterance);
-              }
-            ).then((response) => {
-              // Add the final response to the conversation
-              const confirmationMessage: ConversationMessage = { 
-                role: 'jarvis', 
-                content: response
-              };
-              setConversation(prev => [...prev, confirmationMessage]);
-              
+          setTimeout(async () => {
+            // Use our improved DirectFileUploader
+            const response = await directFileUploader.uploadSpecificFile(specificFile, specificLocation);
+            
+            // Add the final response to the conversation if needed
+            // Note: most status updates are handled by the onStatusUpdate callback
+            if (response) {
               // Speak the response
               const utterance = new SpeechSynthesisUtterance(response);
               utterance.rate = 1.0;
               utterance.pitch = 1.0;
               utterance.volume = 0.8;
               window.speechSynthesis.speak(utterance);
-            });
+            }
           }, 500);
           
           if (fileName && location) {
@@ -2581,39 +2595,31 @@ const JarvisFloatingButton = () => {
               console.log(`Detected simple file reference: "${fileName}"`);
             }
             
-            // Trigger file upload using our new helper
-            setTimeout(() => {
-              fileUploadHelper.handleNamedFileUpload(
-                fileName || "document", 
-                location,
-                (statusMessage) => {
-                  // Add status updates to the conversation
-                  const statusUpdate: ConversationMessage = { 
-                    role: 'jarvis', 
-                    content: statusMessage
-                  };
-                  setConversation(prev => [...prev, statusUpdate]);
-                  
-                  // Speak the status
-                  const utterance = new SpeechSynthesisUtterance(statusMessage);
-                  utterance.rate = 1.0;
-                  utterance.pitch = 1.0;
-                  utterance.volume = 0.8;
-                  window.speechSynthesis.speak(utterance);
-                }
-              ).then((response) => {
-                const confirmationMessage: ConversationMessage = { 
-                  role: 'jarvis', 
-                  content: response
-                };
-                setConversation(prev => [...prev, confirmationMessage]);
+            // Trigger file upload using our new direct uploader
+            setTimeout(async () => {
+              try {
+                const response = await directFileUploader.uploadSpecificFile(
+                  fileName || "document",
+                  location
+                );
                 
-                const utterance = new SpeechSynthesisUtterance(response);
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                utterance.volume = 0.8;
-                window.speechSynthesis.speak(utterance);
-              });
+                if (response) {
+                  // Final response is already handled by the onStatusUpdate callback
+                  // but we'll add it to the conversation for good measure
+                  const confirmationMessage: ConversationMessage = { 
+                    role: 'jarvis', 
+                    content: response
+                  };
+                  setConversation(prev => [...prev, confirmationMessage]);
+                }
+              } catch (error) {
+                console.error("Error during file upload:", error);
+                const errorMessage: ConversationMessage = { 
+                  role: 'jarvis', 
+                  content: `I encountered an error trying to upload the file: ${error instanceof Error ? error.message : String(error)}`
+                };
+                setConversation(prev => [...prev, errorMessage]);
+              }
             }, 500);
             
             if (fileName) {
