@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 
 const VoiceAssistant = () => {
+  const router = useRouter();
   const [isListening, setIsListening] = useState(false);
   const [triggered, setTriggered] = useState(false);
   const [browserTranscript, setBrowserTranscript] = useState('');
@@ -11,6 +13,56 @@ const VoiceAssistant = () => {
   const [isReady, setIsReady] = useState(true);  // Flag to control when ready for next input
   const [processingChunks, setProcessingChunks] = useState(false);  // State for streaming
   const [remainingChunks, setRemainingChunks] = useState([]);  // State for audio queue
+  const [isRecognitionActive, setIsRecognitionActive] = useState(false); // Track recognition status
+  
+  // Helper function for safely starting speech recognition with error handling
+  const safelyStartRecognition = (context) => {
+    if (!recognitionRef.current) {
+      console.log(`Cannot start recognition in ${context}: recognition not initialized`);
+      return false;
+    }
+    
+    // Check if recognition might actually be running already
+    let isActuallyRunning = false;
+    try {
+      // Some browsers implement this non-standard property
+      if (recognitionRef.current.state === 'running') {
+        console.log(`Recognition already running in ${context} (detected via state property)`);
+        isActuallyRunning = true;
+      }
+    } catch (stateErr) {
+      // Browser doesn't support checking recognition state directly
+    }
+    
+    if (!isActuallyRunning) {
+      try {
+        console.log(`Starting recognition in ${context}`);
+        // Try to start with specific error handling
+        try {
+          setIsRecognitionActive(true);
+          recognitionRef.current.start();
+          return true;
+        } catch (startErr) {
+          if (startErr.name === 'InvalidStateError') {
+            console.log(`Recognition already started in ${context} (caught via InvalidStateError)`);
+            setIsRecognitionActive(true); // Update our state to match reality
+            return true;
+          } else {
+            throw startErr; // Re-throw if it's a different error
+          }
+        }
+      } catch (err) {
+        console.error(`Failed to start recognition in ${context}:`, err);
+        setIsRecognitionActive(false);
+        return false;
+      }
+    } else {
+      // Already running
+      console.log(`Recognition already running in ${context}, updating state`);
+      setIsRecognitionActive(true);
+      return true;
+    }
+  };
 
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -38,6 +90,8 @@ const VoiceAssistant = () => {
     }
   }, [conversation]);
 
+  // Recognition status is already defined above
+  
   useEffect(() => {
     // Check if speech recognition is supported
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -45,11 +99,13 @@ const VoiceAssistant = () => {
       return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = true;
-    recognitionRef.current.lang = 'en-US'; // Set language explicitly
+    // Only create a new instance if there isn't one already
+    if (!recognitionRef.current) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US'; // Set language explicitly
 
     recognitionRef.current.onresult = (event) => {
       // Only update transcript if we're ready for input
@@ -73,50 +129,150 @@ const VoiceAssistant = () => {
       console.log("Speech recognition error:", event.error);
       setError(`Speech recognition error: ${event.error}`);
       
-      // If the error is "no-speech", restart recognition after a delay
-      if (event.error === 'no-speech' && isReady) {
+      // Mark recognition as inactive on error
+      setIsRecognitionActive(false);
+      
+      // Handle different types of errors
+      if ((event.error === 'no-speech' || event.error === 'aborted') && isReady) {
+        // For both no-speech and aborted errors, we want to restart recognition
+        console.log(`Handling ${event.error} error by restarting recognition after delay`);
+        
+        // Clear error after a short time to not worry the user
+        setTimeout(() => setError(''), 3000);
+        
         setTimeout(() => {
-          if (recognitionRef.current) {
+          if (recognitionRef.current && !isRecognitionActive && isReady) {
             try {
-              recognitionRef.current.stop();
+              // First stop recognition to be sure it's properly terminated
+              try {
+                recognitionRef.current.stop();
+              } catch (stopErr) {
+                console.log("Error stopping recognition (expected):", stopErr);
+              }
+              
+              // Then start after a short delay
               setTimeout(() => {
-                recognitionRef.current.start();
-              }, 100);
+                if (recognitionRef.current && !isRecognitionActive && isReady) {
+                  safelyStartRecognition("after error recovery");
+                }
+              }, 500);
             } catch (e) {
               console.error("Error restarting recognition:", e);
+              setIsRecognitionActive(false);
             }
           }
         }, 1000);
       }
     };
 
-    recognitionRef.current.onend = () => {
-      // Restart recognition if it wasn't explicitly stopped and we're ready for input
-      if (isReady && !triggered) {
-        try {
-          recognitionRef.current.start();
-        } catch (err) {
-          console.error("Failed to restart recognition:", err);
+      recognitionRef.current.onend = () => {
+        console.log("Recognition ended");
+        // Set recognition as inactive when it ends
+        setIsRecognitionActive(false);
+        
+        // Clear any error messages related to aborted recognition
+        if (error.includes("aborted")) {
+          setError('');
         }
-      }
-    };
+        
+        // Restart recognition if it wasn't explicitly stopped and we're ready for input
+        if (isReady && !triggered) {
+          // Add a longer delay for aborted errors to give the browser time to release resources
+          const wasAborted = error.includes("aborted");
+          const delayTime = wasAborted ? 1500 : 500;
+          
+          if (wasAborted) {
+            console.log("Adding longer delay after aborted error to ensure resources are released");
+          }
+          
+          setTimeout(() => {
+            try {
+              // First check if recognition is still needed and not already active
+              if (recognitionRef.current && !isRecognitionActive && isReady && !triggered) {
+                console.log(`Attempting to restart recognition after end event${wasAborted ? " (was aborted)" : ""}`);
+                
+                // Use the helper function to safely start recognition
+                safelyStartRecognition("after end event" + (wasAborted ? " (recovering from abort)" : ""));
+              }
+            } catch (err) {
+              console.error("Failed to restart recognition:", err);
+              setIsRecognitionActive(false);
+            }
+          }, delayTime);
+        }
+      };
+    }
 
-    // Only start recognition if we're ready for input
-    if (isReady) {
+    // Only start recognition if we're ready for input and not already active
+    if (isReady && !isRecognitionActive && recognitionRef.current) {
       try {
-        recognitionRef.current.start();
+        // Before trying to start, check if recognition is actually running
+        let isActuallyRunning = false;
+        
+        // Check state directly if possible using non-standard but available property in some browsers
+        try {
+          if (recognitionRef.current && recognitionRef.current.state === 'running') {
+            isActuallyRunning = true;
+          }
+        } catch (stateErr) {
+          console.log("Browser doesn't support checking recognition state directly");
+        }
+        
+        // Use our helper function to safely start recognition
+        safelyStartRecognition("initial start");
       } catch (err) {
+        console.error(`Could not start speech recognition: ${err.message}`);
         setError(`Could not start speech recognition: ${err.message}`);
+        setIsRecognitionActive(false);
       }
     }
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+          setIsRecognitionActive(false);
+        } catch (err) {
+          console.log("Error stopping recognition on cleanup:", err);
+        }
       }
     };
-  }, [isReady, triggered]);
-
+  }, [isReady, triggered, isRecognitionActive]);
+  
+  // Handle browser visibility changes to prevent aborted errors
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log("Page became visible - ensuring recognition is active");
+        // When the page becomes visible again, restart recognition if needed
+        setTimeout(() => {
+          if (recognitionRef.current && !isRecognitionActive && isReady && !triggered) {
+            safelyStartRecognition("after visibility change");
+          }
+        }, 1000); // Give browser time to stabilize
+      } else {
+        console.log("Page became hidden - stopping recognition to prevent aborted errors");
+        // When page becomes hidden, stop recognition to avoid aborted errors
+        if (recognitionRef.current && isRecognitionActive) {
+          try {
+            recognitionRef.current.stop();
+            setIsRecognitionActive(false);
+          } catch (err) {
+            console.log("Error stopping recognition on visibility change:", err);
+          }
+        }
+      }
+    };
+    
+    // Add event listener for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRecognitionActive, isReady, triggered]);
+  
   // Handle playing audio chunks in sequence
   useEffect(() => {
     if (processingChunks && remainingChunks.length > 0) {
@@ -127,15 +283,24 @@ const VoiceAssistant = () => {
       setIsReady(true);
       
       // Restart background recognition when all chunks are done
-      if (recognitionRef.current) {
+      if (recognitionRef.current && !isRecognitionActive) {
         try {
-          recognitionRef.current.start();
+          // Double-check recognition state before starting
+          if (recognitionRef.current.state !== 'started') {
+            console.log("Restarting recognition after audio chunks");
+            setIsRecognitionActive(true);
+            recognitionRef.current.start();
+          } else {
+            console.log("Recognition already active after audio chunks");
+            setIsRecognitionActive(true); // Update our state to match reality
+          }
         } catch (e) {
           console.error("Failed to restart recognition after audio chunks:", e);
+          setIsRecognitionActive(false);
         }
       }
     }
-  }, [processingChunks, remainingChunks]);
+  }, [processingChunks, remainingChunks, isRecognitionActive]);
 
   // Scroll to bottom of chat whenever conversation updates
   useEffect(() => {
@@ -151,11 +316,20 @@ const VoiceAssistant = () => {
       setIsReady(true);
       
       // Restart background recognition when all chunks are done
-      if (recognitionRef.current) {
+      if (recognitionRef.current && !isRecognitionActive) {
         try {
-          recognitionRef.current.start();
+          // Check recognition state first to prevent errors
+          if (recognitionRef.current.state !== 'started') {
+            console.log("Restarting recognition in playNextChunk");
+            setIsRecognitionActive(true);
+            recognitionRef.current.start();
+          } else {
+            console.log("Recognition already active in playNextChunk");
+            setIsRecognitionActive(true); // Update our state to match reality
+          }
         } catch (e) {
-          console.error("Failed to restart recognition after audio chunks:", e);
+          console.error("Failed to restart recognition in playNextChunk:", e);
+          setIsRecognitionActive(false);
         }
       }
       return;
@@ -186,6 +360,193 @@ const VoiceAssistant = () => {
     }
   };
 
+  // Advanced intent handling system that can process both navigation and action requests
+  const handleAdvancedIntents = (transcript, aiResponse) => {
+    if (!transcript && !aiResponse) return null;
+    
+    // Helper function to check if a document is available for processing
+    const checkForDocumentAccess = () => {
+      // Check if there's a document in context that can be used
+      return localStorage.getItem('uploadedFile') !== null;
+    };
+    
+    // Helper function for navigation - keep the timeout minimal for faster responses
+    const navigateTo = (path, pageName) => {
+      setTimeout(() => {
+        router.push(path);
+      }, 800); // Reduced from 1500ms to 800ms for faster navigation
+      return `Navigating to ${pageName}...`;
+    };
+    
+    // Define all available intents
+    const intents = {
+      // Main navigation pages
+      NAVIGATE_DEAF: {
+        action: () => navigateTo('/deaf', 'Deaf Assistance'),
+        patterns: ['deaf assistance', 'deaf help', 'go to deaf', 'open deaf', 'show deaf']
+      },
+      NAVIGATE_BLIND: {
+        action: () => navigateTo('/voice-assistant', 'Blind Assistance'),
+        patterns: ['blind assistance', 'voice assistant', 'go to blind', 'open blind', 'show blind']
+      },
+      NAVIGATE_PERSONALIZED: {
+        action: () => navigateTo('/topic-explorer', 'Personalized Learning'),
+        patterns: ['personalized learning', 'topic explorer', 'go to personalized', 'open personalized']
+      },
+      FEATURE_TOPIC_RECOMMENDATIONS: {
+        action: () => {
+          router.push('/topic-explorer');
+          return "I can help you discover new topics to learn about. Navigating to the Topic Explorer where you can find personalized recommendations...";
+        },
+        patterns: ['recommend topic', 'suggest topic', 'new topic', 'topic idea', 'what should i learn', 'topic recommendation', 'recommend new topics', 'suggest something to learn']
+      },
+      NAVIGATE_FEATURES: {
+        action: () => navigateTo('/features', 'Features Page'),
+        patterns: ['features page', 'go to features', 'show features', 'all features', 'available features']
+      },
+      NAVIGATE_HOME: {
+        action: () => navigateTo('/', 'Home Page'),
+        patterns: ['home page', 'go to home', 'go back home', 'homepage', 'main page']
+      },
+      NAVIGATE_SIGN: {
+        action: () => navigateTo('/sign', 'Sign Language Translator'),
+        patterns: ['sign language', 'go to sign', 'sign translator', 'translate signs']
+      },
+      NAVIGATE_SUMMARY: {
+        action: () => navigateTo('/summary', 'Summary Tool'),
+        patterns: ['summary tool', 'go to summary', 'summarize', 'summarization']
+      },
+      
+      // Feature-specific intents for document processing
+      FEATURE_FLASHCARDS: {
+        action: () => {
+          if (checkForDocumentAccess()) {
+            router.push('/flash');
+            return "Opening flashcard generator...";
+          }
+          return "Please upload a document first to create flashcards. Would you like me to navigate to the document upload page?";
+        },
+        patterns: ['flashcard', 'flash card', 'study card', 'make card', 'create card']
+      },
+      FEATURE_SUMMARY: {
+        action: () => {
+          if (checkForDocumentAccess()) {
+            router.push('/summary');
+            return "Opening document summarizer...";
+          }
+          return "Please upload a document first to create a summary. Would you like me to navigate to the document upload page?";
+        },
+        patterns: ['summar', 'condense', 'shorten', 'brief']
+      },
+      FEATURE_QUIZ: {
+        action: () => {
+          if (checkForDocumentAccess()) {
+            router.push('/quizz');
+            return "Opening quiz generator...";
+          }
+          return "Please upload a document first to create a quiz. Would you like me to navigate to the document upload page?";
+        },
+        patterns: ['quiz', 'question', 'test me', 'assessment', 'exam']
+      },
+      TRANSLATE_SIGN: {
+        action: () => {
+          router.push('/sign');
+          return "Opening sign language translator...";
+        },
+        patterns: ['translate sign', 'sign language translation', 'convert to sign language']
+      }
+    };
+    
+    // SPEED OPTIMIZATION: Check user transcript first (fastest path)
+    // This gives immediate response to direct user commands without waiting for AI processing
+    if (transcript) {
+      const lowerInput = transcript.toLowerCase();
+      
+      // Fast path: Check for common navigation patterns first with direct string checks
+      // These are the most frequently used commands, so we check them first for speed
+      if (lowerInput.includes('go to home') || lowerInput.includes('home page')) {
+        console.log("Fast path: Home navigation");
+        return intents.NAVIGATE_HOME.action();
+      }
+      
+      if (lowerInput.includes('deaf')) {
+        console.log("Fast path: Deaf assistance navigation");
+        return intents.NAVIGATE_DEAF.action();
+      }
+      
+      if (lowerInput.includes('blind') || lowerInput.includes('voice assistant')) {
+        console.log("Fast path: Blind assistance navigation");
+        return intents.NAVIGATE_BLIND.action();
+      }
+      
+      // Check all other patterns - using a more efficient approach
+      // We group patterns by intent to reduce nested loops
+      const intentEntries = Object.entries(intents);
+      for (let i = 0; i < intentEntries.length; i++) {
+        const [intentName, intentConfig] = intentEntries[i];
+        for (let j = 0; j < intentConfig.patterns.length; j++) {
+          if (lowerInput.includes(intentConfig.patterns[j])) {
+            console.log(`Detected intent ${intentName} from user transcript`);
+            return intentConfig.action();
+          }
+        }
+      }
+    }
+    
+    // Then check for special Gemini navigation formats (second fastest path)
+    if (aiResponse) {
+      // Check for special navigation format [NAVIGATE:path] - fastest AI path
+      const navRegex = /\[NAVIGATE:(\/[a-z\-]*)\](.*)/i;
+      const match = aiResponse.match(navRegex);
+      
+      if (match) {
+        const path = match[1];
+        const message = match[2] || "Navigating...";
+        // Use faster navigation
+        setTimeout(() => {
+          router.push(path);
+        }, 800); // Reduced for speed
+        return message.trim();
+      }
+      
+      // Check for special feature format from Gemini: [FEATURE:name]
+      const featureMatch = aiResponse.match(/\[FEATURE:([^\]]+)\]/);
+      if (featureMatch) {
+        const featureName = featureMatch[1].toLowerCase();
+        // Direct lookup with cached key matches
+        const featurePrefix = `FEATURE_${featureName.toUpperCase()}`;
+        const exactMatch = intents[featurePrefix];
+        if (exactMatch) {
+          return exactMatch.action();
+        }
+        
+        // Fallback to partial match if exact match not found
+        const matchingIntent = Object.keys(intents).find(key => 
+          key.toLowerCase().includes(`feature_${featureName}`)
+        );
+        if (matchingIntent) {
+          return intents[matchingIntent].action();
+        }
+      }
+      
+      // Check Gemini's response for action intent patterns
+      const lowerResponse = aiResponse.toLowerCase();
+      const intentEntries = Object.entries(intents);
+      for (let i = 0; i < intentEntries.length; i++) {
+        const [intentName, intentConfig] = intentEntries[i];
+        for (let j = 0; j < intentConfig.patterns.length; j++) {
+          if (lowerResponse.includes(intentConfig.patterns[j])) {
+            console.log(`Detected intent ${intentName} from Gemini response`);
+            return intentConfig.action();
+          }
+        }
+      }
+    }
+    
+    // No intent detected
+    return null;
+  };
+
   // Function to clear conversation history
   const clearConversation = () => {
     setConversation([]);
@@ -195,8 +556,13 @@ const VoiceAssistant = () => {
   const startRecording = async () => {
     try {
       // Stop the background recognition while we record the command
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+      if (recognitionRef.current && isRecognitionActive) {
+        try {
+          recognitionRef.current.stop();
+          setIsRecognitionActive(false);
+        } catch (e) {
+          console.error("Error stopping recognition before recording:", e);
+        }
       }
       
       setIsListening(true);
@@ -252,12 +618,16 @@ const VoiceAssistant = () => {
           setIsReady(true);  // Ready for new commands
           
           // Restart background recognition
-          if (recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (e) {
-              console.error("Failed to restart recognition after invalid recording:", e);
-            }
+          if (recognitionRef.current && !isRecognitionActive && isReady) {
+            setTimeout(() => {
+              try {
+                setIsRecognitionActive(true);
+                recognitionRef.current.start();
+              } catch (e) {
+                console.error("Failed to restart recognition after invalid recording:", e);
+                setIsRecognitionActive(false);
+              }
+            }, 500);
           }
           return;
         }
@@ -274,6 +644,26 @@ const VoiceAssistant = () => {
             // This includes conversation history (up to last 10 exchanges for brevity)
             const conversationContext = conversation.slice(-20); // Get last 20 messages (10 exchanges)
             
+            // Create system instructions to help Gemini understand navigation commands
+            const systemInstructions = `
+You are Jarvis, an AI assistant for the Edugram platform. When the user asks to navigate somewhere or perform a specific action, 
+you should indicate this in your response using one of these special formats:
+1. For navigation: Include [NAVIGATE:/path] at the start of your response, such as [NAVIGATE:/deaf] I'll take you to deaf assistance...
+2. For specific features: Mention the action clearly, like "Opening flashcard generator..." or "Starting summary tool..."
+
+Available pages and their paths:
+- Home page: /
+- Deaf Assistance: /deaf
+- Blind Assistance (Voice assistant): /voice-assistant
+- Personalized Learning (Topic Explorer): /topic-explorer
+- Features overview: /features
+- Sign Language Translator: /sign
+- Summary Tool: /summary
+- Flashcards: /flash
+
+Detect when the user wants to navigate or perform actions, even if they don't use exact commands.
+`;
+            
             const response = await fetch('https://edugram-574544346633.asia-south1.run.app/api/process_audio/', {
               method: 'POST',
               headers: {
@@ -282,7 +672,8 @@ const VoiceAssistant = () => {
               body: JSON.stringify({ 
                 audio: base64Audio,
                 browserTranscript: browserTranscript,
-                conversation: conversationContext // Send conversation history
+                conversation: conversationContext, // Send conversation history
+                systemInstructions: systemInstructions // Add system instructions for Gemini
               }),
               signal: controller.signal,
             });
@@ -300,6 +691,14 @@ const VoiceAssistant = () => {
               const newMessage = { role: 'user', content: data.text };
               const newResponse = { role: 'jarvis', content: data.response };
               setConversation(prev => [...prev, newMessage, newResponse]);
+              
+              // Check for navigation or action intents in both user input and Gemini's response
+              const actionResponse = handleAdvancedIntents(data.text, data.response);
+              if (actionResponse) {
+                console.log("Handling intent from Gemini response:", actionResponse);
+                // Update the response text to reflect the action
+                setResponseText(actionResponse);
+              }
 
               // Check for streaming response
               if (data.streaming && data.voice_response) {
@@ -408,7 +807,18 @@ const VoiceAssistant = () => {
                 }
               }
             } else {
-              setError(data.message || 'Could not understand audio.');
+              // Try client-side fallback for navigation or action commands
+              const actionResponse = handleAdvancedIntents(browserTranscript, null);
+              if (actionResponse) {
+                // If an action/navigation was handled, use that response
+                const newMessage = { role: 'user', content: browserTranscript };
+                const newResponse = { role: 'jarvis', content: actionResponse };
+                setConversation(prev => [...prev, newMessage, newResponse]);
+                setResponseText(actionResponse);
+              } else {
+                setError(data.message || 'Could not understand audio.');
+              }
+              
               setProcessingChunks(false);
               setIsReady(true);  // Ready for new commands
               
@@ -422,10 +832,22 @@ const VoiceAssistant = () => {
               }
             }
           } catch (err) {
-            if (err.name === 'AbortError') {
-              setError('Jarvis took too long to respond. Try again.');
+            // Try client-side fallback for navigation or action commands
+            const actionResponse = handleAdvancedIntents(browserTranscript, null);
+            
+            if (actionResponse) {
+              // If an action/navigation was handled, use that response
+              const newMessage = { role: 'user', content: browserTranscript };
+              const newResponse = { role: 'jarvis', content: actionResponse };
+              setConversation(prev => [...prev, newMessage, newResponse]);
+              setResponseText(actionResponse);
             } else {
-              setError(`Error sending audio to server: ${err.message}`);
+              // Show appropriate error based on type
+              if (err.name === 'AbortError') {
+                setError('Jarvis took too long to respond. Try again.');
+              } else {
+                setError(`Error sending audio to server: ${err.message}`);
+              }
             }
             
             setProcessingChunks(false);
@@ -467,11 +889,7 @@ const VoiceAssistant = () => {
       
       // Restart background recognition
       if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch (e) {
-          console.error("Failed to restart recognition after error:", e);
-        }
+        safelyStartRecognition("after error");
       }
     }
   };

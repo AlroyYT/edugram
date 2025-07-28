@@ -154,7 +154,17 @@ const App = () => {
       recognitionRef.current.stop();
     } else {
       try {
-        recognitionRef.current.start();
+        try {
+          recognitionRef.current.start();
+        } catch (startErr: any) {
+          if (startErr.name === 'InvalidStateError') {
+            console.log("Recognition was already running in sign language component");
+            // Just continue as if it started successfully
+          } else {
+            // Re-throw other errors
+            throw startErr;
+          }
+        }
       } catch (error) {
         console.error('Error starting recognition:', error);
         setError('Failed to start recording. Please try again.');

@@ -1,3 +1,8 @@
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Modern CSS Reset and Base Styles */
 :root {
     --primary: #4361ee;
@@ -1564,6 +1569,27 @@
   
   .upload-now-button:hover {
     background-color: var(--primary-dark);
+  }
+
+  .document-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+  
+  .clear-button {
+    background-color: #f44336;
+    color: white;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-sm);
+    transition: all var(--transition-fast) ease;
+  }
+  
+  .clear-button:hover {
+    background-color: #d32f2f;
   }
   
   .process-status {

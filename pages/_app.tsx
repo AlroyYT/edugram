@@ -2,6 +2,8 @@ import React from 'react';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { FileProvider } from '../context/FileContext';
+import BackToFeatureButton from '../components/BackToFeatureButton';
+import JarvisFloatingButton from '../components/JarvisFloatingButton';
 import '../styles/globals.css';
 
 
@@ -17,6 +19,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>AI Study Buddy</title>
       </Head>
       <Component {...pageProps} />
+      <BackToFeatureButton />
+      <JarvisFloatingButton />
     </FileProvider>
   );
 }

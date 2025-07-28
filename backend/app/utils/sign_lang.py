@@ -6,8 +6,11 @@ from PIL import Image
 import speech_recognition as sr
 import pyttsx3
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from functools import wraps  # Add wraps import for decorator support
+
+# Import keras directly to ensure compatibility with TensorFlow 2.12.0
+from keras.models import load_model
+from keras.preprocessing import image
 import base64
 from io import BytesIO
 from django.http import JsonResponse

@@ -27,6 +27,49 @@ const DeafSupportHub = () => {
 
     return () => clearTimeout(timer);
   }, []);
+  
+  // Listen for custom file upload events from Jarvis
+  useEffect(() => {
+    // Handler for the custom event
+    const handleJarvisFileUpload = (event: any) => {
+      console.log("Jarvis file upload event received:", event.detail);
+      
+      // Get the file either from context or from the event detail
+      if (uploadedFile) {
+        console.log("Jarvis uploaded file detected in context:", uploadedFile.name);
+        setAssetLabel(uploadedFile.name);
+        displayNotification(`File ready: ${uploadedFile.name}`);
+        
+        // Automatically trigger file processing with a slight delay
+        setTimeout(() => {
+          handleAssetUpload();
+        }, 100);
+      } else {
+        console.error("Event received but no file found in context!");
+        displayNotification("File upload issue - please try again");
+      }
+    };
+    
+    // Add event listener
+    window.addEventListener('jarvis-file-uploaded', handleJarvisFileUpload);
+    
+    // Check for an existing uploaded file in context when component mounts
+    if (uploadedFile) {
+      console.log("Found uploaded file in context on mount:", uploadedFile.name);
+      setAssetLabel(uploadedFile.name);
+      displayNotification(`File ready: ${uploadedFile.name}`);
+      
+      // Automatically process the file if it exists
+      setTimeout(() => {
+        handleAssetUpload();
+      }, 300);
+    }
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('jarvis-file-uploaded', handleJarvisFileUpload);
+    };
+  }, [uploadedFile]);
 
   const displayNotification = (message: string) => {
     setNotificationText(message);
@@ -51,8 +94,30 @@ const DeafSupportHub = () => {
     }
     
     setProcessStatus("Processing...");
-    displayNotification("File uploaded successfully");
-    setProcessStatus("");
+    
+    // Log the file details
+    console.log("Processing file:", uploadedFile.name, "Type:", uploadedFile.type, "Size:", Math.round(uploadedFile.size/1024), "KB");
+    
+    // Process file - we'll use a small delay to show the processing status
+    // but the file is already in context and ready to use
+    setTimeout(() => {
+      setProcessStatus("");
+      displayNotification(`File "${uploadedFile.name}" ready for use`);
+      
+      // Create and dispatch a custom event to notify any listeners that the file is processed
+      try {
+        const fileProcessedEvent = new CustomEvent('file-processed', {
+          detail: { 
+            fileName: uploadedFile.name,
+            success: true
+          }
+        });
+        window.dispatchEvent(fileProcessedEvent);
+        console.log("File processed event dispatched");
+      } catch (eventErr) {
+        console.error("Failed to dispatch file processed event:", eventErr);
+      }
+    }, 1000);
   };
 
   const launchQuizModule = () => {
@@ -60,6 +125,18 @@ const DeafSupportHub = () => {
       displayNotification("Please upload a file first");
       return;
     }
+    
+    // Log successful quiz launch
+    console.log("Launching quiz module with file:", uploadedFile.name);
+    displayNotification(`Generating quiz from ${uploadedFile.name}`);
+    
+    // Create a session storage copy of the file information before navigation
+    try {
+      sessionStorage.setItem('currentFileName', uploadedFile.name);
+    } catch (err) {
+      console.error("Failed to store file info in session:", err);
+    }
+    
     navigator.push("/quizz");
   };
 
@@ -69,12 +146,14 @@ const DeafSupportHub = () => {
       return;
     }
 
+    console.log("Starting summary generation for:", uploadedFile.name);
     setProcessStatus("Generating summary...");
     
     const formData = new FormData();
     formData.append("file", uploadedFile);
 
     try {
+      console.log("Sending file to summary API...");
       const response = await axios.post(
         "https://edugram-574544346633.asia-south1.run.app/api/summarize/",
         formData,
@@ -85,7 +164,17 @@ const DeafSupportHub = () => {
         }
       );
 
+      console.log("Summary generation successful!");
       setProcessStatus("");
+      
+      // Create a session storage copy of the file information before navigation
+      try {
+        sessionStorage.setItem('currentFileName', uploadedFile.name);
+        sessionStorage.setItem('lastGeneratedSummary', response.data.summary);
+      } catch (err) {
+        console.error("Failed to store file info in session:", err);
+      }
+      
       navigator.push({
         pathname: "/summary",
         query: { summary: response.data.summary },
@@ -93,7 +182,7 @@ const DeafSupportHub = () => {
     } catch (error) {
       setProcessStatus("");
       displayNotification("Summary generation failed");
-      console.error(error);
+      console.error("Summary generation error:", error);
     }
   };
 
@@ -102,6 +191,18 @@ const DeafSupportHub = () => {
       displayNotification("Please upload a file first");
       return;
     }
+    
+    // Log successful flashcard launch
+    console.log("Launching flashcard module with file:", uploadedFile.name);
+    displayNotification(`Generating flashcards from ${uploadedFile.name}`);
+    
+    // Create a session storage copy of the file information before navigation
+    try {
+      sessionStorage.setItem('currentFileName', uploadedFile.name);
+    } catch (err) {
+      console.error("Failed to store file info in session:", err);
+    }
+    
     navigator.push("/flash");
   };
 
@@ -404,16 +505,25 @@ const DeafSupportHub = () => {
             <motion.div variants={itemVariants} className="upload-container">
               <div className="file-drop-area">
                 <div className="file-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                    <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
-                  </svg>
+                  {uploadedFile ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm-1 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                      <path d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.708.708zM3 10h5v1H3v-1z"/>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                      <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                    </svg>
+                  )}
                 </div>
-                <h3>Upload Your Document</h3>
-                <p>Drop your file here or click to browse</p>
-                <label htmlFor="file-upload" className="file-upload-button">
-                  Select File
-                </label>
+                <h3>{uploadedFile ? 'Document Ready' : 'Upload Your Document'}</h3>
+                <p>{uploadedFile ? `File: ${uploadedFile.name}` : 'Drop your file here or click to browse'}</p>
+                {!uploadedFile && (
+                  <label htmlFor="file-upload" className="file-upload-button">
+                    Select File
+                  </label>
+                )}
                 <input
                   id="file-upload"
                   type="file"
@@ -423,8 +533,17 @@ const DeafSupportHub = () => {
                 {assetLabel && (
                   <div className="selected-file">
                     <span className="file-name">{assetLabel}</span>
-                    <button className="upload-now-button" onClick={handleAssetUpload}>
-                      Upload Now
+                    {!uploadedFile && (
+                      <button className="upload-now-button" onClick={handleAssetUpload}>
+                        Upload Now
+                      </button>
+                    )}
+                  </div>
+                )}
+                {uploadedFile && (
+                  <div className="document-actions">
+                    <button onClick={() => setUploadedFile(null)} className="clear-button">
+                      Clear Document
                     </button>
                   </div>
                 )}
