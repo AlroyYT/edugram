@@ -1,0 +1,179 @@
+.container {
+  background-color: #0f172a;
+  color: #f1f5f9;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 700px;
+  margin: 2rem auto;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #cbd5e1;
+}
+
+.select {
+  width: 100%;
+  padding: 0.6rem;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  color: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+.sliderWrapper {
+  margin-bottom: 1rem;
+}
+
+.slider {
+  width: 100%;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.button {
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.start {
+  background-color: #3b82f6;
+}
+.start:hover {
+  background-color: #2563eb;
+}
+
+.pause {
+  background-color: #facc15;
+  color: #000;
+}
+.pause:hover {
+  background-color: #eab308;
+}
+
+.block {
+  margin-top: 1rem;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.text {
+  font-size: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.word {
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.3rem;
+}
+
+.correct {
+  background-color: #22c55e;
+  color: #000;
+}
+
+.incorrect {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.currentWord {
+  background-color: #0ea5e9;
+  color: #fff;
+  font-weight: bold;
+}
+
+.resultBox {
+  background-color: #1e293b;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.resultText {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.timeText {
+  font-size: 1.125rem;
+  color: #facc15;
+  margin-top: 0.25rem;
+}
+
+.timer {
+  font-size: 1.1rem;
+  text-align: center;
+  color: #fcd34d;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.motivation {
+  text-align: center;
+  font-style: italic;
+  margin-top: 2rem;
+  color: #a5f3fc;
+  font-size: 1rem;
+}
+
+.history {
+  margin-top: 1.5rem;
+}
+
+.attemptItem {
+  background-color: #1e293b;
+  padding: 0.6rem;
+  margin: 0.4rem 0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.replayButton {
+  margin-top: 0.5rem;
+  background-color: #0ea5e9;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.replayButton:hover {
+  background-color: #0284c7;
+}

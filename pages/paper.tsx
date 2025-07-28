@@ -79,21 +79,21 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Strad Research Paper Finder</title>
-        <meta name="description" content="Search and find research papers from Strad Research" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  <>
+    <Head>
+      <title>EDUGRAM Research Paper Finder</title>
+      <meta name="description" content="Search and find research papers with the help of EDUGRAM" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
 
-      <div className="container">
-        <header className="header">
-          <h1>📚 Strad Research Paper Finder</h1>
-          <p>Search for research papers from stradresearch.org</p>
-        </header>
+    <div className={`main-layout ${results.length > 0 ? 'searched' : ''}`}>
+      <header className="header-sticky">
+        <h1 className="header-title">📚 EDUGRAM Research Paper Finder</h1>
+      </header>
 
-        <main className="main">
+      <div className="content-wrapper">
+        <div className="form-section">
           <form onSubmit={handleSubmit} className="search-form">
             <div className="form-group">
               <label htmlFor="title">Paper Title *</label>
@@ -143,346 +143,219 @@ export default function Home() {
               </button>
             </div>
           </form>
+        </div>
 
-          {error && (
-            <div className="error-message">
-              ⚠️ {error}
-            </div>
-          )}
+        {results.length > 0 && (
+          <div className="results-section">
+            <h2>Search Results ({results.length} found)</h2>
+            <div className="results-grid">
+              {results.map((paper, index) => (
+                <div key={index} className="paper-card">
+                  {paper.error ? (
+                    <div className="error-card">
+                      <h3>Error</h3>
+                      <p>{paper.error}</p>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="paper-title">
+                        {paper.url && paper.url !== '#' ? (
+                          <a href={paper.url} target="_blank" rel="noopener noreferrer">
+                            {paper.title}
+                          </a>
+                        ) : (
+                          paper.title
+                        )}
+                      </h3>
 
-          {results.length > 0 && (
-            <div className="results-section">
-              <h2>Search Results ({results.length} found)</h2>
-              <div className="results-grid">
-                {results.map((paper, index) => (
-                  <div key={index} className="paper-card">
-                    {paper.error ? (
-                      <div className="error-card">
-                        <h3>Error</h3>
-                        <p>{paper.error}</p>
+                      <div className="paper-meta">
+                        <span className="authors">👤 {paper.authors}</span>
+                        <span className="year">📅 {paper.year}</span>
                       </div>
-                    ) : (
-                      <>
-                        <h3 className="paper-title">
-                          {paper.url && paper.url !== '#' ? (
-                            <a href={paper.url} target="_blank" rel="noopener noreferrer">
-                              {paper.title}
-                            </a>
-                          ) : (
-                            paper.title
-                          )}
-                        </h3>
-                        
-                        <div className="paper-meta">
-                          <span className="authors">👤 {paper.authors}</span>
-                          <span className="year">📅 {paper.year}</span>
+
+                      {paper.abstract && paper.abstract !== 'Not available' && (
+                        <div className="abstract">
+                          <h4>Abstract:</h4>
+                          <p>{paper.abstract}</p>
                         </div>
-                        
-                        {paper.abstract && paper.abstract !== 'Not available' && (
-                          <div className="abstract">
-                            <h4>Abstract:</h4>
-                            <p>{paper.abstract}</p>
-                          </div>
-                        )}
-                        
-                        {paper.url && paper.url !== '#' && (
-                          <div className="paper-actions">
-                            <a 
-                              href={paper.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="btn-link"
-                            >
-                              📖 View Paper
-                            </a>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
+                      )}
+
+                      {paper.url && paper.url !== '#' && (
+                        <div className="paper-actions">
+                          <a
+                            href={paper.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-link"
+                          >
+                            📖 View Paper
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          )}
-        </main>
-
-        <footer className="footer">
-          
-        </footer>
+          </div>
+        )}
       </div>
+    </div>
 
-      <style jsx>{`
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          line-height: 1.6;
-          color: #333;
-        }
+    <style jsx>{`
+      .main-layout {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(160deg, #0a0f2f, #001233);
+        color: #e0e7ff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .header {
-          text-align: center;
-          margin-bottom: 40px;
-          padding: 20px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border-radius: 15px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+      .header-sticky {
+        position: sticky;
+        top: 0;
+        background-color: #1e3a8a;
+        padding: 16px;
+        text-align: center;
+        z-index: 1000;
+      }
 
-        .header h1 {
-          margin: 0 0 10px 0;
-          font-size: 2.5rem;
-          font-weight: 700;
-        }
+      .header-title {
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+      }
 
-        .header p {
-          margin: 0;
-          font-size: 1.1rem;
-          opacity: 0.9;
-        }
+      .content-wrapper {
+        display: flex;
+        flex-direction: ${results.length > 0 ? 'row' : 'column'};
+        padding: 20px;
+        gap: 24px;
+        justify-content: ${results.length > 0 ? 'flex-start' : 'center'};
+        align-items: ${results.length > 0 ? 'flex-start' : 'center'};
+      }
 
-        .main {
-          margin-bottom: 40px;
-        }
+      .form-section {
+        background: #0f172a;
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        width: ${results.length > 0 ? '400px' : '100%'};
+        max-width: 500px;
+      }
 
-        .search-form {
-          background: white;
-          padding: 30px;
-          border-radius: 15px;
-          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-          margin-bottom: 30px;
-          border: 1px solid #e1e5e9;
-        }
+      .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-        .form-group {
-          margin-bottom: 20px;
-        }
+      .form-group label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+        color: #cbd5e1;
+      }
 
-        .form-group label {
-          display: block;
-          margin-bottom: 8px;
-          font-weight: 600;
-          color: #555;
-          font-size: 0.95rem;
-        }
+      .form-group input {
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        background: #1e293b;
+        color: white;
+        width: 100%;
+      }
 
-        .form-group input {
-          width: 100%;
-          padding: 12px 16px;
-          border: 2px solid #e1e5e9;
-          border-radius: 8px;
-          font-size: 1rem;
-          transition: all 0.3s ease;
-          box-sizing: border-box;
-        }
+      .form-buttons {
+        display: flex;
+        gap: 10px;
+      }
 
-        .form-group input:focus {
-          outline: none;
-          border-color: #667eea;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
+      .btn-primary,
+      .btn-secondary {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+      }
 
-        .form-buttons {
-          display: flex;
-          gap: 15px;
-          flex-wrap: wrap;
-        }
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+      }
 
-        .btn-primary, .btn-secondary {
-          padding: 12px 24px;
-          border: none;
-          border-radius: 8px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          text-decoration: none;
-          display: inline-block;
-          text-align: center;
-        }
+      .btn-secondary {
+        background: #475569;
+        color: white;
+      }
 
-        .btn-primary {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-        }
+      .results-section {
+        flex: 1;
+      }
 
-        .btn-primary:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+      }
 
-        .btn-primary:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-        }
+      .paper-card {
+        background: #1e293b;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        max-height: 350px;
+        overflow-y: auto;
+      }
 
-        .btn-secondary {
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 2px solid #e9ecef;
-        }
+      .paper-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
 
-        .btn-secondary:hover {
-          background: #e9ecef;
-          border-color: #dee2e6;
-        }
+      .paper-meta {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
 
-        .error-message {
-          background: #f8d7da;
-          color: #721c24;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          border: 1px solid #f5c6cb;
-        }
+      .abstract {
+        font-size: 0.9rem;
+        color: #ffffff;
+        margin-bottom: 10px;
+      }
 
-        .results-section {
-          margin-top: 30px;
-        }
+      .abstract h4 {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
 
-        .results-section h2 {
-          color: #333;
-          margin-bottom: 20px;
-          font-size: 1.5rem;
-        }
+      .btn-link {
+        display: inline-block;
+        background: #3b82f6;
+        padding: 6px 12px;
+        border-radius: 6px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
 
-        .results-grid {
-          display: grid;
-          gap: 20px;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        }
-
-        .paper-card {
-          background: white;
-          border-radius: 12px;
-          padding: 25px;
-          box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-          border: 1px solid #e1e5e9;
-          transition: all 0.3s ease;
-        }
-
-        .paper-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .paper-title {
-          margin: 0 0 15px 0;
-          font-size: 1.2rem;
-          line-height: 1.4;
-        }
-
-        .paper-title a {
-          color: #667eea;
-          text-decoration: none;
-          font-weight: 600;
-        }
-
-        .paper-title a:hover {
-          text-decoration: underline;
-        }
-
-        .paper-meta {
-          display: flex;
-          gap: 20px;
-          margin-bottom: 15px;
-          font-size: 0.9rem;
-          color: #666;
-          flex-wrap: wrap;
-        }
-
-        .abstract {
-          margin: 15px 0;
-        }
-
-        .abstract h4 {
-          margin: 0 0 8px 0;
-          font-size: 0.95rem;
-          color: #555;
-          font-weight: 600;
-        }
-
-        .abstract p {
-          margin: 0;
-          color: #666;
-          line-height: 1.5;
-          font-size: 0.9rem;
-        }
-
-        .paper-actions {
-          margin-top: 15px;
-          padding-top: 15px;
-          border-top: 1px solid #eee;
-        }
-
-        .btn-link {
-          display: inline-block;
-          padding: 8px 16px;
-          background: #667eea;
-          color: white;
-          text-decoration: none;
-          border-radius: 6px;
-          font-size: 0.9rem;
-          font-weight: 500;
-          transition: all 0.3s ease;
-        }
-
-        .btn-link:hover {
-          background: #5a6fd8;
-          transform: translateY(-1px);
-        }
-
-        .error-card {
-          color: #721c24;
-        }
-
-        .error-card h3 {
-          color: #721c24;
-          margin-top: 0;
-        }
-
-        .footer {
-          text-align: center;
-          padding: 20px;
-          border-top: 1px solid #eee;
-          color: #666;
-          font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-          .container {
-            padding: 15px;
-          }
-          
-          .header h1 {
-            font-size: 2rem;
-          }
-          
-          .search-form {
-            padding: 20px;
-          }
-          
-          .form-buttons {
-            flex-direction: column;
-          }
-          
-          .btn-primary, .btn-secondary {
-            width: 100%;
-          }
-          
-          .results-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .paper-meta {
-            flex-direction: column;
-            gap: 8px;
-          }
-        }
-      `}</style>
-    </>
-  );
+      .error-message {
+        text-align: center;
+        background: #b91c1c;
+        color: white;
+        margin: 16px auto;
+        padding: 12px;
+        border-radius: 8px;
+        max-width: 600px;
+      }
+    `}</style>
+  </>
+);
 }
