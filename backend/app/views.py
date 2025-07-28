@@ -1,3 +1,5 @@
+
+
 from django.conf import settings
 import mimetypes
 import os
@@ -47,15 +49,17 @@ from django.views import View
 import re
 from urllib.parse import urljoin, quote
 import time
+from .utils.speech_support import speech_evaluate_view
+
 
 
 # Set up ffmpeg path using relative path
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(os.path.abspath(_file_))
 project_root = os.path.dirname(os.path.dirname(current_dir))
 ffmpeg_path = os.path.join(project_root, 'ffmpeg-7.1.1-essentials_build', 'bin')
 os.environ["PATH"] += os.pathsep + ffmpeg_path
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(_name_)
 
 
 class FileUploadAPIView(APIView):
@@ -75,8 +79,8 @@ class FileUploadAPIView(APIView):
         return Response({"message": f"File saved at {file_path}"}, status=status.HTTP_200_OK)
 
 class SummarizeAPIView(APIView):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _init_(self, *args, **kwargs):
+        super()._init_(*args, **kwargs)
         try:
             # Initialize the quota-friendly document analyzer with Gemini API key
             self.analyzer = QuotaFriendlyAnalyzer(settings.GEMINI_API_KEY)
@@ -776,7 +780,7 @@ def delete_saved_material(request, filename):
         logger.info(f"Attempting to delete file: {filename}")
         
         # Get the current directory and construct relative path to saved directory
-        current_dir = os.path.dirname(os.path.abspath(__file__))
+        current_dir = os.path.dirname(os.path.abspath(_file_))
         saved_dir = os.path.join(current_dir, '..', 'media', 'saved')
         file_path = os.path.join(saved_dir, filename)
         
@@ -849,7 +853,7 @@ def download_file(request, filename):
         logger.info(f"Attempting to download file: {filename}")
         
         # Get the current directory and construct relative path to saved directory
-        current_dir = os.path.dirname(os.path.abspath(__file__))
+        current_dir = os.path.dirname(os.path.abspath(_file_))
         saved_dir = os.path.join(current_dir, '..', 'media', 'saved')
         file_path = os.path.join(saved_dir, filename)
         
@@ -1028,7 +1032,7 @@ def search_papers_by_topic(topic, author="", year=""):
                 if len(all_results) >= 15:  # Limit total results
                     break
         except Exception as e:
-            print(f"Error in {search_func.__name__}: {e}")
+            print(f"Error in {search_func._name_}: {e}")
             continue
     
     # Remove duplicates and sort by relevance
