@@ -155,14 +155,26 @@ const FlashcardsEnhanced: React.FC = () => {
       formData.append('content', JSON.stringify({ cards: fcrd84StudyCards, date }));
       formData.append('fileName', `${originalFileName}_flashcards`);
 
-      const response = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
+      // Save to Django backend
+      const backendResponse = await axios.post('http://127.0.0.1:8000/api/save-material/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      if (response.data.status === 'success') {
-        console.log('Flashcards PDF saved successfully:', response.data.file_path);
+      if (backendResponse.data.status === 'success') {
+        console.log('Flashcards PDF saved successfully:', backendResponse.data.file_path);
+        
+        // Also save to MongoDB for user profile
+        const mongodbData = {
+          type: 'flashcard',
+          fileName: `${originalFileName}_flashcards.pdf`,
+          filePath: backendResponse.data.file_path,
+          content: { cards: fcrd84StudyCards, date }
+        };
+        
+        await axios.post('/api/save-material', mongodbData);
+        console.log('Flashcards saved to user profile');
       }
     } catch (error) {
       console.error('Error saving PDF:', error);

@@ -1,7 +1,11 @@
 // pages/profile.tsx
 import { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient } from 'mongodb';
+import { getSession } from 'next-auth/react';
+import { motion } from 'framer-motion';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 interface User {
   _id: string;
@@ -14,6 +18,13 @@ interface User {
     AutismSupport: number;
     PersonalizedLearning: number;
   };
+  savedMaterials?: {
+    _id: string;
+    type: string;
+    fileName: string;
+    filePath: string;
+    createdAt: string;
+  }[];
 }
 
 interface ProfileProps {
@@ -22,71 +33,22 @@ interface ProfileProps {
 }
 
 export default function Profile({ user, error }: ProfileProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const router = useRouter();
 
   if (error) {
     return (
       <div className="error-container">
         <div className="error-card">
           <div className="error-icon">⚠️</div>
-          <h1 className="error-title">User Not Found</h1>
+          <h1 className="error-title">Error</h1>
           <p className="error-message">{error}</p>
+          <button 
+            onClick={() => router.push('/features')}
+            className="retry-button"
+          >
+            Go to Dashboard
+          </button>
         </div>
-        <style jsx>{`
-          .error-container {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #fef7f0 0%, #fed7d7 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          }
-          .error-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-            padding: 48px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: fadeInUp 0.6s ease-out;
-          }
-          .error-icon {
-            font-size: 64px;
-            margin-bottom: 24px;
-            animation: bounce 2s infinite;
-          }
-          .error-title {
-            font-size: 32px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #e53e3e, #c53030);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 16px;
-          }
-          .error-message {
-            color: #718096;
-            font-size: 18px;
-            line-height: 1.6;
-          }
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-            40%, 43% { transform: translateY(-10px); }
-            70% { transform: translateY(-5px); }
-          }
-        `}</style>
       </div>
     );
   }
@@ -95,860 +57,875 @@ export default function Profile({ user, error }: ProfileProps) {
     return (
       <div className="loading-container">
         <div className="loading-content">
-          <div className="spinner-container">
-            <div className="spinner"></div>
-            <div className="spinner-inner"></div>
-          </div>
+          <div className="spinner"></div>
           <p className="loading-text">Loading your profile...</p>
         </div>
-        <style jsx>{`
-          .loading-container {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          }
-          .loading-content {
-            text-align: center;
-          }
-          .spinner-container {
-            position: relative;
-            margin-bottom: 32px;
-          }
-          .spinner {
-            width: 64px;
-            height: 64px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #4299e1;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-          }
-          .spinner-inner {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 48px;
-            height: 48px;
-            border: 4px solid transparent;
-            border-top: 4px solid #9f7aea;
-            border-radius: 50%;
-            animation: spin 0.75s linear infinite reverse;
-          }
-          .loading-text {
-            color: #4a5568;
-            font-size: 20px;
-            font-weight: 500;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
 
-  const totalFeatureUsage = Object.values(user.featureCounters).reduce((sum, count) => sum + count, 0);
+  const totalUsage = Object.values(user.featureCounters).reduce((sum, count) => sum + count, 0);
+  
+  const featureNames = {
+    BlindAssistance: 'Vision Assistance',
+    DeafAssistance: 'Hearing Assistance', 
+    AutismSupport: 'Autism Support',
+    PersonalizedLearning: 'Personalized Learning'
+  };
+
   const mostUsedFeature = Object.entries(user.featureCounters).reduce((a, b) => 
     user.featureCounters[a[0] as keyof typeof user.featureCounters] > 
     user.featureCounters[b[0] as keyof typeof user.featureCounters] ? a : b
   );
 
-  const featureData = Object.entries(user.featureCounters).map(([feature, count]) => {
-    const config = {
-      BlindAssistance: { 
-        icon: '👁️', 
-        gradient: 'linear-gradient(135deg, #9f7aea, #667eea)',
-        bgGradient: 'linear-gradient(135deg, #f7fafc, #edf2f7)',
-        name: 'Vision Assistance',
-        color: '#9f7aea'
-      },
-      DeafAssistance: { 
-        icon: '👂', 
-        gradient: 'linear-gradient(135deg, #38b2ac, #319795)',
-        bgGradient: 'linear-gradient(135deg, #e6fffa, #b2f5ea)',
-        name: 'Hearing Assistance',
-        color: '#38b2ac'
-      },
-      AutismSupport: { 
-        icon: '🧩', 
-        gradient: 'linear-gradient(135deg, #ed8936, #dd6b20)',
-        bgGradient: 'linear-gradient(135deg, #fffaf0, #feebc8)',
-        name: 'Autism Support',
-        color: '#ed8936'
-      },
-      PersonalizedLearning: { 
-        icon: '🎓', 
-        gradient: 'linear-gradient(135deg, #4299e1, #3182ce)',
-        bgGradient: 'linear-gradient(135deg, #ebf8ff, #bee3f8)',
-        name: 'Personalized Learning',
-        color: '#4299e1'
-      }
-    };
-    
-    return {
-      key: feature,
-      count,
-      ...config[feature as keyof typeof config]
-    };
-  });
+  const mostUsedFeatureName = featureNames[mostUsedFeature[0] as keyof typeof featureNames];
+
+  const getFileIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'flashcard': return '📚';
+      case 'summary': return '📝';
+      case 'quiz': return '🧠';
+      default: return '📄';
+    }
+  };
 
   return (
-    <div className="profile-container">
-      {/* Animated Background */}
-      <div className="bg-decoration bg-decoration-1"></div>
-      <div className="bg-decoration bg-decoration-2"></div>
-      
-      <div className="main-wrapper">
-        <div className={`profile-card ${mounted ? 'loaded' : ''}`}>
-          
-          {/* Header Section */}
-          <div className="header-section">
-            <div className="header-overlay"></div>
-            <div className="header-content">
-              <div className="profile-image-container">
-                <div className="image-glow"></div>
-                <img
-                  src={user.image}
-                  alt={user.name}
-                  className="profile-image"
-                />
-                <div className="status-badge">
-                  <span>✓</span>
-                </div>
-              </div>
+    <>
+      <Head>
+        <title>{user.name}'s Profile | EduGram</title>
+        <meta name="description" content="View your EduGram profile and learning progress" />
+      </Head>
+
+      <div className="profile-container">
+        {/* Header */}
+        <header className="header">
+          <div className="header-content">
+            <button 
+              onClick={() => router.push('/features')}
+              className="back-button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Hub
+            </button>
+            <h1 className="header-title">My Profile</h1>
+            <div className="nav-actions">
+              <button className="nav-button">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Settings
+              </button>
               
-              <div className="profile-info">
-                <h1 className="profile-name">{user.name}</h1>
-                <div className="profile-email">
-                  <div className="email-icon">📧</div>
-                  {user.email}
-                </div>
-                <div className="active-badge">
-                  <span className="status-dot"></span>
-                  Active User
+              <div className="profile-menu">
+                <div className="profile-trigger">
+                  <img 
+                    src={user.image} 
+                    alt={user.name}
+                    className="profile-avatar"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4f46e5&color=fff&size=32`;
+                    }}
+                  />
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+                    {user.name.split(' ')[0]}
+                  </span>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
+        </header>
 
-          {/* Stats Overview */}
-          <div className="stats-overview">
-            <div className="stat-item">
-              <div className="stat-number stat-primary">{totalFeatureUsage}</div>
-              <div className="stat-label">Total Usage</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-number stat-secondary">4</div>
-              <div className="stat-label">Features Used</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-number stat-tertiary">
-                {mostUsedFeature[0].replace(/([A-Z])/g, ' $1').trim()}
-              </div>
-              <div className="stat-label">Most Used</div>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="content-section">
-            <div className="section-header">
-              <div className="section-icon">📊</div>
-              <h2 className="section-title">Feature Usage Analytics</h2>
-            </div>
-            
-            {/* Feature Cards */}
-            <div className="features-grid">
-              {featureData.map((feature, index) => (
-                <div key={feature.key} className={`feature-card feature-card-${index}`}>
-                  <div className="feature-card-content">
-                    <div className="feature-left">
-                      <div 
-                        className="feature-icon"
-                        style={{ background: feature.gradient }}
-                      >
-                        {feature.icon}
-                      </div>
-                      <div className="feature-info">
-                        <h3 className="feature-name">{feature.name}</h3>
-                        <p className="feature-subtitle">Feature Usage</p>
-                      </div>
-                    </div>
-                    
-                    <div className="feature-right">
-                      <div 
-                        className="feature-count"
-                        style={{ 
-                          background: feature.gradient,
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text'
-                        }}
-                      >
-                        {feature.count}
-                      </div>
-                      <div className="feature-uses">uses</div>
-                    </div>
-                  </div>
-
-                  <div className="usage-bar-container">
-                    <div 
-                      className="usage-bar"
-                      style={{ 
-                        background: feature.gradient,
-                        width: totalFeatureUsage > 0 ? `${(feature.count / totalFeatureUsage) * 100}%` : '0%',
-                        animationDelay: `${index * 200}ms`
+        {/* Main Content */}
+        <main className="main-content">
+          <div className="content-wrapper">
+            {/* User Info Card */}
+            <div className="user-card">
+              <div className="user-header">
+                <div className="profile-section">
+                  <div className="profile-image-container">
+                    <img 
+                      src={user.image} 
+                      alt={user.name}
+                      className="profile-image"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4f46e5&color=fff&size=80`;
                       }}
-                    ></div>
+                    />
+                    <div className="status-indicator"></div>
+                  </div>
+                  
+                  <div className="user-info">
+                    <h2 className="user-name">{user.name}</h2>
+                    <p className="user-email">{user.email}</p>
+                    <div className="user-badge">Active User</div>
                   </div>
                 </div>
-              ))}
+
+                <div className="stats-section">
+                  <div className="stat-card">
+                    <div className="stat-number">{totalUsage}</div>
+                    <div className="stat-label">Total Sessions</div>
+                  </div>
+                  
+                  <div className="stat-card">
+                    <div className="stat-number">{mostUsedFeature[1]}</div>
+                    <div className="stat-label">Top Feature Uses</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="feature-usage">
+                <h3 className="section-title">Feature Usage Overview</h3>
+                <div className="feature-grid">
+                  {Object.entries(user.featureCounters).map(([key, value]) => (
+                    <div key={key} className="feature-item">
+                      <div className="feature-name">{featureNames[key as keyof typeof featureNames]}</div>
+                      <div className="feature-count">{value} uses</div>
+                      <div className="feature-bar">
+                        <div 
+                          className="feature-progress" 
+                          style={{ 
+                            width: `${totalUsage > 0 ? (value / totalUsage) * 100 : 0}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Total Usage Card */}
-            <div className="total-usage-card">
-              <div className="total-usage-bg"></div>
-              <div className="total-usage-content">
-                <div className="total-usage-left">
-                  <h3 className="total-usage-title">Total Feature Engagement</h3>
-                  <p className="total-usage-subtitle">Across all accessibility tools</p>
+            {/* Saved Materials */}
+            {user.savedMaterials && user.savedMaterials.length > 0 ? (
+              <div className="materials-section">
+                <div className="section-header">
+                  <h3 className="section-title">Saved Materials</h3>
+                  <div className="materials-count">{user.savedMaterials.length} items</div>
                 </div>
-                <div className="total-usage-right">
-                  <div className="total-usage-number">{totalFeatureUsage}</div>
-                  <div className="total-usage-label">total interactions</div>
-                </div>
-              </div>
-            </div>
 
-            {/* Account Details */}
-            <div className="account-section">
-              <div className="account-header">
-                <div className="account-icon">👤</div>
-                <h3 className="account-title">Account Information</h3>
-              </div>
-              
-              <div className="account-grid">
-                <div className="account-card">
-                  <div className="account-label">User ID</div>
-                  <div className="account-value user-id">{user._id}</div>
+                <div className="materials-grid">
+                  {user.savedMaterials.map((material) => (
+                    <div key={material._id} className="material-card">
+                      <div className="material-icon">{getFileIcon(material.type)}</div>
+                      
+                      <div className="material-content">
+                        <div className="material-header">
+                          <h4 className="material-name">{material.fileName}</h4>
+                          <span className="material-type">{material.type}</span>
+                        </div>
+                        
+                        <p className="material-date">
+                          Created {new Date(material.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                      
+                      <a 
+                        href={material.filePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="view-button"
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  ))}
                 </div>
-                
-                <div className="account-card">
-                  <div className="account-label">Primary Feature</div>
-                  <div className="account-value feature-name">
-                    {mostUsedFeature[0].replace(/([A-Z])/g, ' $1').trim()}
-                  </div>
-                  <div className="account-sublabel">
-                    {mostUsedFeature[1]} uses
-                  </div>
-                </div>
               </div>
-            </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">📚</div>
+                <h3 className="empty-title">No saved materials yet</h3>
+                <p className="empty-description">
+                  Start using our learning features to generate and save study materials.
+                </p>
+                <button
+                  className="cta-button"
+                  onClick={() => router.push('/features')}
+                >
+                  Explore Features
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        </main>
       </div>
+
+      <style jsx global>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+          line-height: 1.6;
+          color: #1f2937;
+        }
+      `}</style>
 
       <style jsx>{`
         .profile-container {
           min-height: 100vh;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          position: relative;
-          overflow: hidden;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        .bg-decoration {
-          position: absolute;
-          border-radius: 50%;
-          blur: 60px;
-          opacity: 0.1;
-          animation: float 6s ease-in-out infinite;
-        }
-
-        .bg-decoration-1 {
-          top: 20%;
-          left: 20%;
-          width: 400px;
-          height: 400px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-
-        .bg-decoration-2 {
-          bottom: 20%;
-          right: 20%;
-          width: 320px;
-          height: 320px;
-          background: linear-gradient(135deg, #f093fb, #f5576c);
-          animation-delay: 3s;
-        }
-
-        .main-wrapper {
-          position: relative;
-          z-index: 10;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 24px;
-          padding-top: 48px;
-        }
-
-        .profile-card {
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(20px);
-          border-radius: 24px;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          overflow: hidden;
-          opacity: 0;
-          transform: translateY(30px);
-          transition: all 1s ease-out;
-        }
-
-        .profile-card.loaded {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        .header-section {
-          position: relative;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          padding: 64px 32px;
-          color: white;
         }
 
-        .header-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        .header {
+          background: rgba(255, 255, 255, 0.98);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .header-content {
-          position: relative;
-          z-index: 10;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 1.25rem 2rem;
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: 32px;
+          justify-content: space-between;
+          
         }
 
-        @media (min-width: 768px) {
-          .header-content {
-            flex-direction: row;
-            text-align: left;
-          }
+        .back-button {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: #374151;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0.75rem 1.25rem;
+          border-radius: 12px;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .back-button:hover {
+          color: #1f2937;
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .back-button svg {
+          transition: transform 0.2s ease;
+        }
+
+        .back-button:hover svg {
+          transform: translateX(-2px);
+        }
+
+        .header-title {
+          font-size: 1.75rem;
+          font-weight: 800;
+          color: #1f2937;
+          background: linear-gradient(135deg, #4f46e5, #7c3aed);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          letter-spacing: -0.025em;
+        }
+
+        .nav-actions {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .nav-button {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #6b7280;
+          background: none;
+          border: none;
+          font-weight: 500;
+          cursor: pointer;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          font-size: 14px;
+        }
+
+        .nav-button:hover {
+          color: #4f46e5;
+          background: #f0f9ff;
+        }
+
+        .profile-menu {
+          position: relative;
+        }
+
+        .profile-trigger {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          padding: 0.5rem 1rem;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .profile-trigger:hover {
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+        }
+
+        .profile-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          object-fit: cover;
+        }
+
+        .spacer {
+          width: 120px;
+        }
+
+        .main-content {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+
+        .content-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+        }
+
+        .user-card {
+          background: white;
+          border-radius: 16px;
+          padding: 2rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .user-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 2rem;
+          flex-wrap: wrap;
+          gap: 2rem;
+        }
+
+        .profile-section {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
         }
 
         .profile-image-container {
           position: relative;
         }
 
-        .image-glow {
-          position: absolute;
-          inset: -4px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
-          border-radius: 50%;
-          blur: 8px;
-          transition: all 0.3s ease;
-        }
-
-        .profile-image-container:hover .image-glow {
-          blur: 12px;
-          transform: scale(1.05);
-        }
-
         .profile-image {
-          width: 140px;
-          height: 140px;
-          border-radius: 50%;
-          border: 4px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-          position: relative;
-          z-index: 2;
-          transition: transform 0.3s ease;
+          width: 80px;
+          height: 80px;
+          border-radius: 12px;
+          object-fit: cover;
+          border: 3px solid #e5e7eb;
         }
 
-        .profile-image-container:hover .profile-image {
-          transform: scale(1.05);
-        }
-
-        .status-badge {
+        .status-indicator {
           position: absolute;
-          bottom: -8px;
-          right: -8px;
-          width: 40px;
-          height: 40px;
-          background: linear-gradient(135deg, #10b981, #059669);
-          border-radius: 50%;
-          border: 4px solid white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: bold;
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .profile-info {
-          text-align: center;
-        }
-
-        @media (min-width: 768px) {
-          .profile-info {
-            text-align: left;
-          }
-        }
-
-        .profile-name {
-          font-size: 48px;
-          font-weight: 700;
-          margin-bottom: 16px;
-          letter-spacing: -0.02em;
-        }
-
-        .profile-email {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          font-size: 20px;
-          color: rgba(255, 255, 255, 0.9);
-          margin-bottom: 24px;
-        }
-
-        @media (min-width: 768px) {
-          .profile-email {
-            justify-content: flex-start;
-          }
-        }
-
-        .email-icon {
-          width: 24px;
-          height: 24px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-        }
-
-        .active-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-          border-radius: 20px;
-          padding: 8px 20px;
-          color: white;
-          font-weight: 500;
-        }
-
-        .status-dot {
-          width: 8px;
-          height: 8px;
+          bottom: -2px;
+          right: -2px;
+          width: 20px;
+          height: 20px;
           background: #10b981;
+          border: 3px solid white;
           border-radius: 50%;
-          animation: pulse 2s infinite;
         }
 
-        .stats-overview {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 24px;
-          padding: 32px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(248,250,252,0.6));
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
         }
 
-        .stat-item {
+        .user-name {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1f2937;
+        }
+
+        .user-email {
+          color: #6b7280;
+          font-size: 0.95rem;
+        }
+
+        .user-badge {
+          background: #ecfdf5;
+          color: #065f46;
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          width: fit-content;
+          margin-top: 0.5rem;
+        }
+
+        .stats-section {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .stat-card {
+          background: #f8fafc;
+          padding: 1rem 1.5rem;
+          border-radius: 12px;
           text-align: center;
+          border: 1px solid #e2e8f0;
         }
 
         .stat-number {
-          font-size: 36px;
+          font-size: 1.75rem;
           font-weight: 700;
-          margin-bottom: 8px;
-        }
-
-        .stat-primary {
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .stat-secondary {
-          background: linear-gradient(135deg, #10b981, #059669);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .stat-tertiary {
-          background: linear-gradient(135deg, #f59e0b, #d97706);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-size: 24px;
+          color: #4f46e5;
         }
 
         .stat-label {
+          font-size: 0.75rem;
           color: #64748b;
           font-weight: 500;
+          margin-top: 0.25rem;
         }
 
-        .content-section {
-          padding: 32px;
+        .feature-usage {
+          border-top: 1px solid #e5e7eb;
+          padding-top: 2rem;
+        }
+
+        .section-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 1.5rem;
+        }
+
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1rem;
+        }
+
+        .feature-item {
+          padding: 1rem;
+          background: #f8fafc;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .feature-name {
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        .feature-count {
+          font-size: 0.875rem;
+          color: #6b7280;
+          margin-bottom: 0.75rem;
+        }
+
+        .feature-bar {
+          width: 100%;
+          height: 4px;
+          background: #e5e7eb;
+          border-radius: 2px;
+          overflow: hidden;
+        }
+
+        .feature-progress {
+          height: 100%;
+          background: linear-gradient(90deg, #4f46e5, #7c3aed);
+          border-radius: 2px;
+          transition: width 0.3s ease;
+        }
+
+        .materials-section {
+          background: white;
+          border-radius: 16px;
+          padding: 2rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .section-header {
           display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 40px;
+          margin-bottom: 1.5rem;
         }
 
-        .section-icon {
-          width: 48px;
-          height: 48px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 24px;
-          box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        .materials-count {
+          background: #eff6ff;
+          color: #1d4ed8;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.875rem;
+          font-weight: 600;
         }
 
-        .section-title {
-          font-size: 36px;
-          font-weight: 700;
-          background: linear-gradient(135deg, #1f2937, #4b5563);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .features-grid {
+        .materials-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 24px;
-          margin-bottom: 40px;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1rem;
         }
 
-        .feature-card {
-          background: linear-gradient(135deg, #ffffff, #f8fafc);
-          border-radius: 16px;
-          padding: 24px;
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-          transition: all 0.3s ease;
-          opacity: 0;
-          transform: translateY(20px);
-          animation: slideUp 0.6s ease-out forwards;
-        }
-
-        .feature-card-0 { animation-delay: 0.1s; }
-        .feature-card-1 { animation-delay: 0.2s; }
-        .feature-card-2 { animation-delay: 0.3s; }
-        .feature-card-3 { animation-delay: 0.4s; }
-
-        .feature-card:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-card-content {
+        .material-card {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          margin-bottom: 16px;
-        }
-
-        .feature-left {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .feature-icon {
-          width: 56px;
-          height: 56px;
+          gap: 1rem;
+          padding: 1rem;
+          background: #f8fafc;
           border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          transition: all 0.2s ease;
+        }
+
+        .material-card:hover {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          border-color: #cbd5e1;
+        }
+
+        .material-icon {
+          font-size: 1.5rem;
+          flex-shrink: 0;
+        }
+
+        .material-content {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .material-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .material-name {
+          font-weight: 600;
+          color: #1f2937;
+          font-size: 0.875rem;
+          line-height: 1.3;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .material-type {
+          background: #e0e7ff;
+          color: #3730a3;
+          padding: 0.125rem 0.5rem;
+          border-radius: 12px;
+          font-size: 0.625rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          flex-shrink: 0;
+        }
+
+        .material-date {
+          font-size: 0.75rem;
+          color: #6b7280;
+        }
+
+        .view-button {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 24px;
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-name {
-          font-weight: 700;
-          font-size: 18px;
-          color: #1f2937;
-          margin-bottom: 4px;
-        }
-
-        .feature-subtitle {
-          color: #6b7280;
-          font-size: 14px;
-        }
-
-        .feature-count {
-          font-size: 48px;
-          font-weight: 700;
-          margin-bottom: 4px;
-        }
-
-        .feature-uses {
-          color: #6b7280;
-          font-size: 14px;
-          text-align: right;
-        }
-
-        .usage-bar-container {
-          height: 8px;
-          background: rgba(0, 0, 0, 0.05);
-          border-radius: 4px;
-          overflow: hidden;
-        }
-
-        .usage-bar {
-          height: 100%;
-          border-radius: 4px;
-          width: 0%;
-          animation: fillBar 1s ease-out forwards;
-        }
-
-        .total-usage-card {
-          position: relative;
-          background: linear-gradient(135deg, #10b981, #059669);
-          border-radius: 16px;
-          padding: 32px;
-          margin-bottom: 40px;
-          overflow: hidden;
+          width: 32px;
+          height: 32px;
+          background: #4f46e5;
           color: white;
-          box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+          border-radius: 8px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
         }
 
-        .total-usage-bg {
-          position: absolute;
-          top: -20%;
-          right: -10%;
-          width: 200px;
-          height: 200px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
+        .view-button:hover {
+          background: #4338ca;
+          transform: translateY(-1px);
         }
 
-        .total-usage-content {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+        .view-button svg {
+          width: 16px;
+          height: 16px;
         }
 
-        .total-usage-title {
-          font-size: 24px;
-          font-weight: 700;
-          margin-bottom: 8px;
-        }
-
-        .total-usage-subtitle {
-          color: rgba(255, 255, 255, 0.8);
-          font-size: 18px;
-        }
-
-        .total-usage-number {
-          font-size: 72px;
-          font-weight: 700;
-          margin-bottom: 8px;
-          text-align: right;
-        }
-
-        .total-usage-label {
-          color: rgba(255, 255, 255, 0.8);
-          font-size: 18px;
-          text-align: right;
-        }
-
-        .account-section {
-          background: linear-gradient(135deg, #f8fafc, #ffffff);
+        .empty-state {
+          background: white;
           border-radius: 16px;
-          padding: 32px;
-          border: 1px solid #e2e8f0;
+          padding: 3rem;
+          text-align: center;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .account-header {
+        .empty-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+          opacity: 0.5;
+        }
+
+        .empty-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+          color: #6b7280;
+          margin-bottom: 2rem;
+          max-width: 400px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .cta-button {
+          background: #4f46e5;
+          color: white;
+          padding: 0.75rem 2rem;
+          border-radius: 8px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .cta-button:hover {
+          background: #4338ca;
+          transform: translateY(-1px);
+        }
+
+        .error-container, .loading-container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           display: flex;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 24px;
+          justify-content: center;
+          padding: 2rem;
         }
 
-        .account-icon {
+        .error-card {
+          background: white;
+          border-radius: 16px;
+          padding: 2rem;
+          max-width: 400px;
+          width: 100%;
+          text-align: center;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+        }
+
+        .error-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 0.5rem;
+        }
+
+        .error-message {
+          color: #6b7280;
+          margin-bottom: 2rem;
+        }
+
+        .retry-button {
+          background: #4f46e5;
+          color: white;
+          padding: 0.75rem 2rem;
+          border-radius: 8px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .retry-button:hover {
+          background: #4338ca;
+        }
+
+        .loading-content {
+          text-align: center;
+          color: white;
+        }
+
+        .spinner {
           width: 40px;
           height: 40px;
-          background: linear-gradient(135deg, #4b5563, #1f2937);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 18px;
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          border-top: 3px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 1rem;
         }
 
-        .account-title {
-          font-size: 24px;
-          font-weight: 700;
-          color: #1f2937;
-        }
-
-        .account-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 24px;
-        }
-
-        .account-card {
-          background: white;
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          border: 1px solid #e5e7eb;
-        }
-
-        .account-label {
-          font-size: 14px;
-          color: #6b7280;
-          margin-bottom: 8px;
+        .loading-text {
           font-weight: 500;
         }
 
-        .account-value {
-          font-weight: 600;
-          color: #1f2937;
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
-        .user-id {
-          font-family: 'Monaco', 'Menlo', monospace;
-          font-size: 14px;
-          background: #f3f4f6;
-          padding: 12px;
-          border-radius: 8px;
-          word-break: break-all;
-        }
-
-        .feature-name {
-          font-size: 18px;
-        }
-
-        .account-sublabel {
-          font-size: 14px;
-          color: #6b7280;
-          margin-top: 4px;
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        @keyframes slideUp {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fillBar {
-          from { width: 0%; }
-          to { width: var(--target-width, 0%); }
-        }
-
+        /* Responsive Design */
         @media (max-width: 768px) {
-          .profile-name {
-            font-size: 36px;
+          .main-content {
+            padding: 1rem;
           }
-          
-          .section-title {
-            font-size: 28px;
+
+          .user-card, .materials-section, .empty-state {
+            padding: 1.5rem;
           }
-          
-          .total-usage-content {
+
+          .user-header {
             flex-direction: column;
-            text-align: center;
-            gap: 20px;
+            align-items: flex-start;
+            gap: 1.5rem;
           }
-          
-          .total-usage-number {
-            font-size: 56px;
-            text-align: center;
+
+          .stats-section {
+            align-self: stretch;
           }
-          
-          .total-usage-label {
-            text-align: center;
+
+          .stat-card {
+            flex: 1;
+          }
+
+          .materials-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .feature-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .header-content {
+            padding: 1rem;
+          }
+
+          .spacer {
+            display: none;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .profile-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+
+          .material-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+
+          .material-header {
+            width: 100%;
           }
         }
       `}</style>
-    </div>
+    </>
   );
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { userId } = context.query;
-  
+  const session = await getSession(context);
+
+  if (!session || !session.user?.email) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
   try {
     const client = new MongoClient(process.env.MONGODB_URI as string);
     await client.connect();
-    
-    const db = client.db('test');
-    const collection = db.collection('users');
-    
-    let user;
-    
-    if (userId && typeof userId === 'string') {
-      user = await collection.findOne({ _id: new ObjectId(userId) });
-    } else {
-      user = await collection.findOne({});
-    }
-    
+
+    const db = client.db();
+    const usersCollection = db.collection('users');
+    const userDoc = await usersCollection.findOne({ email: session.user.email });
+
     await client.close();
-    
-    if (!user) {
+
+    if (!userDoc) {
       return {
         props: {
           user: null,
-          error: 'User not found in database'
-        }
+          error: 'User profile not found. Please contact support.',
+        },
       };
     }
-    
-    const serializedUser = {
-      ...user,
-      _id: user._id.toString()
+
+    const user: User = {
+      _id: userDoc._id.toString(),
+      name: userDoc.name || 'Unknown User',
+      email: userDoc.email || '',
+      image: userDoc.image || '',
+      featureCounters: userDoc.featureCounters || {
+        BlindAssistance: 0,
+        DeafAssistance: 0,
+        AutismSupport: 0,
+        PersonalizedLearning: 0,
+      },
+      savedMaterials: userDoc.savedMaterials
+        ? userDoc.savedMaterials.map((material: any) => ({
+            ...material,
+            _id: material._id?.toString() || '',
+            createdAt: material.createdAt?.toISOString() || new Date().toISOString(),
+          }))
+        : [],
     };
-    
+
     return {
-      props: {
-        user: serializedUser
-      }
+      props: { user },
     };
   } catch (error) {
-    console.error('Database error:', error);
+    console.error('Profile page error:', error);
     return {
       props: {
         user: null,
-        error: 'Failed to connect to database'
-      }
+        error: 'Failed to load profile. Please try again later.',
+      },
     };
   }
 };
