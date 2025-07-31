@@ -40,4 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-backend\app\utils\speech_support.py
+# backend\app\utils\speech_support.py
