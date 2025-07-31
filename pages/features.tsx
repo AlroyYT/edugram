@@ -1,7 +1,13 @@
 import Features from "../components/Features";
+import JarvisFloatingButton from '../components/JarvisFloatingButton';
 
 const FeaturesPage = () => {
-  return <Features />;
+  return (
+    <>
+      <Features />
+      <JarvisFloatingButton />
+    </>
+  );
 };
 
 export default FeaturesPage;

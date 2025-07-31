@@ -1,6 +1,7 @@
 // pages/index.js
 import Head from 'next/head';
 import VoiceAssistant from '../components/VoiceAssistant';
+
 import { useEffect } from 'react';
 
 export default function Home() {
@@ -81,10 +82,11 @@ export default function Home() {
 
         <VoiceAssistant />
       </main>
-      
+
       <footer className="footer">
         <p>Powered by AI - Built for accessibility</p>
       </footer>
+      
     </div>
   );
 }

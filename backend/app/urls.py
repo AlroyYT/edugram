@@ -16,6 +16,8 @@ from .views import (
     ImageAnalysisView,
     health_check,
     search_paper,
+    generate_sentence_view,
+    evaluate_pronunciation_view
     # Add the new hand sign detection functions
    
     
@@ -46,5 +48,7 @@ urlpatterns = [
     # Paper Search URL
     path('search-paper/', search_paper, name='search_paper'),
     
-    
+     #speech support
+    path('speech-generate/', generate_sentence_view),
+    path('speech-evaluate/', evaluate_pronunciation_view),
 ]

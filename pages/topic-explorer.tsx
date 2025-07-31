@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import VideoSearch from "../components/VideoSearch";
 import CalculatorPopup from "../components/CalculatorPopup"; // Adjust path as needed
+import JarvisFloatingButton from '../components/JarvisFloatingButton';
 import { useRouter } from "next/router";
 import Head from "next/head";
 
@@ -99,7 +100,7 @@ const TopicExplorer = () => {
             <button className="image-bot-button" onClick={() => router.push("/image")}>
               Image Bot
             </button>
-            <button className="call-papers-button" onClick={() => router.push("/paper")}>
+            <button className="call-papers-button" onClick={() => window.location.href = '/pap.html'}>
               Call Papers
             </button>
             <button className="theme-toggle">
@@ -152,6 +153,9 @@ const TopicExplorer = () => {
           isOpen={isCalculatorOpen} 
           onClose={closeCalculator} 
         />
+        
+        {/* Jarvis Floating Button */}
+        <JarvisFloatingButton />
       </div>
     </>
   );
