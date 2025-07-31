@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from corsheaders.defaults import default_headers
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +33,7 @@ ALLOWED_HOSTS = []
 # Add Gemini API Key directly (replace with your actual API key)
 GEMINI_API_KEY = "AIzaSyC8FNF1jUHOHFvZcprBEHPoNmTjw-DBF8A"  # Get this from Google AI Studio
 YOUTUBE_API_KEY = 'AIzaSyDs7jM_P4DFtvgj3FVHK5480_GBp1Y8diI'
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = config("OPENAI_API_KEY")
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
