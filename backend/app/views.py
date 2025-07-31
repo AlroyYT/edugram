@@ -51,7 +51,7 @@ from django.views import View
 import re
 from urllib.parse import urljoin, quote
 import time
-
+from .utils.speech_support import get_openai_sentence, evaluate_sentence
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1381,3 +1381,47 @@ def similarity_check(text1, text2):
     
     return len(intersection) / len(union) if union else 0
 
+
+@csrf_exempt
+def generate_sentence_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST method allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        difficulty = data.get("difficulty", "easy").strip().lower()
+
+        if difficulty not in ["easy", "medium", "hard"]:
+            return JsonResponse({"error": f"Invalid difficulty level: {difficulty}"}, status=400)
+
+        sentence = get_openai_sentence(difficulty)
+        return JsonResponse({"sentence": sentence})
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def evaluate_pronunciation_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST method allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        original = data.get("original", "").strip()
+        spoken = data.get("spoken", "").strip()
+
+        if not original or not spoken:
+            return JsonResponse(
+                {"error": "Both 'original' and 'spoken' fields are required"},
+                status=400
+            )
+
+        evaluation_result = evaluate_sentence(original, spoken)
+        return JsonResponse(evaluation_result)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

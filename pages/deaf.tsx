@@ -1,7 +1,8 @@
 import DeafAssistance from "../components/Deafassistance";
 import FloatingTaskbar from '../components/FloatingTaskbar';
 import AssistiveTools from '../components/AssistiveTools';
-import LtmButton from '../components/ltmbutton';
+import JarvisFloatingButton from '../components/JarvisFloatingButton';
+
 import React, { useState } from "react";
 
 const Deaf: React.FC = () => {
@@ -20,9 +21,9 @@ const Deaf: React.FC = () => {
 
   return (
     <div className="deaf-section-container">
-      
       {renderPortal()}
       <FloatingTaskbar setCurrentPortal={setCurrentPortal} activeTab={currentPortal} />
+      <JarvisFloatingButton />
     </div>
   );
 };

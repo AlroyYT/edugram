@@ -10,7 +10,7 @@
 endobj
 4 0 obj
 <<
-/Length 1864
+/Length 1772
 >>
 stream
 0.5670000000000001 w
@@ -34,7 +34,7 @@ BT
 13.7999999999999989 TL
 0 g
 56.6929133858267775 725.6695275590550409 Td
-(Date: 25-07-2025) Tj
+(Date: 30-07-2025) Tj
 ET
 BT
 /F1 12 Tf
@@ -63,33 +63,33 @@ BT
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 566.9293700787401349 Td
-(A: Computers do not inherently understand or devise solutions. They require a pre-defined,) Tj
-T* (step-by-step solution \(an algorithm\) to be provided, which they then execute mechanically.) Tj
-T* ('Solving' implies understanding and devising a solution, while 'executing' implies following) Tj
-T* (instructions.) Tj
+(A: Computers don't inherently understand or devise solutions. They merely follow) Tj
+T* (pre-programmed instructions \(algorithms\) to execute a solution that has already been) Tj
+T* (defined by a human.) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0. g
-56.6929133858267775 408.1892125984251152 Td
+56.6929133858267775 428.0317322834645211 Td
 (Card 2/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0. 0.545 rg
-56.6929133858267775 368.5041732283464171 Td
-(Q: Define a 'tree' data structure in terms of its components and relationships.) Tj
+56.6929133858267775 388.3466929133857661 Td
+(Q: Explain the relationship between 'node', 'parent', and 'children' in the context of a tree) Tj
+T* (data structure.) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 328.8191338582676053 Td
-(A: A tree is a hierarchical data structure consisting of nodes connected by edges. It has a) Tj
-T* (root node, which has no parent, and subtrees, which are themselves trees. Nodes can) Tj
-T* (have children, and nodes with the same parent are siblings.) Tj
+(A: A 'node' is a basic unit of a tree. A 'parent' node is a node that has one or more nodes) Tj
+T* (connected below it. These connected nodes are called 'children' of the parent node. A node) Tj
+T* (can be both a parent and a child.) Tj
 ET
 endstream
 endobj
@@ -103,7 +103,7 @@ endobj
 endobj
 6 0 obj
 <<
-/Length 2205
+/Length 1849
 >>
 stream
 0.5670000000000001 w
@@ -120,65 +120,62 @@ BT
 13.7999999999999989 TL
 0. 0. 0.545 rg
 56.6929133858267775 745.5120472440944468 Td
-(Q: Explain the difference between the 'height' and 'level' of a node in a tree.) Tj
+(Q: Differentiate between the 'degree of a node' and the 'degree of a tree'.) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 705.8270078740157487 Td
-(A: The 'level' of a node is its distance from the root \(root is at level 0\). The 'height' of a) Tj
-T* (node is the length of the longest path from that node to a leaf node. The 'height' of the tree) Tj
-T* (is the height of the root node.) Tj
+(A: The 'degree of a node' is the number of children that node has. The 'degree of a tree' is) Tj
+T* (the maximum degree of any node in the tree.) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0. g
-56.6929133858267775 566.9293700787401349 Td
+56.6929133858267775 586.7718897637794271 Td
 (Card 4/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0. 0.545 rg
-56.6929133858267775 527.2443307086614368 Td
-(Q: What distinguishes a 'strictly binary tree' from a 'full binary tree'?) Tj
+56.6929133858267775 547.086850393700729 Td
+(Q: What distinguishes an 'internal node' from an 'external node' \(leaf node\) in a tree?) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
-56.6929133858267775 487.559291338582625 Td
-(A: A 'strictly binary tree' is a binary tree where every node has either 0 or 2 children. A 'full) Tj
-T* (binary tree' is a binary tree where every node, except the leaf nodes, has exactly two) Tj
-T* (children, and all leaf nodes are at the same level.) Tj
+56.6929133858267775 507.4018110236219741 Td
+(A: An 'internal node' \(or non-terminal node\) has at least one child. An 'external node' \(or) Tj
+T* (leaf node\) has no children.) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0. g
-56.6929133858267775 348.6616535433070112 Td
+56.6929133858267775 388.3466929133857661 Td
 (Card 5/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0. 0.545 rg
-56.6929133858267775 308.9766141732283131 Td
-(Q: Describe the three common forms of expression notation \(prefix, infix, postfix\) and how) Tj
-T* (they relate to the construction of an expression tree.) Tj
+56.6929133858267775 348.6616535433070112 Td
+(Q: Describe the key differences between a 'strictly binary tree', a 'complete binary tree',) Tj
+T* (and a 'full binary tree'.) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
-56.6929133858267775 249.4490551181102092 Td
-(A: Prefix notation places the operator before its operands \(e.g., + AB\). Infix notation places) Tj
-T* (the operator between its operands \(e.g., A + B\). Postfix notation places the operator after) Tj
-T* (its operands \(e.g., AB+\). An expression tree can be constructed from any of these) Tj
-T* (notations, with the operators as internal nodes and operands as leaf nodes. The order of) Tj
-T* (operations is implicitly defined by the tree structure.) Tj
+56.6929133858267775 289.1340944881889072 Td
+(A: A 'strictly binary tree' has each node with either 0 or 2 children. A 'complete binary tree') Tj
+T* (is filled from left to right on each level, with the last level possibly incomplete. A 'full binary) Tj
+T* (tree' is a binary tree where every node has either 0 or 2 children, and all leaf nodes are at) Tj
+T* (the same level.) Tj
 ET
 endstream
 endobj
@@ -192,7 +189,7 @@ endobj
 endobj
 8 0 obj
 <<
-/Length 2323
+/Length 2193
 >>
 stream
 0.5670000000000001 w
@@ -209,18 +206,18 @@ BT
 13.7999999999999989 TL
 0. 0. 0.545 rg
 56.6929133858267775 745.5120472440944468 Td
-(Q: What is a 'balanced binary tree', and why is balance important?) Tj
+(Q: Explain the purpose of an 'expression tree' and how it relates to prefix, infix, and postfix) Tj
+T* (notations.) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
-56.6929133858267775 705.8270078740157487 Td
-(A: A balanced binary tree is a binary tree where the heights of the left and right subtrees of) Tj
-T* (every node differ by at most a certain constant \(often 1\). Balance is important because it) Tj
-T* (ensures that operations like search, insertion, and deletion have a time complexity of O\(log) Tj
-T* (n\), where n is the number of nodes. An unbalanced tree can degenerate into a linked list,) Tj
-T* (resulting in O\(n\) complexity.) Tj
+56.6929133858267775 685.9844881889763428 Td
+(A: An 'expression tree' visually represents an arithmetic or logical expression. The) Tj
+T* (placement of operators and operands in the tree dictates the order of operations.) Tj
+T* (Traversing the tree in different ways \(preorder, inorder, postorder\) yields the prefix, infix,) Tj
+T* (and postfix notations of the expression, respectively.) Tj
 ET
 BT
 /F1 14 Tf
@@ -234,42 +231,42 @@ BT
 13.7999999999999989 TL
 0. 0. 0.545 rg
 56.6929133858267775 487.559291338582625 Td
-(Q: Explain the difference between 'Depth First Search' \(DFS\) and 'Breadth First Search') Tj
-T* (\(BFS\) in the context of binary tree traversal.) Tj
+(Q: What is the significance of 'height' or 'depth' in the context of a tree, and how does it) Tj
+T* (relate to the concept of 'level'?) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 428.0317322834645211 Td
-(A: DFS explores as far as possible along each branch before backtracking. Common DFS) Tj
-T* (traversals are Inorder, Preorder, and Postorder. BFS explores all the neighbor nodes at the) Tj
-T* (present depth prior to moving on to the nodes at the next depth level. It uses a queue data) Tj
-T* (structure.) Tj
+(A: The 'height' \(or depth\) of a tree is the maximum level of any node in the tree, starting) Tj
+T* (from the root \(usually level 0 or 1\). 'Level' refers to the distance of a node from the root) Tj
+T* (node.) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0. g
-56.6929133858267775 269.2915748031495013 Td
+56.6929133858267775 289.1340944881889072 Td
 (Card 8/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0. 0.545 rg
-56.6929133858267775 229.6065354330708033 Td
-(Q: What is a 'Binary Search Tree' \(BST\), and what property defines its structure?) Tj
+56.6929133858267775 249.4490551181102092 Td
+(Q: Describe the difference between 'Depth First Search' and 'Breadth First Search' tree) Tj
+T* (traversal methods.) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 189.9214960629919915 Td
-(A: A Binary Search Tree \(BST\) is a binary tree where for each node, the value of all nodes) Tj
-T* (in its left subtree are less than the node's value, and the value of all nodes in its right) Tj
-T* (subtree are greater than the node's value. This property allows for efficient searching,) Tj
-T* (insertion, and deletion operations.) Tj
+(A: 'Depth First Search' \(DFS\) explores as far as possible along each branch before) Tj
+T* (backtracking. Common DFS traversals are Inorder, Preorder, and Postorder. 'Breadth First) Tj
+T* (Search' \(BFS\) explores all the neighbor nodes at the present depth prior to moving on to) Tj
+T* (the nodes at the next depth level.) Tj
 ET
 endstream
 endobj
@@ -283,7 +280,7 @@ endobj
 endobj
 10 0 obj
 <<
-/Length 1501
+/Length 1373
 >>
 stream
 0.5670000000000001 w
@@ -300,41 +297,40 @@ BT
 13.7999999999999989 TL
 0. 0. 0.545 rg
 56.6929133858267775 745.5120472440944468 Td
-(Q: Describe the three cases to consider when deleting a node from a Binary Search Tree.) Tj
+(Q: What is a 'Binary Search Tree' \(BST\), and what property must it satisfy?) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 705.8270078740157487 Td
-(A: Case 1: The node to be deleted is a leaf node. Simply remove the node. Case 2: The) Tj
-T* (node to be deleted has only one child. Replace the node with its child. Case 3: The node to) Tj
-T* (be deleted has two children. Replace the node with its inorder successor \(or predecessor\)) Tj
-T* (and then delete the inorder successor \(or predecessor\).) Tj
+(A: A 'Binary Search Tree' \(BST\) is a binary tree where for each node, the value of all nodes) Tj
+T* (in its left subtree are less than the node's value, and the value of all nodes in its right) Tj
+T* (subtree are greater than the node's value.) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0. g
-56.6929133858267775 547.086850393700729 Td
+56.6929133858267775 566.9293700787401349 Td
 (Card 10/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0. 0.545 rg
-56.6929133858267775 507.4018110236219741 Td
-(Q: What are 'Heaps', and how do 'Max Heaps' and 'Min Heaps' differ?) Tj
+56.6929133858267775 527.2443307086614368 Td
+(Q: Explain the concept of a 'Heap' data structure and differentiate between a 'Max Heap') Tj
+T* (and a 'Min Heap'.) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0. 0.392 0. rg
 56.6929133858267775 467.716771653543276 Td
-(A: A Heap is a specialized tree-based data structure that satisfies the heap property. In a) Tj
+(A: A 'Heap' is a specialized tree-based data structure that satisfies the heap property: In a) Tj
 T* ('Max Heap', the value of each node is greater than or equal to the value of its children. In a) Tj
-T* ('Min Heap', the value of each node is less than or equal to the value of its children. Heaps) Tj
-T* (are often implemented as complete binary trees.) Tj
+T* ('Min Heap', the value of each node is less than or equal to the value of its children.) Tj
 ET
 endstream
 endobj
@@ -508,7 +504,7 @@ endobj
 25 0 obj
 <<
 /Producer (jsPDF 3.0.1)
-/CreationDate (D:20250725145556+05'30')
+/CreationDate (D:20250730192540+05'30')
 >>
 endobj
 26 0 obj
@@ -522,39 +518,39 @@ endobj
 xref
 0 27
 0000000000 65535 f 
-0000008666 00000 n 
-0000010506 00000 n 
+0000007960 00000 n 
+0000009800 00000 n 
 0000000015 00000 n 
 0000000152 00000 n 
-0000002068 00000 n 
-0000002205 00000 n 
-0000004462 00000 n 
-0000004599 00000 n 
-0000006974 00000 n 
-0000007112 00000 n 
-0000008741 00000 n 
-0000008867 00000 n 
-0000008998 00000 n 
-0000009132 00000 n 
-0000009270 00000 n 
-0000009394 00000 n 
-0000009523 00000 n 
-0000009655 00000 n 
-0000009791 00000 n 
-0000009919 00000 n 
-0000010046 00000 n 
-0000010175 00000 n 
-0000010308 00000 n 
-0000010410 00000 n 
-0000010759 00000 n 
-0000010845 00000 n 
+0000001976 00000 n 
+0000002113 00000 n 
+0000004014 00000 n 
+0000004151 00000 n 
+0000006396 00000 n 
+0000006534 00000 n 
+0000008035 00000 n 
+0000008161 00000 n 
+0000008292 00000 n 
+0000008426 00000 n 
+0000008564 00000 n 
+0000008688 00000 n 
+0000008817 00000 n 
+0000008949 00000 n 
+0000009085 00000 n 
+0000009213 00000 n 
+0000009340 00000 n 
+0000009469 00000 n 
+0000009602 00000 n 
+0000009704 00000 n 
+0000010053 00000 n 
+0000010139 00000 n 
 trailer
 <<
 /Size 27
 /Root 26 0 R
 /Info 25 0 R
-/ID [ <3896FBE15364AFDA09F5A90C47BE09FE> <3896FBE15364AFDA09F5A90C47BE09FE> ]
+/ID [ <E34DEF896521FF5E4E16170B79FB162B> <E34DEF896521FF5E4E16170B79FB162B> ]
 >>
 startxref
-10949
+10243
 %%EOF

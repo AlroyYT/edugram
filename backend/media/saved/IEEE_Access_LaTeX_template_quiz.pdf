@@ -1,0 +1,753 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 2254
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 16 Tf
+18.3999999999999986 TL
+0 g
+56.6929133858267775 785.1970866141732586 Td
+(Quiz Results) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 745.5120472440944468 Td
+(File: IEEE_Access_LaTeX_template) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 725.6695275590550409 Td
+(Date: 28-07-2025) Tj
+ET
+BT
+/F1 14 Tf
+16.0999999999999979 TL
+0 g
+56.6929133858267775 685.9844881889763428 Td
+(Score: 1/10) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 646.2994488188976447 Td
+(Question 1: What is the primary focus of the EDUGRAM framework?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+85.0393700787401627 606.614409448818833 Td
+(A. General-purpose accessibility tools.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 586.7718897637794271 Td
+(B. Developing video games.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 566.9293700787401349 Td
+(C. A multimodal educational framework for differently-abled learners.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 547.086850393700729 Td
+(D. Improving internet speed.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 507.4018110236219741 Td
+(Explanation: The abstract clearly states that EDUGRAM is a 'multimodal educational framework that blends) Tj
+T* (transformer-powered natural language processing, adaptive content delivery methods, and deep) Tj
+T* (learning-based gesture recognition' for differently-abled learners.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Question 2: What is the accuracy of EDUGRAM in recognizing American Sign Language \(ASL\) in educational) Tj
+T* (settings?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 328.8191338582676053 Td
+(A. 85.5%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 308.9766141732283131 Td
+(B. 96.8%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 289.1340944881889072 Td
+(C. 73%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 269.2915748031495013 Td
+(D. 99.9%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 229.6065354330708033 Td
+(Explanation: The abstract states that the system shows '96.8% accuracy in recognising American Sign) Tj
+T* (Language \(ASL\) in educational settings'.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 2506
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 3: Approximately what percentage of the global population has a disability, according to the) Tj
+T* (introduction?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(A. 5%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(B. 10%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 685.9844881889763428 Td
+(C. 16%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 666.1419685039369369 Td
+(D. 25%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: The introduction states that 'approximately 1.3 billion people with disabilities, or 16% of the) Tj
+T* (global population'.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 527.2443307086614368 Td
+(Question 4: Which of the following is NOT a key component of the EDUGRAM framework?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 487.559291338582625 Td
+(A. Transformer-powered natural language processing) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 467.716771653543276 Td
+(B. Adaptive content delivery methods) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(C. Deep learning-based gesture recognition) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(D. Quantum computing algorithms) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Explanation: The abstract mentions transformer-powered natural language processing, adaptive content) Tj
+T* (delivery methods, and deep learning-based gesture recognition as key components. Quantum computing) Tj
+T* (algorithms are not mentioned.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 269.2915748031495013 Td
+(Question 5: How many participants were involved in the experimental validation of EDUGRAM?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 229.6065354330708033 Td
+(A. 100) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 209.7640157480313974 Td
+(B. 250) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 189.9214960629919915 Td
+(C. 500) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 170.0789763779526993 Td
+(D. 1000) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 130.3939370078738875 Td
+(Explanation: The abstract mentions 'extensive experimental validation, which involved 250 participants with a) Tj
+T* (range of disability profiles'.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 2507
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 6: In which two countries were user studies conducted for EDUGRAM?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. USA and Canada) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(B. India and China) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 705.8270078740157487 Td
+(C. USA and India) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(D. Canada and China) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: The passage mentions 'user studies with 250 participants from six educational institutions in the) Tj
+T* (US and India'.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 547.086850393700729 Td
+(Question 7: What architecture is used in the EDUGRAM framework for sign language recognition?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 507.4018110236219741 Td
+(A. Recurrent Neural Network) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 487.559291338582625 Td
+(B. Convolutional Neural Network) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 467.716771653543276 Td
+(C. Hybrid CNN-Transformer) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(D. Generative Adversarial Network) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 408.1892125984251152 Td
+(Explanation: The abstract refers to 'hybrid CNN-Transformer architecture created especially for gesture) Tj
+T* (recognition'.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 308.9766141732283131 Td
+(Question 8: What is the main drawback of sensor-based sign language recognition systems?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 269.2915748031495013 Td
+(A. Low accuracy) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 249.4490551181102092 Td
+(B. High cost and portability issues) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 229.6065354330708033 Td
+(C. Difficulty recognizing complex gestures) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 209.7640157480313974 Td
+(D. Inability to process data in real time) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 170.0789763779526993 Td
+(Explanation: Section II A states 'High levels of accuracy are achieved by sensor-based systems using tools) Tj
+T* (like Kinect or specialised gloves, but they have serious cost and portability issues'.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 10 0 R
+>>
+endobj
+10 0 obj
+<<
+/Length 1784
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 9: What is the purpose of the federated learning implementation in EDUGRAM?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. To increase the computational power of the system.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 725.6695275590550409 Td
+(B. To protect user privacy and allow for ongoing model enhancement.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(C. To reduce the cost of hardware components.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(D. To improve the system's visual appeal.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: The abstract and introduction both mention that federated learning is employed 'to protect) Tj
+T* (privacy and allow for ongoing model enhancement'.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 547.086850393700729 Td
+(Question 10: Compared to traditional assistive technologies, what percentage increase was observed in) Tj
+T* (learning engagement using EDUGRAM?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 487.559291338582625 Td
+(A. 50%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+1. 0. 0. rg
+85.0393700787401627 467.716771653543276 Td
+(B. 63%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(C. 73%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(D. 87%) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Explanation: The abstract states 'we found significant improvements in learning engagement \(87% increase\)') Tj
+T* (when compared to traditional assistive technologies.) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R 9 0 R ]
+/Count 4
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+23 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+24 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 11 0 R
+/F2 12 0 R
+/F3 13 0 R
+/F4 14 0 R
+/F5 15 0 R
+/F6 16 0 R
+/F7 17 0 R
+/F8 18 0 R
+/F9 19 0 R
+/F10 20 0 R
+/F11 21 0 R
+/F12 22 0 R
+/F13 23 0 R
+/F14 24 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+25 0 obj
+<<
+/Producer (jsPDF 3.0.1)
+/CreationDate (D:20250728162251+05'30')
+>>
+endobj
+26 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 27
+0000000000 65535 f 
+0000009824 00000 n 
+0000011664 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000002458 00000 n 
+0000002595 00000 n 
+0000005153 00000 n 
+0000005290 00000 n 
+0000007849 00000 n 
+0000007987 00000 n 
+0000009899 00000 n 
+0000010025 00000 n 
+0000010156 00000 n 
+0000010290 00000 n 
+0000010428 00000 n 
+0000010552 00000 n 
+0000010681 00000 n 
+0000010813 00000 n 
+0000010949 00000 n 
+0000011077 00000 n 
+0000011204 00000 n 
+0000011333 00000 n 
+0000011466 00000 n 
+0000011568 00000 n 
+0000011917 00000 n 
+0000012003 00000 n 
+trailer
+<<
+/Size 27
+/Root 26 0 R
+/Info 25 0 R
+/ID [ <105120B2502CCB7A6F5B0D50C6E5A8CF> <105120B2502CCB7A6F5B0D50C6E5A8CF> ]
+>>
+startxref
+12107
+%%EOF

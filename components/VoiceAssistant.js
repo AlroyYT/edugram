@@ -457,7 +457,7 @@ const VoiceAssistant = () => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
           mediaRecorderRef.current.stop();
         }
-      }, 7000);
+      }, 5000);
     } catch (err) {
       setError(`Microphone error: ${err.message}`);
       setIsListening(false);

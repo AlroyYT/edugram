@@ -612,7 +612,7 @@ const DeafSupportHub = () => {
         <main className="mainContent">
           {renderContentPanel()}
         </main>
-
+        
         {/* Right sidebar - Recommendations */}
         <motion.aside 
           className="recommendPanel"
@@ -686,8 +686,11 @@ const DeafSupportHub = () => {
             </motion.div>
           </div>
         </motion.aside>
+        
+
       </div>
     </div>
+    
   );
 };
 

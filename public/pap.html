@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUGRAM Research Paper Finder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --bg-gradient: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --shadow-hover: 0 15px 35px rgba(31, 38, 135, 0.4);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .logo-text h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .logo-text p {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ai-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px 0;
+        }
+
+        .hero h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Search Form */
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+
+        .search-form {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .search-form:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group i {
+            margin-right: 8px;
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .advanced-filters {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .advanced-filters.active {
+            display: grid;
+        }
+
+        .filter-toggle {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .filter-toggle:hover {
+            color: #5a67d8;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-clear {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .btn-clear:hover {
+            color: var(--text-secondary);
+        }
+
+        .search-info {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Quick Search */
+        .quick-search {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .quick-search p {
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .search-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .search-tag {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-tag:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Error Message */
+        .error-message {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            background: rgba(254, 226, 226, 0.9);
+            border: 1px solid rgba(252, 165, 165, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc2626;
+            font-size: 18px;
+        }
+
+        .error-content h3 {
+            color: #991b1b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .error-content p {
+            color: #dc2626;
+        }
+
+        /* Results Section */
+        .results-section {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .results-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .results-count {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+        }
+
+        /* Paper Cards */
+        .paper-grid {
+            display: grid;
+            gap: 30px;
+        }
+
+        .paper-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .paper-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .paper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .paper-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .paper-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .paper-title a:hover {
+            color: #667eea;
+        }
+
+        .bookmark-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bookmark-btn:hover,
+        .bookmark-btn.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .paper-meta {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .paper-abstract {
+            margin-bottom: 25px;
+        }
+
+        .abstract-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .abstract-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .paper-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-read {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-read:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .paper-tags {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Loading State */
+        .loading-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .loading-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .loading-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 32px;
+            color: white;
+            animation: spin 2s linear infinite;
+        }
+
+        .loading-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header-content {
+                text-align: center;
+            }
+
+            .logo-text h1 {
+                font-size: 24px;
+            }
+
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .search-form {
+                padding: 30px 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .advanced-filters {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .results-header {
+                text-align: center;
+            }
+
+            .results-title {
+                font-size: 24px;
+            }
+
+            .paper-card {
+                padding: 25px;
+            }
+
+            .paper-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .paper-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .paper-footer {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        /* Hide elements initially */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>EDUGRAM Research</h1>
+                        <p>Advanced Paper Discovery Platform</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="ai-badge">
+                        <i class="fas fa-sparkles"></i>
+                        <span>AI-Powered Search</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Discover Groundbreaking <span class="gradient-text">Research</span></h2>
+            <p>Access millions of research papers with our advanced AI-powered search engine. Find exactly what you're looking for with intelligent filtering and recommendations.</p>
+        </section>
+
+        <!-- Search Form -->
+        <div class="search-container">
+            <div class="search-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="title">
+                            <i class="fas fa-search"></i>
+                            Research Topic *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            class="form-input" 
+                            placeholder="Enter research topic or paper title..."
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="filter-toggle" onclick="toggleFilters()">
+                            <i class="fas fa-filter"></i>
+                            Advanced Filters
+                        </button>
+                        <button type="button" class="btn-primary" onclick="searchPapers()">
+                            <i class="fas fa-search"></i>
+                            <span id="btn-text">Search Papers</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Filters -->
+                <div id="advanced-filters" class="advanced-filters">
+                    <div class="form-group">
+                        <label for="author">
+                            <i class="fas fa-user"></i>
+                            Author Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="author" 
+                            name="author" 
+                            class="form-input" 
+                            placeholder="Enter author name..."
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="year">
+                            <i class="fas fa-calendar"></i>
+                            Publication Year
+                        </label>
+                        <input 
+                            type="text" 
+                            id="year" 
+                            name="year" 
+                            class="form-input" 
+                            placeholder="e.g., 2024"
+                            pattern="[0-9]{4}"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-clear" onclick="clearForm()">
+                        Clear all fields
+                    </button>
+                    <div class="search-info">
+                        <span id="search-status">Powered by AI • Ready to search</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Search -->
+            <div id="quick-search" class="quick-search">
+                <p>Popular searches:</p>
+                <div class="search-tags">
+                    <div class="search-tag" onclick="quickSearch('machine learning')">machine learning</div>
+                    <div class="search-tag" onclick="quickSearch('quantum computing')">quantum computing</div>
+                    <div class="search-tag" onclick="quickSearch('artificial intelligence')">artificial intelligence</div>
+                    <div class="search-tag" onclick="quickSearch('neural networks')">neural networks</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="error-message hidden">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="error-content">
+                <h3>Search Error</h3>
+                <p id="error-text"></p>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-container" class="loading-container hidden">
+            <div class="loading-card">
+                <div class="loading-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <h3 class="loading-title">Searching Research Database</h3>
+                <p class="loading-text">Our AI is analyzing millions of papers to find the most relevant results...</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="results-section hidden">
+            <div class="results-header">
+                <h3 class="results-title">
+                    Search Results
+                    <span id="results-count" class="results-count">0 papers found</span>
+                </h3>
+                <div class="results-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-share-alt"></i>
+                        Share
+                    </button>
+                </div>
+            </div>
+
+            <div id="paper-grid" class="paper-grid">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Backend URL - replace with your actual backend URL
+        const backend_url = 'http://localhost:8000'; // or your actual backend URL
+        
+        let searchHistory = ['machine learning', 'quantum computing', 'artificial intelligence', 'neural networks'];
+        let savedPapers = new Set();
+        let currentResults = [];
+
+        // Toggle advanced filters
+        function toggleFilters() {
+            const filters = document.getElementById('advanced-filters');
+            const isActive = filters.classList.contains('active');
+            
+            if (isActive) {
+                filters.classList.remove('active');
+            } else {
+                filters.classList.add('active');
+            }
+        }
+
+        // Quick search functionality
+        function quickSearch(query) {
+            document.getElementById('title').value = query;
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('author').value = '';
+            document.getElementById('year').value = '';
+            hideError();
+            hideResults();
+            document.getElementById('search-status').textContent = 'Powered by AI • Ready to search';
+        }
+
+        // Show/hide elements
+        function showLoading() {
+            document.getElementById('loading-container').classList.remove('hidden');
+            document.getElementById('quick-search').classList.add('hidden');
+            hideError();
+            hideResults();
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-container').classList.add('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').classList.remove('hidden');
+            hideLoading();
+        }
+
+        function hideError() {
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        function showResults(results) {
+            currentResults = results;
+            document.getElementById('results-count').textContent = `${results.length} papers found`;
+            document.getElementById('search-status').textContent = `Powered by AI • ${results.length} results found`;
+            
+            const paperGrid = document.getElementById('paper-grid');
+            paperGrid.innerHTML = '';
+
+            results.forEach((paper, index) => {
+                const paperCard = createPaperCard(paper, index);
+                paperGrid.appendChild(paperCard);
+            });
+
+            document.getElementById('results-section').classList.remove('hidden');
+            hideLoading();
+        }
+
+        function hideResults() {
+            document.getElementById('results-section').classList.add('hidden');
+        }
+
+        // Create paper card element
+        function createPaperCard(paper, index) {
+            const card = document.createElement('div');
+            card.className = 'paper-card';
+            
+            if (paper.error) {
+                card.innerHTML = `
+                    <div class="error-content">
+                        <h3 style="color: #dc2626;">Error Loading Paper</h3>
+                        <p style="color: #dc2626;">${paper.error}</p>
+                    </div>
+                `;
+                return card;
+            }
+
+            const isBookmarked = savedPapers.has(index);
+            
+            card.innerHTML = `
+                <div class="paper-header">
+                    <h3 class="paper-title">
+                        ${paper.url && paper.url !== '#' ? 
+                            `<a href="${paper.url}" target="_blank" rel="noopener noreferrer">${paper.title}</a>` : 
+                            paper.title
+                        }
+                    </h3>
+                    <button class="bookmark-btn ${isBookmarked ? 'active' : ''}" onclick="toggleBookmark(${index})">
+                        <i class="fas fa-bookmark"></i>
+                    </button>
+                </div>
+                
+                <div class="paper-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-user"></i>
+                        <span>${paper.authors}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>${paper.year}</span>
+                    </div>
+                </div>
+                
+                ${paper.abstract && paper.abstract !== 'Not available' ? `
+                <div class="paper-abstract">
+                    <h4 class="abstract-title">
+                        <i class="fas fa-file-text"></i>
+                        Abstract
+                    </h4>
+                    <p class="abstract-text">${paper.abstract}</p>
+                </div>
+                ` : ''}
+                
+                <div class="paper-footer">
+                    ${paper.url && paper.url !== '#' ? `
+                    <a href="${paper.url}" target="_blank" rel="noopener noreferrer" class="btn-read">
+                        <i class="fas fa-book-open"></i>
+                        Read Paper
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    ` : '<div></div>'}
+                    
+                    <div class="paper-tags">
+                        <span>Research Paper</span>
+                        <span>•</span>
+                        <span>Peer Reviewed</span>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Toggle bookmark
+        function toggleBookmark(index) {
+            const btn = event.target.closest('.bookmark-btn');
+            
+            if (savedPapers.has(index)) {
+                savedPapers.delete(index);
+                btn.classList.remove('active');
+            } else {
+                savedPapers.add(index);
+                btn.classList.add('active');
+            }
+        }
+
+        // Main search function
+        async function searchPapers() {
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const year = document.getElementById('year').value.trim();
+
+            if (!title) {
+                showError('Paper title is required');
+                return;
+            }
+
+            // Update button state
+            const btn = document.querySelector('.btn-primary');
+            const btnText = document.getElementById('btn-text');
+            btn.disabled = true;
+            btnText.textContent = 'Searching...';
+            btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Searching...';
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${backend_url}/api/search-paper/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        author: author,
+                        year: year
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.results && data.results.length > 0) {
+                        showResults(data.results);
+                        
+                        // Add to search history
+                        if (!searchHistory.includes(title)) {
+                            searchHistory.unshift(title);
+                            if (searchHistory.length > 5) {
+                                searchHistory.pop();
+                            }
+                        }
+                    } else {
+                        showError('No papers found matching your criteria');
+                    }
+                } else {
+                    showError(data.error || 'Failed to search papers');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Failed to connect to server. Make sure Django server is running.');
+            } finally {
+                // Reset button state
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> Search Papers';
+                hideLoading();
+            }
+        }
+
+        // Handle Enter key in form inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchPapers();
+                    }
+                });
+            });
+        });
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate search tags on hover
+            const searchTags = document.querySelectorAll('.search-tag');
+            searchTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+                tag.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add floating animation to the header logo
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                setInterval(() => {
+                    logo.style.transform = 'translateY(-2px)';
+                    setTimeout(() => {
+                        logo.style.transform = 'translateY(0)';
+                    }, 1000);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
