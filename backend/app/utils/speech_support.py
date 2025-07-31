@@ -6,7 +6,7 @@ from difflib import SequenceMatcher
 from backend.backend import settings
 
 # Replace with your actual token and endpoint
-token = settings.OPENAI_API_KEY  # <-- Your GitHub token or OpenAI key
+token = "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"  # <-- Your GitHub token or OpenAI key
 endpoint = "https://models.github.ai/inference"  # <-- Your custom base URL (if applicable)
 model = "openai/gpt-4.1"
 
