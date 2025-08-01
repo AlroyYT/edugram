@@ -2,12 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/speech.module.css';
 
-const difficultySentences = {
-  easy: ['Hello there', 'How are you', 'Good morning'],
-  medium: ['Today is a beautiful day to learn something new', 'Practice makes perfect'],
-  hard: ['Stuttering support is vital for inclusive education', 'She sells sea shells by the seashore'],
-};
-
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 type Attempt = {
@@ -54,6 +48,7 @@ export default function SpeechPractice() {
         const parsedTime = parseFloat(duration);
         setTimeTaken(parsedTime);
         clearInterval(timerIntervalRef.current!);
+        startTimeRef.current = null;
 
         const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-evaluate/', {
           method: 'POST',
@@ -83,7 +78,7 @@ export default function SpeechPractice() {
   const speakSentence = (text: string) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = parseFloat(botSpeed.toFixed(1)); // More precise
+    utterance.rate = parseFloat(botSpeed.toFixed(1));
     utterance.lang = 'en-US';
     currentUtterance.current = utterance;
 
@@ -105,27 +100,25 @@ export default function SpeechPractice() {
   };
 
   const getRandomSentence = async () => {
-  try {
-    const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-generate/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ difficulty }),
-    });
+    try {
+      const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-generate/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ difficulty }),
+      });
 
-    const data = await res.json();
-    const generated = data.sentence;
+      const data = await res.json();
+      const generated = data.sentence;
 
-    setSentence(generated);
-    setSpokenWords('');
-    setResult('');
-    setTimeTaken(null);
-    speakSentence(generated);
-  } catch (err) {
-    console.error('Error fetching sentence:', err);
-  }
-};
-
-
+      setSentence(generated);
+      setSpokenWords('');
+      setResult('');
+      setTimeTaken(null);
+      speakSentence(generated);
+    } catch (err) {
+      console.error('Error fetching sentence:', err);
+    }
+  };
 
   const startTimerAndListening = () => {
     setRecording(true);
@@ -140,8 +133,16 @@ export default function SpeechPractice() {
   const stopListening = () => {
     recognitionRef.current.stop();
     setRecording(false);
+
+    if (startTimeRef.current) {
+      const endTime = performance.now();
+      const duration = ((endTime - startTimeRef.current) / 1000).toFixed(2);
+      const parsedTime = parseFloat(duration);
+      setTimeTaken(parsedTime);
+      startTimeRef.current = null;
+    }
+
     clearInterval(timerIntervalRef.current!);
-    // Keep timer visible
   };
 
   const highlightBotSentence = () => {
@@ -158,17 +159,24 @@ export default function SpeechPractice() {
 
   const highlightMatch = () => {
     const originalWords = sentence.split(' ');
-    const spoken = spokenWords.toLowerCase().split(' ');
-    return originalWords.map((word, i) => (
-      <span
-        key={i}
-        className={`${styles.word} ${
-          spoken[i] === word.toLowerCase() ? styles.correct : styles.incorrect
-        }`}
-      >
-        {word}
-      </span>
-    ));
+    const spoken = spokenWords.trim().toLowerCase().split(/\s+/);
+
+    return originalWords.map((word, i) => {
+      const spokenWord = spoken[i] || '';
+      const cleanOriginal = word.toLowerCase().replace(/[.,!?]/g, '');
+      const cleanSpoken = spokenWord.replace(/[.,!?]/g, '');
+
+      const isCorrect = cleanSpoken === cleanOriginal;
+
+      return (
+        <span
+          key={i}
+          className={`${styles.word} ${isCorrect ? styles.correct : styles.incorrect}`}
+        >
+          {word}
+        </span>
+      );
+    });
   };
 
   return (
@@ -200,8 +208,8 @@ export default function SpeechPractice() {
           onChange={(e) => setBotSpeed(parseFloat(e.target.value))}
         />
         <div className={styles.speedLabels}>
-          <span>🐢 Slow</span>
-          <span>🐇 Fast</span>
+          <span> Slow</span>
+          <span> Fast</span>
         </div>
       </div>
 
@@ -242,7 +250,7 @@ export default function SpeechPractice() {
         </div>
       )}
 
-      {result && timeTaken && (
+      {result && timeTaken !== null && (
         <div className={styles.resultBox}>
           <p className={styles.resultText}>
             Result: <strong>{result}</strong>
