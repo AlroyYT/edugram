@@ -10,7 +10,7 @@ const HomeButton: React.FC = () => {
         className="fixed transition-all duration-300 ease-out transform hover:scale-110 active:scale-95"
         style={{
           position: 'fixed',
-          bottom: '100px',
+          bottom: '150px',
           right: '50px',
           zIndex: 9999,
           cursor: 'pointer'
