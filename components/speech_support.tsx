@@ -55,7 +55,7 @@ export default function SpeechPractice() {
         setTimeTaken(parsedTime);
         clearInterval(timerIntervalRef.current!);
 
-        const res = await fetch('http://localhost:8000/api/speech-evaluate/', {
+        const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-evaluate/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -106,7 +106,7 @@ export default function SpeechPractice() {
 
   const getRandomSentence = async () => {
   try {
-    const res = await fetch('http://localhost:8000/api/speech-generate/', {
+    const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-generate/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ difficulty }),
