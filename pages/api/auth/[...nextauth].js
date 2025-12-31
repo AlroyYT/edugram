@@ -32,7 +32,7 @@ export default NextAuth({
     },
     async redirect({ url, baseUrl }) {
       // Redirect to the features page after login
-      return "/features";
+      return "/quiz";
     },
   },
 

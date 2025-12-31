@@ -42,5 +42,16 @@ next-env.d.ts
 
 # backend\app\utils\speech_support.py
 
-backend\media\uploads\
-backend\media\saved\
+backend/media/uploads/
+backend/media/saved/
+
+backend/env
+
+# Python cache
+__pycache__/
+**/__pycache__/
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd

@@ -1,0 +1,168 @@
+/* ---------- Animations ---------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Quiz Container ---------- */
+
+.quizContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.quizHeader {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.quizTitle {
+  font-size: 2.5rem;
+  color: #667eea;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.quizSubtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* ---------- Progress ---------- */
+
+.progressContainer {
+  margin-bottom: 30px;
+}
+
+.progressBar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+/* ---------- Question Card ---------- */
+
+.questionCard {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.4s ease;
+}
+
+.questionText {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+/* ---------- Options ---------- */
+
+.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.optionBtn {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: 3px solid transparent;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.optionBtn:hover {
+  transform: translateX(10px);
+  border-color: #667eea;
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+}
+
+.optionLetter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.optionText {
+  color: #333;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ---------- Loading ---------- */
+
+.loadingContainer {
+  text-align: center;
+  padding: 50px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 768px) {
+  .quizContainer {
+    padding: 15px;
+  }
+
+  .quizTitle {
+    font-size: 2rem;
+  }
+
+  .questionCard {
+    padding: 25px;
+  }
+
+  .questionText {
+    font-size: 1.2rem;
+  }
+
+  .optionBtn {
+    padding: 15px;
+  }
+
+  .optionLetter {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+}
