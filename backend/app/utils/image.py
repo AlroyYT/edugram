@@ -12,7 +12,7 @@ class ImageProcessor:
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY must be set in Django settings")
         
-        self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.api_key}"
+        self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.api_key}"
     
     def encode_image_to_base64(self, image_file):
         """Convert uploaded image file to base64 string"""

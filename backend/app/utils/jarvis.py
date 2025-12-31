@@ -26,7 +26,7 @@ import google.generativeai as genai
 
 # Load models once
 genai.configure(api_key=settings.GEMINI_API_KEY)
-GEMINI_MODEL = genai.GenerativeModel("gemini-2.0-flash")
+GEMINI_MODEL = genai.GenerativeModel("gemini-2.5-flash")
 
 # Check for GPU availability and set device
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

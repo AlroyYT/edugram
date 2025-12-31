@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from app.views import visual_mindmap,test_mindmap
 
 # Keep your existing URLs and add the new ones
 from .views import (
@@ -51,4 +52,6 @@ urlpatterns = [
      #speech support
     path('speech-generate/', generate_sentence_view),
     path('speech-evaluate/', evaluate_pronunciation_view),
+    path("visual/mindmap/", visual_mindmap, name="visual-mindmap"),
+    path("visual/test-mindmap/", test_mindmap, name="test-mindmap")
 ]

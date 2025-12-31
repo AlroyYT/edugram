@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/speech.module.css';
-
+import { backend_url } from '../components/config';
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 type Attempt = {
@@ -50,7 +50,7 @@ export default function SpeechPractice() {
         clearInterval(timerIntervalRef.current!);
         startTimeRef.current = null;
 
-        const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-evaluate/', {
+        const res = await fetch(`${backend_url}/api/speech-evaluate/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -101,7 +101,7 @@ export default function SpeechPractice() {
 
   const getRandomSentence = async () => {
     try {
-      const res = await fetch('https://edugram-574544346633.asia-south1.run.app/api/speech-generate/', {
+      const res = await fetch(`${backend_url}/api/speech-generate/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ difficulty }),

@@ -10,7 +10,7 @@
 endobj
 4 0 obj
 <<
-/Length 2183
+/Length 1987
 >>
 stream
 0.5670000000000001 w
@@ -27,108 +27,107 @@ BT
 13.7999999999999989 TL
 0 g
 56.6929133858267775 745.5120472440944468 Td
-(File: DAA UNIT 2) Tj
+(File: Monthly-Connect_template_new) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0 g
 56.6929133858267775 725.6695275590550409 Td
-(Date: 31-07-2025) Tj
+(Date: 22-12-2025) Tj
 ET
 BT
 /F1 14 Tf
 16.0999999999999979 TL
 0 g
 56.6929133858267775 685.9844881889763428 Td
-(Score: 2/10) Tj
+(Score: 9/10) Tj
 ET
 BT
 /F1 12 Tf
 13.7999999999999989 TL
 0 g
 56.6929133858267775 646.2994488188976447 Td
-(Question 1: Which algorithm design technique is described as dividing a problem into) Tj
-T* (subproblems?) Tj
+(Question 1: What is the primary focus of the OpenXR application described in the text?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0 g
-85.0393700787401627 586.7718897637794271 Td
-(A. Dynamic Programming) Tj
+85.0393700787401627 606.614409448818833 Td
+(A. Game development) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 566.9293700787401349 Td
-(B. Greedy Algorithm) Tj
+85.0393700787401627 586.7718897637794271 Td
+(B. Virtual Reality device drivers) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
+85.0393700787401627 566.9293700787401349 Td
+(C. Overlay support) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
 85.0393700787401627 547.086850393700729 Td
-(C. Divide and Conquer) Tj
+(D. 3D modeling) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 527.2443307086614368 Td
-(D. Backtracking) Tj
+56.6929133858267775 507.4018110236219741 Td
+(Explanation: The 'Worklet Details' section explicitly states 'Successfully implemented the core OpenXR) Tj
+T* (application with overlay support'.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 487.559291338582625 Td
-(Explanation: Divide and Conquer is a technique that involves dividing a problem into smaller subproblems,) Tj
-T* (solving them, and then combining the solutions.) Tj
+56.6929133858267775 408.1892125984251152 Td
+(Question 2: How many distinct overlay sessions were implemented in the application?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 388.3466929133857661 Td
-(Question 2: What is the first step in the general plan for Divide and Conquer?) Tj
+85.0393700787401627 368.5041732283464171 Td
+(A. 1) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 348.6616535433070112 Td
-(A. Solve the subproblems using a different algorithm) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 328.8191338582676053 Td
-(B. Combine the solutions to the subproblems) Tj
+(B. 2) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
+85.0393700787401627 328.8191338582676053 Td
+(C. 3) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
 85.0393700787401627 308.9766141732283131 Td
-(C. Divide a problem into subproblems of the same type and ideally of equal size) Tj
+(D. 4) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 289.1340944881889072 Td
-(D. Employ a greedy algorithm) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 249.4490551181102092 Td
-(Explanation: The first step in Divide and Conquer is to break down the original problem into smaller, similar) Tj
-T* (subproblems.) Tj
+56.6929133858267775 269.2915748031495013 Td
+(Explanation: The text mentions, 'Exceeded the requirement of 2 overlay sessions by implementing 3 distinct) Tj
+T* (overlays'.) Tj
 ET
 endstream
 endobj
@@ -142,7 +141,7 @@ endobj
 endobj
 6 0 obj
 <<
-/Length 2512
+/Length 2304
 >>
 stream
 0.5670000000000001 w
@@ -152,128 +151,128 @@ BT
 11.5 TL
 0. g
 56.6929133858267775 785.1970866141732586 Td
-(Question 3: Which sorting algorithm is given as an example of Divide and Conquer?) Tj
+(Question 3: Which OpenXR runtime was the application fully integrated with?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 745.5120472440944468 Td
-(A. Bubble Sort) Tj
+(A. SteamVR) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 725.6695275590550409 Td
-(B. Insertion Sort) Tj
+(B. Oculus Runtime) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
 85.0393700787401627 705.8270078740157487 Td
-(C. Merge Sort) Tj
+(C. Monado) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 685.9844881889763428 Td
-(D. Selection Sort) Tj
+(D. Viveport) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 646.2994488188976447 Td
-(Explanation: Merge Sort is a classic example of the Divide and Conquer technique, dividing the array, sorting) Tj
-T* (subarrays, and merging them.) Tj
+(Explanation: The 'Worklet Details' section states, 'Fully integrated with the Monado OpenXR runtime'.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 547.086850393700729 Td
-(Question 4: In Merge Sort, what is done after dividing the array into two halves?) Tj
+56.6929133858267775 566.9293700787401349 Td
+(Question 4: What specific OpenXR extension was successfully implemented in this project?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
+85.0393700787401627 527.2443307086614368 Td
+(A. XR_KHR_vulkan_enable) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
 85.0393700787401627 507.4018110236219741 Td
-(A. The two halves are merged directly) Tj
+(B. XR_EXTX_overlay) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 487.559291338582625 Td
-(B. Each half is sorted using a different sorting algorithm) Tj
+(C. XR_MSFT_hand_interaction) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
-0. 0.502 0. rg
+0. g
 85.0393700787401627 467.716771653543276 Td
-(C. Each half is sorted recursively) Tj
+(D. XR_FB_color_space) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 447.8742519685038701 Td
-(D. The smaller elements are moved to the left side) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 408.1892125984251152 Td
-(Explanation: After dividing the array, Merge Sort recursively sorts each half until the base case is reached.) Tj
+56.6929133858267775 428.0317322834645211 Td
+(Explanation: The 'Worklet Name' and 'KPIs achieved' sections explicitly mention the XR_EXTX_overlay) Tj
+T* (extension.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 328.8191338582676053 Td
-(Question 5: What is done in the 'Merge' step of Merge Sort?) Tj
+(Question 5: What method was used for session layer placement in the OpenXR application?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 289.1340944881889072 Td
-(A. The two subarrays are divided further) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. 0.502 0. rg
-85.0393700787401627 269.2915748031495013 Td
-(B. The two sorted subarrays are combined into a single sorted array) Tj
+(A. XrSessionLayersConfig) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
+85.0393700787401627 269.2915748031495013 Td
+(B. XrSessionPlacementInfo) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
 85.0393700787401627 249.4490551181102092 Td
-(C. The elements in the subarrays are swapped) Tj
+(C. XrSessionCreateInfoOverlayEXTX) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 229.6065354330708033 Td
-(D. The largest element is moved to the end) Tj
+(D. XrOverlayLayerSetup) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 189.9214960629919915 Td
-(Explanation: The Merge step takes two sorted subarrays and combines them into a single sorted array by) Tj
-T* (comparing elements.) Tj
+(Explanation: The text states, 'Properly implemented session layer placement using) Tj
+T* (XrSessionCreateInfoOverlayEXTX'.) Tj
 ET
 endstream
 endobj
@@ -287,7 +286,7 @@ endobj
 endobj
 8 0 obj
 <<
-/Length 2261
+/Length 2567
 >>
 stream
 0.5670000000000001 w
@@ -297,129 +296,129 @@ BT
 11.5 TL
 0. g
 56.6929133858267775 785.1970866141732586 Td
-(Question 6: In the worst-case scenario, how many key comparisons, Cmerge\(n\), are performed during the) Tj
-T* (merging stage of Merge Sort?) Tj
+(Question 6: What was a key challenge faced regarding Android-Native Integration?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 745.5120472440944468 Td
+(A. Limited Android API documentation) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 725.6695275590550409 Td
-(A. n/2) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 705.8270078740157487 Td
-(B. n) Tj
+(B. Lack of suitable native libraries) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
+85.0393700787401627 705.8270078740157487 Td
+(C. Setting up complex build system with Gradle/CMake) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
 85.0393700787401627 685.9844881889763428 Td
-(C. n - 1) Tj
+(D. Insufficient device compatibility) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-85.0393700787401627 666.1419685039369369 Td
-(D. log n) Tj
+56.6929133858267775 646.2994488188976447 Td
+(Explanation: Under 'Any Challenges/ Issues faced,' it lists 'Android-Native Integration - Setting up complex) Tj
+T* (build system with both Gradle \(Android\) and CMake \(C++\) while ensuring proper JNI bindings'.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
-56.6929133858267775 626.4569291338582389 Td
-(Explanation: In the worst case for merging, Cmerge\(n\) = n - 1 comparisons are made. This happens when) Tj
-T* (the elements are interleaved between the two arrays.) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-56.6929133858267775 527.2443307086614368 Td
-(Question 7: What is the time complexity of Merge Sort?) Tj
+56.6929133858267775 547.086850393700729 Td
+(Question 7: What technique was implemented for transparent overlay compositing during advanced) Tj
+T* (OpenXR-Monado-XR_EXTX integration?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 487.559291338582625 Td
-(A. O\(n\)) Tj
+(A. Alpha masking) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 467.716771653543276 Td
-(B. O\(n^2\)) Tj
-ET
-BT
-/F1 10 Tf
-11.5 TL
-0. g
-85.0393700787401627 447.8742519685038701 Td
-(C. O\(log n\)) Tj
+(B. Stenciling) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
+85.0393700787401627 447.8742519685038701 Td
+(C. Blending) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
 85.0393700787401627 428.0317322834645211 Td
-(D. O\(n log n\)) Tj
+(D. Color Keying) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 388.3466929133857661 Td
-(Explanation: The time complexity of Merge Sort is O\(n log n\), making it an efficient sorting algorithm.) Tj
+(Explanation: Under 'KPIs achieved,' it states 'implementing blending for transparent overlay compositing'.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 308.9766141732283131 Td
-(Question 8: Quick Sort works based on what technique?) Tj
+(Question 8: What are the two primary build systems mentioned for Android-Native integration?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 269.2915748031495013 Td
-(A. Dynamic Programming) Tj
+(A. Maven and Ant) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 249.4490551181102092 Td
-(B. Greedy Algorithm) Tj
+(B. CMake and Make) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
 85.0393700787401627 229.6065354330708033 Td
-(C. Divide and Conquer) Tj
+(C. Gradle and CMake) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 209.7640157480313974 Td
-(D. Brute Force) Tj
+(D. Bazel and Ninja) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 170.0789763779526993 Td
-(Explanation: Quick Sort uses the Divide and Conquer technique to sort an array by partitioning it around a) Tj
-T* (pivot.) Tj
+(Explanation: Under 'Any Challenges/ Issues faced,' it mentions 'Android-Native Integration - Setting up) Tj
+T* (complex build system with both Gradle \(Android\) and CMake \(C++\)'.) Tj
 ET
 endstream
 endobj
@@ -433,7 +432,7 @@ endobj
 endobj
 10 0 obj
 <<
-/Length 1739
+/Length 1469
 >>
 stream
 0.5670000000000001 w
@@ -443,86 +442,85 @@ BT
 11.5 TL
 0. g
 56.6929133858267775 785.1970866141732586 Td
-(Question 9: In Quick Sort, what is the role of the 'Partition' function?) Tj
+(Question 9: Which software resource is identified for development, debugging, and deployment?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 745.5120472440944468 Td
-(A. To sort the entire array) Tj
+(A. VS Code) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 725.6695275590550409 Td
-(B. To select the largest element) Tj
+(B. Eclipse IDE) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
 85.0393700787401627 705.8270078740157487 Td
-(C. To create a partition around the correct position of a pivot) Tj
+(C. Android Studio IDE) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 685.9844881889763428 Td
-(D. To merge two subarrays) Tj
+(D. Xcode) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 646.2994488188976447 Td
-(Explanation: The Partition function in Quick Sort places the pivot element in its correct sorted position and) Tj
-T* (divides the array into two subarrays.) Tj
+(Explanation: Under 'Software Resouces,' it lists 'Android Studio IDE – for development, debugging, and) Tj
+T* (deployment'.) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 547.086850393700729 Td
-(Question 10: What is selected first when implementing the Quick Sort algorithm?) Tj
+(Question 10: What is the Worklet ID for this project?) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
-0. g
+1. 0. 0. rg
 85.0393700787401627 507.4018110236219741 Td
-(A. Middle Element) Tj
+(A. RV_25IX05RV) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 85.0393700787401627 487.559291338582625 Td
-(B. Smallest element) Tj
+(B. SRIB-PRISM) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. 0.502 0. rg
 85.0393700787401627 467.716771653543276 Td
-(C. Pivot point) Tj
+(C. 25IX05RV) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
-1. 0. 0. rg
+0. g
 85.0393700787401627 447.8742519685038701 Td
-(D. Largest element) Tj
+(D. OpenXR_Overlay_App) Tj
 ET
 BT
 /F1 10 Tf
 11.5 TL
 0. g
 56.6929133858267775 408.1892125984251152 Td
-(Explanation: Quick Sort works by selecting a pivot point and partitioning the array around it, such that) Tj
-T* (elements smaller than the pivot are placed before it and elements greater than the pivot are placed after it.) Tj
+(Explanation: The 'Worklet ID' is explicitly stated as '25IX05RV' multiple times in the text.) Tj
 ET
 endstream
 endobj
@@ -696,7 +694,7 @@ endobj
 25 0 obj
 <<
 /Producer (jsPDF 3.0.1)
-/CreationDate (D:20250731230340+05'30')
+/CreationDate (D:20251222104932+05'30')
 >>
 endobj
 26 0 obj
@@ -710,39 +708,39 @@ endobj
 xref
 0 27
 0000000000 65535 f 
-0000009468 00000 n 
-0000011308 00000 n 
+0000009100 00000 n 
+0000010940 00000 n 
 0000000015 00000 n 
 0000000152 00000 n 
-0000002387 00000 n 
-0000002524 00000 n 
-0000005088 00000 n 
-0000005225 00000 n 
-0000007538 00000 n 
-0000007676 00000 n 
-0000009543 00000 n 
-0000009669 00000 n 
-0000009800 00000 n 
-0000009934 00000 n 
-0000010072 00000 n 
-0000010196 00000 n 
-0000010325 00000 n 
-0000010457 00000 n 
-0000010593 00000 n 
-0000010721 00000 n 
-0000010848 00000 n 
-0000010977 00000 n 
-0000011110 00000 n 
-0000011212 00000 n 
-0000011561 00000 n 
-0000011647 00000 n 
+0000002191 00000 n 
+0000002328 00000 n 
+0000004684 00000 n 
+0000004821 00000 n 
+0000007440 00000 n 
+0000007578 00000 n 
+0000009175 00000 n 
+0000009301 00000 n 
+0000009432 00000 n 
+0000009566 00000 n 
+0000009704 00000 n 
+0000009828 00000 n 
+0000009957 00000 n 
+0000010089 00000 n 
+0000010225 00000 n 
+0000010353 00000 n 
+0000010480 00000 n 
+0000010609 00000 n 
+0000010742 00000 n 
+0000010844 00000 n 
+0000011193 00000 n 
+0000011279 00000 n 
 trailer
 <<
 /Size 27
 /Root 26 0 R
 /Info 25 0 R
-/ID [ <C2814BFC8AC8D562653AF44BA21F8713> <C2814BFC8AC8D562653AF44BA21F8713> ]
+/ID [ <619D810ADFBB013454F5B3910F2B2B9A> <619D810ADFBB013454F5B3910F2B2B9A> ]
 >>
 startxref
-11751
+11383
 %%EOF

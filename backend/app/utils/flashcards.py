@@ -8,7 +8,7 @@ import pdfplumber
 from typing import List, Dict
 
 class FlashcardGenerator:
-    def __init__(self, api_key: str, model: str = "gemini-2.0-flash"):
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
         """
         Initialize the FlashcardGenerator with Gemini API.
         :param api_key: Google Gemini API key
