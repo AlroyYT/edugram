@@ -28,46 +28,61 @@ const JarvisVoiceBot: React.FC = () => {
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const isRecognitionActiveRef = useRef(false);
+  const commandTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Navigation routes configuration
   const navigationRoutes: NavigationRoute[] = [
     { keywords: ['deaf assistance', 'deaf', 'hearing','def','death'], path: '/deaf', displayName: 'Deaf Assistance' },
     { keywords: ['blind assistance', 'blind', 'visual'], path: '/voice-assistant', displayName: 'Blind Assistance' },
     { keywords: ['home', 'homepage', 'main page', 'home page'], path: '/features', displayName: 'Home Page' },
-    { keywords: ['topic explorer', 'explorer', 'topics'], path: '/topic-explorer', displayName: 'Topic Explorer' },
+    { keywords: ['topic explorer', 'explorer', 'topics','presonalised','learning'], path: '/topic-explorer', displayName: 'Topic Explorer' },
     { keywords: ['speech fluency', 'speech', 'fluency'], path: '/speech', displayName: 'Speech Fluency' },
   ];
 
-  // Initialize and start background listening on component mount
+  // Initialize speech synthesis and recognition
   useEffect(() => {
-    // Initialize speech synthesis
+    let mounted = true;
+    
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
     }
 
-    // Initialize speech recognition and start background listening
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
-      setIsInitialized(true);
       
-      // Auto-start background listening
-      initializeBackgroundListening();
+      // Only initialize if not already initialized
+      if (!recognitionRef.current) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+        setIsInitialized(true);
+        
+        if (mounted) {
+          initializeBackgroundListening();
+        }
+      }
     }
 
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+      mounted = false;
+      if (commandTimeoutRef.current) {
+        clearTimeout(commandTimeoutRef.current);
+      }
+      if (recognitionRef.current && isRecognitionActiveRef.current) {
+        try {
+          recognitionRef.current.stop();
+          isRecognitionActiveRef.current = false;
+        } catch (error) {
+          console.error('Cleanup error:', error);
+        }
       }
     };
   }, []);
 
   const initializeBackgroundListening = async () => {
     try {
-      // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
       setMicPermission('granted');
       startBackgroundListening();
@@ -78,17 +93,33 @@ const JarvisVoiceBot: React.FC = () => {
   };
 
   const startBackgroundListening = () => {
-    if (!recognitionRef.current || isBackgroundListening) return;
+    if (!recognitionRef.current) return;
+    
+    // If already active, don't try to start again
+    if (isRecognitionActiveRef.current) {
+      console.log('Recognition already active, skipping start');
+      return;
+    }
     
     try {
+      recognitionRef.current.start();
+      isRecognitionActiveRef.current = true;
       setIsBackgroundListening(true);
       setIsListening(true);
-      recognitionRef.current.start();
       console.log('Background speech recognition started');
-    } catch (error) {
-      console.error('Failed to start background listening:', error);
-      setIsBackgroundListening(false);
-      setIsListening(false);
+    } catch (error: any) {
+      // If error is because it's already started, just update the state
+      if (error.message && error.message.includes('already started')) {
+        console.log('Recognition was already started, updating state only');
+        isRecognitionActiveRef.current = true;
+        setIsBackgroundListening(true);
+        setIsListening(true);
+      } else {
+        console.error('Failed to start background listening:', error);
+        isRecognitionActiveRef.current = false;
+        setIsBackgroundListening(false);
+        setIsListening(false);
+      }
     }
   };
 
@@ -114,12 +145,10 @@ const JarvisVoiceBot: React.FC = () => {
         const lowerTranscript = finalTranscript.toLowerCase().trim();
         
         if (!isWaitingForCommand) {
-          // Check for wake word
           if (lowerTranscript.includes('jarvis')) {
             handleWakeWord();
           }
         } else {
-          // Process command
           handleCommand(finalTranscript.trim());
         }
       }
@@ -128,31 +157,43 @@ const JarvisVoiceBot: React.FC = () => {
     recognitionRef.current.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
       
-      // Handle different error types
       if (event.error === 'not-allowed') {
         setMicPermission('denied');
+        isRecognitionActiveRef.current = false;
         setIsBackgroundListening(false);
         setIsListening(false);
         return;
       }
       
-      // Restart listening after other errors
+      if (event.error === 'aborted' || event.error === 'network') {
+        isRecognitionActiveRef.current = false;
+      }
+      
       setTimeout(() => {
-        if (micPermission === 'granted' && !isWaitingForCommand) {
+        if (micPermission === 'granted' && !isWaitingForCommand && !isRecognitionActiveRef.current) {
           restartBackgroundListening();
         }
       }, 1000);
     };
 
     recognitionRef.current.onend = () => {
-      // Auto-restart background listening unless explicitly stopped
+      console.log('Recognition ended, active state:', isRecognitionActiveRef.current);
+      isRecognitionActiveRef.current = false;
+      
       if (isBackgroundListening && micPermission === 'granted') {
         setTimeout(() => {
-          if (recognitionRef.current && isBackgroundListening) {
+          if (recognitionRef.current && isBackgroundListening && !isRecognitionActiveRef.current) {
             try {
               recognitionRef.current.start();
-            } catch (error) {
-              console.error('Error restarting recognition:', error);
+              isRecognitionActiveRef.current = true;
+              console.log('Auto-restarted recognition');
+            } catch (error: any) {
+              if (error.message && error.message.includes('already started')) {
+                console.log('Already started during auto-restart');
+                isRecognitionActiveRef.current = true;
+              } else {
+                console.error('Error restarting recognition:', error);
+              }
             }
           }
         }, 100);
@@ -161,17 +202,32 @@ const JarvisVoiceBot: React.FC = () => {
   }, [isBackgroundListening, isWaitingForCommand, micPermission]);
 
   const restartBackgroundListening = () => {
-    if (recognitionRef.current && micPermission === 'granted') {
-      try {
+    if (!recognitionRef.current || micPermission !== 'granted') return;
+    
+    try {
+      // Stop if currently active
+      if (isRecognitionActiveRef.current) {
         recognitionRef.current.stop();
-        setTimeout(() => {
-          if (recognitionRef.current && isBackgroundListening) {
-            recognitionRef.current.start();
-          }
-        }, 500);
-      } catch (error) {
-        console.error('Error restarting background listening:', error);
+        isRecognitionActiveRef.current = false;
       }
+      
+      // Wait a bit before restarting
+      setTimeout(() => {
+        if (recognitionRef.current && isBackgroundListening && !isRecognitionActiveRef.current) {
+          try {
+            recognitionRef.current.start();
+            isRecognitionActiveRef.current = true;
+          } catch (error: any) {
+            if (error.message && error.message.includes('already started')) {
+              isRecognitionActiveRef.current = true;
+            } else {
+              console.error('Error restarting recognition:', error);
+            }
+          }
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Error in restart process:', error);
     }
   };
 
@@ -187,8 +243,11 @@ const JarvisVoiceBot: React.FC = () => {
     addChatMessage('jarvis', 'Yes?');
     speak('Yes?');
     
-    // Set timeout to stop waiting for command
-    setTimeout(() => {
+    if (commandTimeoutRef.current) {
+      clearTimeout(commandTimeoutRef.current);
+    }
+    
+    commandTimeoutRef.current = setTimeout(() => {
       if (isWaitingForCommand) {
         setIsWaitingForCommand(false);
         addChatMessage('jarvis', 'I\'m here when you need me.');
@@ -201,11 +260,14 @@ const JarvisVoiceBot: React.FC = () => {
     setIsProcessing(true);
     setCurrentTranscript('');
     
+    if (commandTimeoutRef.current) {
+      clearTimeout(commandTimeoutRef.current);
+    }
+    
     addChatMessage('user', command);
     
     const lowerCommand = command.toLowerCase();
     
-    // Check for navigation commands
     if (lowerCommand.includes('navigate') || lowerCommand.includes('go to') || lowerCommand.includes('open')) {
       const route = navigationRoutes.find(route => 
         route.keywords.some(keyword => lowerCommand.includes(keyword))
@@ -216,7 +278,6 @@ const JarvisVoiceBot: React.FC = () => {
         addChatMessage('jarvis', response);
         speak(response);
         
-        // Simulate navigation (in real app, use Next.js router)
         setTimeout(() => {
           window.location.href = route.path;
         }, 2000);
@@ -245,7 +306,6 @@ const JarvisVoiceBot: React.FC = () => {
 
   const speak = async (text: string) => {
     try {
-      // Using Google Text-to-Speech API
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: {
@@ -260,7 +320,6 @@ const JarvisVoiceBot: React.FC = () => {
         const audio = new Audio(audioUrl);
         audio.play();
       } else {
-        // Fallback to browser speech synthesis
         if (synthRef.current) {
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.rate = 0.9;
@@ -271,7 +330,6 @@ const JarvisVoiceBot: React.FC = () => {
       }
     } catch (error) {
       console.error('TTS Error:', error);
-      // Fallback to browser speech synthesis
       if (synthRef.current) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 0.9;
@@ -294,14 +352,13 @@ const JarvisVoiceBot: React.FC = () => {
 
   const toggleBackgroundListening = () => {
     if (isBackgroundListening) {
-      // Stop background listening
       setIsBackgroundListening(false);
       setIsListening(false);
-      if (recognitionRef.current) {
+      if (recognitionRef.current && isRecognitionActiveRef.current) {
         recognitionRef.current.stop();
+        isRecognitionActiveRef.current = false;
       }
     } else {
-      // Start background listening
       if (micPermission === 'granted') {
         startBackgroundListening();
       } else {
@@ -336,7 +393,6 @@ const JarvisVoiceBot: React.FC = () => {
 
   return (
     <div>
-      {/* Floating Action Button */}
       <button
         onClick={() => {
           if (isOpen) {
@@ -378,7 +434,6 @@ const JarvisVoiceBot: React.FC = () => {
         {getButtonIcon()}
       </button>
 
-      {/* Background Listening Indicator */}
       {isBackgroundListening && !isOpen && (
         <div
           style={{
@@ -400,7 +455,6 @@ const JarvisVoiceBot: React.FC = () => {
         </div>
       )}
 
-      {/* Chat Interface */}
       {isOpen && (
         <div
           style={{
@@ -418,7 +472,6 @@ const JarvisVoiceBot: React.FC = () => {
             zIndex: 9998
           }}
         >
-          {/* Header */}
           <div
             style={{
               background: 'linear-gradient(90deg, #2563eb 0%, #9333ea 100%)',
@@ -456,7 +509,6 @@ const JarvisVoiceBot: React.FC = () => {
             </button>
           </div>
 
-          {/* Chat Messages */}
           <div
             style={{
               flex: 1,
@@ -554,7 +606,6 @@ const JarvisVoiceBot: React.FC = () => {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Status Bar */}
           <div
             style={{
               padding: '12px',
@@ -625,7 +676,6 @@ const JarvisVoiceBot: React.FC = () => {
   );
 };
 
-// Extend Window interface for TypeScript
 declare global {
   interface Window {
     webkitSpeechRecognition: any;

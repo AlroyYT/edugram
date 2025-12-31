@@ -1,0 +1,781 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 2768
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 16 Tf
+18.3999999999999986 TL
+0 g
+56.6929133858267775 785.1970866141732586 Td
+(Quiz Results) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 745.5120472440944468 Td
+(File: Advanced_LeadAcid_Batteries_and_the_Development_of_Grid-Scale_Energy_Storage_Systems) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 725.6695275590550409 Td
+(Date: 25-12-2025) Tj
+ET
+BT
+/F1 14 Tf
+16.0999999999999979 TL
+0 g
+56.6929133858267775 685.9844881889763428 Td
+(Score: 6/10) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+0 g
+56.6929133858267775 646.2994488188976447 Td
+(Question 1: What is the primary focus of this invited paper?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+85.0393700787401627 606.614409448818833 Td
+(A. A\) Detailing the history of Gaston Plante's inventions.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 586.7718897637794271 Td
+(B. B\) Comparing lead-acid and lithium battery technologies.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 566.9293700787401349 Td
+(C. C\) Summarizing advances in lead-acid batteries and their use in grid-scale energy storage.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 547.086850393700729 Td
+(D. D\) Explaining the geological limitations of pumped hydro energy storage.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 507.4018110236219741 Td
+(Explanation: The abstract states that the paper presents 'a summary of advances in lead–acid batteries and) Tj
+T* (the deployment of energy storage systems utilizing advanced lead–acid batteries for renewable-energy and) Tj
+T* (grid applications.') Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 388.3466929133857661 Td
+(Question 2: Which of the following is NOT explicitly mentioned as a component of the advanced system) Tj
+T* (solution for battery energy storage described in the paper?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 328.8191338582676053 Td
+(A. A\) Thermal management of an UltraBattery bank.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 308.9766141732283131 Td
+(B. B\) An inverter/charger.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 289.1340944881889072 Td
+(C. C\) Smart grid management monitoring SoC and SoH.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 269.2915748031495013 Td
+(D. D\) Manual impedance testing by onsite personnel.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 229.6065354330708033 Td
+(Explanation: The abstract lists 'thermal management of an UltraBattery bank, an inverter/charger, and smart) Tj
+T* (grid management' as components. While impedance measurement is a technique for SoH, the system aims) Tj
+T* (for remote monitoring and automated SoH tests, reducing the reliance on frequent manual checks.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 2015
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 3: According to the paper, what is a clear environmental benefit of the widespread use of) Tj
+T* (renewable-energy systems?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(A. A\) An increase in global consumption of fossil fuels.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(B. B\) A greater reliance on traditional grid management systems.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 685.9844881889763428 Td
+(C. C\) A reduction in global consumption of fossil fuels and associated greenhouse-gas) Tj
+T* (emissions.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 646.2994488188976447 Td
+(D. D\) An increase in the need for manual battery maintenance.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 606.614409448818833 Td
+(Explanation: The abstract states, 'It is clear that the widespread use of renewable-energy systems, in turn,) Tj
+T* (would lead to a reduction in global consumption of the limited supplies of the fossil fuels and in the associated) Tj
+T* (production of greenhouse-gas emissions.') Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 487.559291338582625 Td
+(Question 4: Who assembled the first known lead-acid cells, over 150 years ago?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(A. A\) Brian B. McKeon.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 428.0317322834645211 Td
+(B. B\) Jun Furukawa.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 408.1892125984251152 Td
+(C. C\) Gaston Plante.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 388.3466929133857661 Td
+(D. D\) Scott Fenstermacher.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 348.6616535433070112 Td
+(Explanation: Section II, 'Advanced Lead–Acid Batteries,' mentions that 'Gaston Plante assembled the first) Tj
+T* (known lead–acid cells over 150 years ago.') Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 3219
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 5: What key breakthrough in the 1960s and 1970s allowed for the development of sealed,) Tj
+T* (low-maintenance VRLA \(Valve-Regulated Lead–Acid\) cells?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(A. A\) The discovery of completely new electrode materials.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 705.8270078740157487 Td
+(B. B\) Recognition that lead-acid batteries could support significant oxygen recombination.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(C. C\) The invention of a higher density electrolyte solution.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 666.1419685039369369 Td
+(D. D\) The development of lighter weight casing materials.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: Section II notes, 'Breakthroughs came in the 1960s [4] and 1970s [5] when it was recognized) Tj
+T* (that a lead–acid battery could be constructed to support significant oxygen recombination... This allowed the) Tj
+T* (development of the sealed, low-maintenance, lead–acid battery: the VRLA cell.') Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 507.4018110236219741 Td
+(Question 6: What type of electrolyte was used in the first VRLA designs developed in the 1960s?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 467.716771653543276 Td
+(A. A\) Flooded electrolyte.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(B. B\) Absorbent Glass Mat \(AGM\) electrolyte.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(C. C\) Gelled electrolyte.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 408.1892125984251152 Td
+(D. D\) Molten salt electrolyte.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 368.5041732283464171 Td
+(Explanation: Section II states, 'The first designs in the 1960s were based on immobilized, gelled, electrolyte) Tj
+T* (and the designs of the 1970s led to the electrolyte being held in an absorbent glass mat separator...') Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 269.2915748031495013 Td
+(Question 7: What was a major drawback of VRLA cells compared to the previous generation of flooded cells?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 229.6065354330708033 Td
+(A. A\) They required more frequent maintenance.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 209.7640157480313974 Td
+(B. B\) They were more prone to dryout failures due to lower electrolyte content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 189.9214960629919915 Td
+(C. C\) They had a higher electrolyte content, making them heavier.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 170.0789763779526993 Td
+(D. D\) They could not support oxygen recombination.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 130.3939370078738875 Td
+(Explanation: Section II explains, 'The lower electrolyte content of VRLA cells did have a drawback in that) Tj
+T* (VRLA cells were more prone to dryout failures than the previous generation of flooded cells.') Tj
+ET
+endstream
+endobj
+9 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 10 0 R
+>>
+endobj
+10 0 obj
+<<
+/Length 2249
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 8: What organization was formed in 1992 and has been a major sponsor of lead-acid battery design) Tj
+T* (advancements?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(A. A\) IEEE.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(B. B\) Ecoult.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 685.9844881889763428 Td
+(C. C\) East Penn Manufacturing Co., Inc.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 666.1419685039369369 Td
+(D. D\) The Advanced Lead Acid Battery Consortium \(ALABC\).) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: Section II mentions, 'The Advanced Lead Acid Battery Consortium \(ALABC\) was formed in 1992) Tj
+T* (and has been a major sponsor of the advancement of a new generation of lead–acid battery design over the) Tj
+T* (past 20 years.') Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 507.4018110236219741 Td
+(Question 9: What key capability did integrating carbon into the negative electrode of VRLA cells provide,) Tj
+T* (essential for modern energy storage systems?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 447.8742519685038701 Td
+(A. A\) The ability to operate only at a full state of charge.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 428.0317322834645211 Td
+(B. B\) Extended cycling periods at a partial state of charge \(pSoC\).) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 408.1892125984251152 Td
+(C. C\) Elimination of all negative electrode sulfation.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 388.3466929133857661 Td
+(D. D\) Significant reduction in positive grid corrosion for cycling applications.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 348.6616535433070112 Td
+(Explanation: Section II states, 'Integrating carbon into the negative electrode of the cell has allowed VRLA) Tj
+T* (cells to enter a new application space, cycling for extended periods at a partial state of charge \(pSoC\). This) Tj
+T* (ability is essential for an energy storage system that is ready to either accept or release energy.') Tj
+ET
+endstream
+endobj
+11 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 12 0 R
+>>
+endobj
+12 0 obj
+<<
+/Length 1137
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 785.1970866141732586 Td
+(Question 10: Given that VRLA cell failures tend to involve gradual degradation, what is a widespread) Tj
+T* (technique for monitoring their State of Health \(SoH\)?) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 725.6695275590550409 Td
+(A. A\) Visually inspecting the electrolyte level.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 705.8270078740157487 Td
+(B. B\) Measuring the cell's physical dimensions.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. 0.502 0. rg
+85.0393700787401627 685.9844881889763428 Td
+(C. C\) Measurement of cell impedance.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+85.0393700787401627 666.1419685039369369 Td
+(D. D\) Performing only temperature checks of the cell casing.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+56.6929133858267775 626.4569291338582389 Td
+(Explanation: The text explains, 'The failure mechanisms of the previous paragraph result in a gradual) Tj
+T* (increase in cell impedance and accordingly, measurement of cell impedance is a widespread technique for) Tj
+T* (the monitoring of cell state of health \(SoH\).') Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R ]
+/Count 5
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+23 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+24 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+25 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+26 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 13 0 R
+/F2 14 0 R
+/F3 15 0 R
+/F4 16 0 R
+/F5 17 0 R
+/F6 18 0 R
+/F7 19 0 R
+/F8 20 0 R
+/F9 21 0 R
+/F10 22 0 R
+/F11 23 0 R
+/F12 24 0 R
+/F13 25 0 R
+/F14 26 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+27 0 obj
+<<
+/Producer (jsPDF 3.0.1)
+/CreationDate (D:20251225181613+05'30')
+>>
+endobj
+28 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 29
+0000000000 65535 f 
+0000012353 00000 n 
+0000014200 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000002972 00000 n 
+0000003109 00000 n 
+0000005176 00000 n 
+0000005313 00000 n 
+0000008584 00000 n 
+0000008722 00000 n 
+0000011024 00000 n 
+0000011163 00000 n 
+0000012435 00000 n 
+0000012561 00000 n 
+0000012692 00000 n 
+0000012826 00000 n 
+0000012964 00000 n 
+0000013088 00000 n 
+0000013217 00000 n 
+0000013349 00000 n 
+0000013485 00000 n 
+0000013613 00000 n 
+0000013740 00000 n 
+0000013869 00000 n 
+0000014002 00000 n 
+0000014104 00000 n 
+0000014453 00000 n 
+0000014539 00000 n 
+trailer
+<<
+/Size 29
+/Root 28 0 R
+/Info 27 0 R
+/ID [ <D6B5E2E3F4D94A4C2E623E69B4970248> <D6B5E2E3F4D94A4C2E623E69B4970248> ]
+>>
+startxref
+14643
+%%EOF

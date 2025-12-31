@@ -31,13 +31,12 @@ import logging
 import json 
 import cv2
 from .utils.mcq_generator import OptimizedMCQGenerator 
-from .utils.video_generation import get_video_path
 from .utils.jarvis import JarvisAI
 from .utils.image import ImageProcessor
 import traceback
 import subprocess
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
-from .utils.cv2 import process_image_for_gestures, get_supported_gestures
+
 from rest_framework.decorators import api_view
 from datetime import datetime
 from django.shortcuts import render
@@ -52,6 +51,7 @@ import re
 from urllib.parse import urljoin, quote
 import time
 from .utils.speech_support import get_openai_sentence, evaluate_sentence
+from app.utils.visual import generate_mind_map
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -267,7 +267,7 @@ class GenerateFlashcardsAPIView(APIView):
         file = request.FILES.get('file')
         num_cards = int(request.data.get('num_cards', 10))
         api_key = settings.GEMINI_API_KEY
-        model = request.data.get('model', 'gemini-2.0-flash')  # Allow model selection with default
+        model = request.data.get('model', 'gemini-2.5-flash')  # Allow model selection with default
         
         # Validate inputs
         if not file:
@@ -284,7 +284,7 @@ class GenerateFlashcardsAPIView(APIView):
         
         # Validate model (only allow Gemini models)
         if not model.startswith('gemini-'):
-            model = 'gemini-2.0-flash'
+            model = 'gemini-2.5-flash'
             
         # Create upload directory if it doesn't exist
         upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
@@ -905,18 +905,23 @@ class ImageAnalysisView(View):
     
     def post(self, request):
         try:
+            logger.info("Image analysis request received")
+            
             # Check if image file is present
             if 'image' not in request.FILES:
+                logger.warning("No image file in request")
                 return JsonResponse({
                     'success': False,
                     'error': 'No image file provided'
                 }, status=400)
             
             image_file = request.FILES['image']
+            logger.info(f"Processing image: {image_file.name}, size: {image_file.size}")
             
             # Validate file type
             allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp']
             if image_file.content_type not in allowed_types:
+                logger.warning(f"Invalid file type: {image_file.content_type}")
                 return JsonResponse({
                     'success': False,
                     'error': 'Invalid file type. Please upload an image file.'
@@ -925,16 +930,33 @@ class ImageAnalysisView(View):
             # Validate file size (max 10MB)
             max_size = 10 * 1024 * 1024  # 10MB
             if image_file.size > max_size:
+                logger.warning(f"File too large: {image_file.size} bytes")
                 return JsonResponse({
                     'success': False,
                     'error': 'File too large. Please upload an image smaller than 10MB.'
                 }, status=400)
             
             # Initialize image processor
-            processor = ImageProcessor()
+            try:
+                processor = ImageProcessor()
+                logger.info("ImageProcessor initialized successfully")
+            except ValueError as e:
+                logger.error(f"Failed to initialize ImageProcessor: {str(e)}")
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Server configuration error: GEMINI_API_KEY not set. Please contact administrator.'
+                }, status=500)
+            except Exception as e:
+                logger.error(f"Unexpected error initializing ImageProcessor: {str(e)}", exc_info=True)
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Server initialization error: {str(e)}'
+                }, status=500)
             
             # Analyze the image
+            logger.info("Starting image analysis")
             analysis_result = processor.analyze_image(image_file)
+            logger.info(f"Analysis complete: success={analysis_result.get('success')}")
             
             if analysis_result['success']:
                 return JsonResponse({
@@ -945,12 +967,14 @@ class ImageAnalysisView(View):
                     'content_type': image_file.content_type
                 })
             else:
+                logger.error(f"Analysis failed: {analysis_result.get('error')}")
                 return JsonResponse({
                     'success': False,
                     'error': analysis_result['error']
                 }, status=500)
                 
         except Exception as e:
+            logger.error(f"Unexpected error in ImageAnalysisView: {str(e)}", exc_info=True)
             return JsonResponse({
                 'success': False,
                 'error': f'Server error: {str(e)}'
@@ -961,7 +985,7 @@ class ImageAnalysisView(View):
         return JsonResponse({
             'message': 'Image Analysis API',
             'method': 'POST',
-            'endpoint': '/analyze-image/',
+            'endpoint': '/api/analyze-image/',
             'supported_formats': ['JPEG', 'PNG', 'GIF', 'BMP', 'WebP'],
             'max_file_size': '10MB'
         })
@@ -972,7 +996,11 @@ def health_check(request):
     """Simple health check endpoint"""
     return JsonResponse({
         'status': 'healthy',
-        'service': 'Image Processing Bot'
+        'service': 'Image Processing Bot',
+        'endpoints': {
+            'analyze': '/api/analyze-image/',
+            'health': '/api/health/'
+        }
     })
 
 @csrf_exempt
@@ -1425,3 +1453,66 @@ def evaluate_pronunciation_view(request):
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+@api_view(["POST"])
+def visual_mindmap(request):
+    """
+    POST { text: "chapter content" }
+    """
+    text = request.data.get("text", "")
+
+    if not text:
+        return Response(
+            {"error": "Text is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if len(text) < 20:
+        return Response(
+            {"error": "Text is too short. Please provide more content."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Try the two-step analysis approach first
+        # If you want simpler/faster, use generate_mind_map_direct instead
+        mermaid_code = generate_mind_map(text)
+        
+        # Validate that we got something resembling a mindmap
+        if not mermaid_code.strip().startswith("mindmap"):
+            # Fallback to direct generation
+            mermaid_code = generate_mind_map_direct(text)
+        
+        return Response({"mindmap": mermaid_code}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Failed to generate mindmap: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+@api_view(["GET"])
+def test_mindmap(request):
+    """
+    Test endpoint that returns a valid mindmap
+    Access at: http://localhost:8000/api/visual/test-mindmap/
+    """
+    test_mindmap = """mindmap
+  Operating Systems
+    Process Management
+      Process States
+      Context Switching
+      Scheduling Algorithms
+    Memory Management
+      Virtual Memory
+      Paging
+      Segmentation
+    File Systems
+      File Operations
+      Directory Structure
+      Access Control
+    Deadlocks
+      Detection
+      Prevention
+      Recovery"""
+    
+    return Response({"mindmap": test_mindmap}, status=status.HTTP_200_OK)

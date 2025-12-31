@@ -75,7 +75,7 @@ const Summary = () => {
       const formData = new FormData();
       formData.append('sen', text);
 
-      const response = await fetch("https://edugram-574544346633.asia-south1.run.app/api/animation_view/", {
+      const response = await fetch(`${backend_url}/api/animation_view/`, {
         method: 'POST',
         body: formData,
       });
@@ -223,7 +223,7 @@ const Summary = () => {
       return null;
     }
   
-    const mediaSrc = `https://edugram-574544346633.asia-south1.run.app/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    const mediaSrc = `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
     
     return (
       <div 
