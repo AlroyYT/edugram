@@ -112,6 +112,31 @@ const Visuale = () => {
               </div>
             </div>
           </Link>
+          <Link href="/video_gen" className="visuale-card-link">
+            <div className="visuale-glass-card visuale-card-animation">
+              <div className="visuale-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 5L19 12L8 19V5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+                  <circle cx="8" cy="5" r="2" fill="currentColor"/>
+                  <circle cx="8" cy="12" r="2" fill="currentColor"/>
+                  <circle cx="8" cy="19" r="2" fill="currentColor"/>
+                  <circle cx="19" cy="12" r="2" fill="currentColor"/>
+                </svg>
+              </div>
+              <h2 className="visuale-card-title">Video Based</h2>
+              <p className="visuale-card-description">
+                Transform complex topics into clear, engaging videos with AI-generated visuals, narration, and seamless storytelling for deeper understanding.
+              </p>
+              <div className="visuale-card-features">
+                <span className="visuale-feature-tag">AI Generated</span>
+                <span className="visuale-feature-tag">Narrated</span>
+                <span className="visuale-feature-tag">Conceptual</span>
+              </div>
+              <div className="visuale-card-arrow">
+                <span>→</span>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Footer Info */}
