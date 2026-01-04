@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid 
 import concurrent.futures
 import numpy as np
-from django.http import FileResponse, HttpResponse ,StreamingHttpResponse
+from django.http import FileResponse, HttpResponse ,StreamingHttpResponse, Http404
 from django.views.decorators.http import require_http_methods
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
@@ -35,8 +35,12 @@ from .utils.jarvis import JarvisAI
 from .utils.image import ImageProcessor
 import traceback
 import subprocess
+from .utils.script_generator import generate_script
+from .utils.image_generator import generate_image
+from .utils.audio_generator import generate_audio
+from .utils.video_editor import create_video, cleanup_temp_files
+# from app.utils.mind_map import generate_mind_map_direct
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
-
 from rest_framework.decorators import api_view
 from datetime import datetime
 from django.shortcuts import render
@@ -957,6 +961,7 @@ class ImageAnalysisView(View):
             logger.info("Starting image analysis")
             analysis_result = processor.analyze_image(image_file)
             logger.info(f"Analysis complete: success={analysis_result.get('success')}")
+            print(f"IEEE search error: {e}")
             
             if analysis_result['success']:
                 return JsonResponse({
@@ -1454,42 +1459,42 @@ def evaluate_pronunciation_view(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
-@api_view(["POST"])
-def visual_mindmap(request):
-    """
-    POST { text: "chapter content" }
-    """
-    text = request.data.get("text", "")
+# @api_view(["POST"])
+# def visual_mindmap(request):
+#     """
+#     POST { text: "chapter content" }
+#     """
+#     text = request.data.get("text", "")
 
-    if not text:
-        return Response(
-            {"error": "Text is required"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+#     if not text:
+#         return Response(
+#             {"error": "Text is required"},
+#             status=status.HTTP_400_BAD_REQUEST
+#         )
 
-    if len(text) < 20:
-        return Response(
-            {"error": "Text is too short. Please provide more content."},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+#     if len(text) < 20:
+#         return Response(
+#             {"error": "Text is too short. Please provide more content."},
+#             status=status.HTTP_400_BAD_REQUEST
+#         )
 
-    try:
-        # Try the two-step analysis approach first
-        # If you want simpler/faster, use generate_mind_map_direct instead
-        mermaid_code = generate_mind_map(text)
+#     try:
+#         # Try the two-step analysis approach first
+#         # If you want simpler/faster, use generate_mind_map_direct instead
+#         mermaid_code = generate_mind_map(text)
         
-        # Validate that we got something resembling a mindmap
-        if not mermaid_code.strip().startswith("mindmap"):
-            # Fallback to direct generation
-            mermaid_code = generate_mind_map_direct(text)
+#         # Validate that we got something resembling a mindmap
+#         if not mermaid_code.strip().startswith("mindmap"):
+#             # Fallback to direct generation
+#             mermaid_code = generate_mind_map_direct(text)
         
-        return Response({"mindmap": mermaid_code}, status=status.HTTP_200_OK)
+#         return Response({"mindmap": mermaid_code}, status=status.HTTP_200_OK)
 
-    except Exception as e:
-        return Response(
-            {"error": f"Failed to generate mindmap: {str(e)}"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+#     except Exception as e:
+#         return Response(
+#             {"error": f"Failed to generate mindmap: {str(e)}"},
+#             status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#         )
 @api_view(["GET"])
 def test_mindmap(request):
     """
@@ -1516,3 +1521,68 @@ def test_mindmap(request):
       Recovery"""
     
     return Response({"mindmap": test_mindmap}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def generate_video(request):
+    topic = request.data.get("topic")
+
+    if not topic:
+        return Response(
+            {"error": "Topic is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # 1. Generate Script
+        script_data = generate_script(topic)
+        if not script_data:
+            return Response({"error": "Script generation failed"}, status=500)
+
+        processed_scenes = []
+
+        # 2. Generate assets
+        for i, scene in enumerate(script_data):
+            audio_file = generate_audio(scene["text"], i)
+            image_file = generate_image(scene["image_prompt"], i)
+
+            time.sleep(3)  # Rate-limit protection
+
+            processed_scenes.append({
+                "audio": audio_file,
+                "image": image_file
+            })
+
+        # 3. Create video
+        video_path = create_video(processed_scenes)
+
+        if not os.path.exists(video_path):
+            return Response({"error": "Video generation failed"}, status=500)
+
+        # Optional: upload to S3 / media server
+        video_url = request.build_absolute_uri(f"/api/videos/{os.path.basename(video_path)}")
+                # 4. Cleanup
+        cleanup_temp_files()
+
+        return Response({
+            "message": "Video generated successfully",
+            "video_url": video_url
+        })
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+
+def serve_backend_video(request, filename):
+    base_dir = settings.BASE_DIR  # points to /backend
+    file_path = os.path.join(base_dir, filename)
+
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    return FileResponse(
+        open(file_path, "rb"),
+        content_type="video/mp4"
+    )

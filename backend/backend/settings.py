@@ -13,8 +13,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from corsheaders.defaults import default_headers
+import dotenv
 
-
+dotenv.load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,8 +32,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Add Gemini API Key directly (replace with your actual API key)
-GEMINI_API_KEY = "AIzaSyDkR8HSVk2ddJgXtYKzi1edgoiM5_aQiIM"  # Get this from Google AI Studio
-YOUTUBE_API_KEY = 'AIzaSyDs7jM_P4DFtvgj3FVHK5480_GBp1Y8diI'
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # Get this from Google AI Studio
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 # Application definition
 INSTALLED_APPS = [

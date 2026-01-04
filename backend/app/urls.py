@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from app.views import visual_mindmap,test_mindmap
+# from app.views import visual_mindmap,test_mindmap
 
 # Keep your existing URLs and add the new ones
 from .views import (
@@ -8,6 +8,7 @@ from .views import (
     SummarizeAPIView,
     GenerateMCQsAPIView,
     GenerateFlashcardsAPIView,
+    generate_video,
     process_audio,
     SaveMaterialAPIView,
     get_saved_materials,
@@ -18,10 +19,9 @@ from .views import (
     health_check,
     search_paper,
     generate_sentence_view,
-    evaluate_pronunciation_view
-    # Add the new hand sign detection functions
-   
-    
+    evaluate_pronunciation_view,
+    serve_backend_video
+    # Add the new hand sign detection functions  
 )
 
 from .utils.sign_lang import convert_text_to_gesture, speech_to_text
@@ -42,7 +42,8 @@ urlpatterns = [
     path('saved-materials/<str:filename>/', delete_saved_material, name='delete_saved_material'),
     path('download/<str:filename>/', download_file, name='download_file'),
     path('animation_view/', animation_view, name='animation_view'),
-    
+    path("generate-video/", generate_video),
+    path("videos/<str:filename>", serve_backend_video),
     # Image Analysis URLs
     path('analyze-image/', ImageAnalysisView.as_view(), name='analyze_image'),
     
@@ -52,6 +53,6 @@ urlpatterns = [
      #speech support
     path('speech-generate/', generate_sentence_view),
     path('speech-evaluate/', evaluate_pronunciation_view),
-    path("visual/mindmap/", visual_mindmap, name="visual-mindmap"),
-    path("visual/test-mindmap/", test_mindmap, name="test-mindmap")
+    # path("visual/mindmap/", visual_mindmap, name="visual-mindmap"),
+    # path("visual/test-mindmap/", test_mindmap, name="test-mindmap")
 ]

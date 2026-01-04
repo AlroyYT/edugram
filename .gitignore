@@ -55,3 +55,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+backend/app/__pycache__
+backend/app/utils/__pycache__
+
+__pycache__/
