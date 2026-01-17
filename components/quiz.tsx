@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
@@ -23,10 +23,97 @@ const QuizExperience = () => {
   const [scoreData, setScoreData] = useState({ correct: 0, total: 0 });
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const { width, height } = useWindowSize();
   const [animateQuestion, setAnimateQuestion] = useState(true);
   const { uploadedFile } = useFileContext();
   const router = useRouter();
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Text-to-Speech Function
+  const speakText = (text: string) => {
+    if (!voiceEnabled) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechRef.current = utterance;
+
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeech = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
+  const toggleVoice = () => {
+    if (voiceEnabled) {
+      stopSpeech();
+    }
+    setVoiceEnabled(!voiceEnabled);
+  };
+
+  // Load voices
+  useEffect(() => {
+    const loadVoices = () => {
+      window.speechSynthesis.getVoices();
+    };
+    
+    if (window.speechSynthesis) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    return () => {
+      stopSpeech();
+    };
+  }, []);
+
+  // Speak question when it changes
+  useEffect(() => {
+    if (quizQuestions.length > 0 && voiceEnabled && !revealSolution) {
+      const question = quizQuestions[activeProblemIndex]?.question;
+      if (question) {
+        setTimeout(() => speakText(`Question: ${question}`), 500);
+      }
+    }
+
+    return () => {
+      stopSpeech();
+    };
+  }, [activeProblemIndex, quizQuestions, voiceEnabled]);
+
+  // Speak feedback when answer is revealed
+  useEffect(() => {
+    if (revealSolution && chosenAnswer && voiceEnabled) {
+      const isCorrect = chosenAnswer === quizQuestions[activeProblemIndex].correct_answer;
+      const explanation = quizQuestions[activeProblemIndex].explanation;
+      const feedback = isCorrect 
+        ? `Correct! ${explanation}`
+        : `Not quite right. ${explanation}`;
+      
+      setTimeout(() => speakText(feedback), 500);
+    }
+  }, [revealSolution, chosenAnswer, voiceEnabled]);
   
   useEffect(() => {
     if (!uploadedFile) {
@@ -86,6 +173,7 @@ const QuizExperience = () => {
   }, [quizQuestions, activeProblemIndex]);
 
   const handleAnswerSelection = (option: string) => {
+    stopSpeech();
     setChosenAnswer(option);
     setRevealSolution(true);
     setTimerActive(false);
@@ -98,12 +186,20 @@ const QuizExperience = () => {
       setTimeout(() => {
         setQuizCompleted(true);
         setShowConfetti(true);
+        if (voiceEnabled) {
+          const finalScore = option === quizQuestions[activeProblemIndex].correct_answer 
+            ? scoreData.correct + 1 
+            : scoreData.correct;
+          const percentage = Math.round((finalScore / quizQuestions.length) * 100);
+          setTimeout(() => speakText(`Quiz completed! You scored ${percentage} percent.`), 2000);
+        }
       }, 1500);
     }
   };
 
   const handleNextProblem = () => {
     if (activeProblemIndex < quizQuestions.length - 1) {
+      stopSpeech();
       setAnimateQuestion(false);
       setTimeout(() => {
         setActiveProblemIndex(activeProblemIndex + 1);
@@ -116,6 +212,7 @@ const QuizExperience = () => {
 
   const handlePreviousProblem = () => {
     if (activeProblemIndex > 0) {
+      stopSpeech();
       setAnimateQuestion(false);
       setTimeout(() => {
         setActiveProblemIndex(activeProblemIndex - 1);
@@ -132,14 +229,12 @@ const QuizExperience = () => {
     const originalFileName = uploadedFile?.name?.split('.')[0] || 'quiz';
 
     try {
-      // Set initial margins and line height
       const margin = 20;
       const lineHeight = 7;
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
       let y = margin;
 
-      // Add title and metadata
       doc.setFontSize(16);
       doc.text("Quiz Results", margin, y);
       y += lineHeight * 2;
@@ -150,27 +245,22 @@ const QuizExperience = () => {
       doc.text(`Date: ${date}`, margin, y);
       y += lineHeight * 2;
 
-      // Add score information
       doc.setFontSize(14);
       doc.text(`Score: ${scoreData.correct}/${scoreData.total}`, margin, y);
       y += lineHeight * 2;
 
-      // Add questions
       doc.setFontSize(12);
       quizQuestions.forEach((question, index) => {
-        // Check if we need a new page
         if (y > pageHeight - margin - (lineHeight * 10)) {
           doc.addPage();
           y = margin;
         }
 
-        // Add question number and text
         const questionText = `Question ${index + 1}: ${question.question}`;
         const splitQuestion = doc.splitTextToSize(questionText, pageWidth - (margin * 2));
         doc.text(splitQuestion, margin, y);
         y += lineHeight * (splitQuestion.length + 1);
 
-        // Add options
         question.options.forEach((option: string, optIndex: number) => {
           const prefix = String.fromCharCode(65 + optIndex);
           const isCorrect = option === question.correct_answer;
@@ -178,9 +268,9 @@ const QuizExperience = () => {
           
           doc.setFontSize(10);
           if (isCorrect) {
-            doc.setTextColor(0, 128, 0); // Green for correct answer
+            doc.setTextColor(0, 128, 0);
           } else if (isChosen) {
-            doc.setTextColor(255, 0, 0); // Red for wrong answer
+            doc.setTextColor(255, 0, 0);
           }
           
           const optionText = `${prefix}. ${option}`;
@@ -188,10 +278,9 @@ const QuizExperience = () => {
           doc.text(splitOption, margin + 10, y);
           y += lineHeight * splitOption.length;
           
-          doc.setTextColor(0, 0, 0); // Reset color
+          doc.setTextColor(0, 0, 0);
         });
 
-        // Add explanation
         y += lineHeight;
         doc.setFontSize(10);
         const explanationText = `Explanation: ${question.explanation}`;
@@ -199,14 +288,11 @@ const QuizExperience = () => {
         doc.text(splitExplanation, margin, y);
         y += lineHeight * (splitExplanation.length + 2);
 
-        // Add some space between questions
         y += lineHeight;
       });
 
-      // Convert PDF to blob
       const pdfBlob = doc.output('blob');
 
-      // Create FormData and append the PDF
       const formData = new FormData();
       formData.append('file', pdfBlob, `${originalFileName}_quiz.pdf`);
       formData.append('type', 'quiz');
@@ -217,7 +303,6 @@ const QuizExperience = () => {
       }));
       formData.append('fileName', `${originalFileName}_quiz`);
 
-      // Send to backend using the save-material endpoint
       const response = await axios.post(`${backend_url}/api/save-material/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -233,6 +318,7 @@ const QuizExperience = () => {
   };
 
   const restartQuiz = async () => {
+    stopSpeech();
     if (quizCompleted) {
       await saveQuizToPDF();
     }
@@ -254,14 +340,40 @@ const QuizExperience = () => {
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} />}
       
       <div className="quizInnerWrapper">
-        <motion.h1 
-          className="quizHeadline"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          Intelligent Quiz Creator
-        </motion.h1>
+        <div style={{ position: 'relative', marginBottom: '30px' }}>
+          <motion.h1 
+            className="quizHeadline"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Intelligent Quiz Creator
+          </motion.h1>
+          
+          {quizQuestions.length > 0 && !quizCompleted && (
+            <button
+              onClick={toggleVoice}
+              className="quiz_voice_toggle"
+              title={voiceEnabled ? 'Mute voice' : 'Enable voice'}
+              style={{ position: 'absolute', top: '0', right: '0' }}
+            >
+              {voiceEnabled ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+              )}
+              {isSpeaking && <span className="quiz_speaking_pulse"></span>}
+            </button>
+          )}
+        </div>
 
         {processingFile && (
           <motion.div 
@@ -471,6 +583,55 @@ const QuizExperience = () => {
           </motion.div>
         )}
       </div>
+
+      <style jsx>{`
+        .quiz_voice_toggle {
+          position: relative;
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          border: 2px solid #e2e8f0;
+          background: white;
+          color: #4f46e5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .quiz_voice_toggle:hover {
+          background: #eef2ff;
+          border-color: #4f46e5;
+        }
+
+        .quiz_voice_toggle svg {
+          width: 24px;
+          height: 24px;
+        }
+
+        .quiz_speaking_pulse {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          width: 12px;
+          height: 12px;
+          background: #10b981;
+          border-radius: 50%;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+          }
+        }
+      `}</style>
     </div>
   );
 };
