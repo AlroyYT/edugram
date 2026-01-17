@@ -20,7 +20,9 @@ from .views import (
     search_paper,
     generate_sentence_view,
     evaluate_pronunciation_view,
-    serve_backend_video
+    serve_backend_video,
+    generate_drag_and_match,
+    design_digital_circuit
     # Add the new hand sign detection functions  
 )
 
@@ -46,6 +48,10 @@ urlpatterns = [
     path("videos/<str:filename>", serve_backend_video),
     # Image Analysis URLs
     path('analyze-image/', ImageAnalysisView.as_view(), name='analyze_image'),
+    
+    # Kinesthetic Learning
+    path('generate-drag-and-match/', generate_drag_and_match, name='generate_drag_and_match'),
+    path('design-digital-circuit/', design_digital_circuit, name='design_digital_circuit'),
     
     # Paper Search URL
     path('search-paper/', search_paper, name='search_paper'),

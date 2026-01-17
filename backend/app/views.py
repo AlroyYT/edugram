@@ -1586,3 +1586,217 @@ def serve_backend_video(request, filename):
         open(file_path, "rb"),
         content_type="video/mp4"
     )
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def generate_drag_and_match(request):
+    """
+    Generate drag-and-match items dynamically using Gemini API
+    """
+    try:
+        data = json.loads(request.body)
+        topic = data.get("topic", "").strip()
+        
+        if not topic:
+            return JsonResponse({"error": "Topic is required"}, status=400)
+        
+        # Initialize Gemini API
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        
+        prompt = f"""Generate drag-and-match learning items for the topic: "{topic}"
+
+Create a JSON response ONLY (no markdown, no explanations) with this exact structure:
+{{
+    "categories": [
+        {{"name": "Category 1", "emoji": "📚"}},
+        {{"name": "Category 2", "emoji": "🔬"}}
+    ],
+    "items": [
+        {{"id": "1", "label": "Item 1", "category": "Category 1"}},
+        {{"id": "2", "label": "Item 2", "category": "Category 1"}},
+        {{"id": "3", "label": "Item 3", "category": "Category 2"}},
+        {{"id": "4", "label": "Item 4", "category": "Category 2"}}
+    ]
+}}
+
+Requirements:
+- Generate 8-10 items total
+- Create 4-5 categories relevant to the topic
+- Each item must belong to exactly one category
+- Use descriptive, educational labels
+- Make it balanced (roughly equal items per category)
+- Items should be specific and meaningful for learning
+-Categories must be relevant and the overall matching should be logical, aid understanding and reduce confusion.
+
+Topic: "{topic}"
+Generate the JSON now:"""
+        
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
+        
+        # Parse JSON from response
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if not json_match:
+            return JsonResponse({"error": "Failed to parse Gemini response"}, status=500)
+        
+        items_data = json.loads(json_match.group())
+        
+        return JsonResponse({
+            "success": True,
+            "categories": items_data.get("categories", []),
+            "items": items_data.get("items", [])
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON in request"}, status=400)
+    except Exception as e:
+        logger.error(f"Error generating drag-and-match: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def test_digital_circuit(request):
+    """
+    Test digital logic circuits using Gemini API
+    Validates circuit logic and generates truth tables
+    """
+    try:
+        data = json.loads(request.body)
+        components = data.get("components", [])
+        connections = data.get("connections", [])
+        
+        if not components:
+            return JsonResponse({"error": "No components in circuit"}, status=400)
+        
+        # Build circuit description for Gemini
+        gates = [c for c in components if c['type'] in ['AND', 'OR', 'NOT', 'XOR']]
+        inputs = [c for c in components if c['type'] == 'INPUT']
+        outputs = [c for c in components if c['type'] == 'OUTPUT']
+        
+        circuit_description = f"""
+        Digital Logic Circuit:
+        - {len(inputs)} Input(s)
+        - {len(gates)} Logic Gate(s): {', '.join(set(g['type'] for g in gates))}
+        - {len(outputs)} Output(s)
+        - Connections: {len(connections)}
+        """
+        
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        
+        prompt = f"""Analyze this digital logic circuit and validate it:
+{circuit_description}
+
+Please provide:
+1. A brief description of what this circuit does
+2. Verify if it's a valid circuit (has inputs, gates, outputs, and proper connections)
+3. Generate a truth table for the circuit (if it has few inputs)
+4. Suggest any improvements
+
+Format your response as JSON:
+{{
+    "valid": true/false,
+    "description": "What this circuit does",
+    "truthTable": "Truth table here",
+    "suggestions": "Improvements or notes"
+}}"""
+        
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
+        
+        # Parse JSON response
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if not json_match:
+            return JsonResponse({"error": "Could not parse Gemini response"}, status=500)
+        
+        result = json.loads(json_match.group())
+        
+        return JsonResponse({
+            "success": True,
+            "description": result.get("description", ""),
+            "truthTable": result.get("truthTable", ""),
+            "valid": result.get("valid", False),
+            "suggestions": result.get("suggestions", "")
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON in request"}, status=400)
+    except Exception as e:
+        logger.error(f"Error testing circuit: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def design_digital_circuit(request):
+    """
+    Design a digital logic circuit based on student's request using Gemini API
+    """
+    try:
+        data = json.loads(request.body)
+        request_text = data.get("request", "").strip()
+        
+        if not request_text:
+            return JsonResponse({"error": "Circuit request is required"}, status=400)
+        
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        
+        prompt = f"""Design a digital logic circuit for this request: "{request_text}"
+
+Create a JSON response ONLY (no markdown, no explanations) with this structure:
+{{
+    "description": "What this circuit does",
+    "explanation": "How it works in simple terms",
+    "components": [
+        {{"id": "in1", "type": "INPUT", "label": "Input A"}},
+        {{"id": "and1", "type": "AND", "label": "AND Gate"}},
+        {{"id": "out1", "type": "OUTPUT", "label": "Output"}}
+    ],
+    "connections": [
+        {{"fromX": 100, "fromY": 100, "toX": 200, "toY": 150}},
+        {{"fromX": 200, "fromY": 150, "toX": 300, "toY": 200}}
+    ],
+    "truthTable": "A | B | Output\\n0 | 0 | 0\\n0 | 1 | 0\\n1 | 0 | 0\\n1 | 1 | 1"
+}}
+
+Requirements:
+- Design a valid logic circuit with inputs, gates, and outputs
+- Include 2-4 logic gates (AND, OR, NOT, XOR)
+- Include inputs and outputs
+- Provide clear, educational components
+- Generate an accurate truth table
+- Use sensible coordinates for connections (x,y values)
+
+Request: "{request_text}"
+Design the circuit now:"""
+        
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
+        
+        # Parse JSON from response
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if not json_match:
+            return JsonResponse({"error": "Failed to parse Gemini response"}, status=500)
+        
+        circuit_data = json.loads(json_match.group())
+        
+        return JsonResponse({
+            "success": True,
+            "description": circuit_data.get("description", ""),
+            "explanation": circuit_data.get("explanation", ""),
+            "components": circuit_data.get("components", []),
+            "connections": circuit_data.get("connections", []),
+            "truthTable": circuit_data.get("truthTable", "")
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON in request"}, status=400)
+    except Exception as e:
+        logger.error(f"Error designing circuit: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+

@@ -15,7 +15,11 @@ export default async function handler(
   }
 
   // IMPORTANT: Replace this with your NEW API key (revoke the old one!)
-  const GEMINI_API_KEY = '';
+  const GEMINI_API_KEY = process.env.MY_GEMINI_API_KEY || '';
+
+  if (!GEMINI_API_KEY) {
+    return res.status(500).json({ error: 'bruh put your api key correctly' });
+  }
 
   try {
     const response = await fetch(
