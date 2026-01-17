@@ -43,6 +43,8 @@ const QuizStyleIdentifier: React.FC = () => {
     readingWriting: Number(Cookies.get("readingWriting")) || 0,
   };
 
+  console.log("Learning Style Scores:", scores);
+
   // Find max score
   const maxScore = Math.max(
     scores.visual,
@@ -83,9 +85,7 @@ const QuizStyleIdentifier: React.FC = () => {
       break;
 
     case "kinesthetic":
-    default:
-      // Under development → do nothing
-      console.warn("Kinesthetic route under development");
+      router.push("/kinesthetic-learning");
       break;
   }
 };
