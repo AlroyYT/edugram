@@ -29,7 +29,9 @@ const Icons = {
   Next: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>,
   Prev: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>,
   Search: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
-  Sparkles: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
+  Sparkles: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>,
+  VolumeOn: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>,
+  VolumeOff: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>,
 };
 
 export default function Visual1() {
@@ -39,34 +41,104 @@ export default function Visual1() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const mermaidRef = useRef<HTMLDivElement>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // --- Styles & Mermaid Logic with UPGRADED ANIMATIONS ---
+  // --- Text-to-Speech Function ---
+  const speakText = (text: string) => {
+    if (!voiceEnabled) return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechRef.current = utterance;
+
+    // Configure voice settings
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    // Try to use a good quality voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // --- Stop Speech ---
+  const stopSpeech = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
+  // --- Speak when step changes ---
+  useEffect(() => {
+    if (animationData && voiceEnabled) {
+      const step = animationData.steps[currentStep];
+      if (step) {
+        const textToSpeak = `${step.title}. ${step.description}`;
+        // Delay speech slightly to let animation start
+        setTimeout(() => speakText(textToSpeak), 500);
+      }
+    }
+
+    return () => {
+      stopSpeech();
+    };
+  }, [currentStep, animationData, voiceEnabled]);
+
+  // --- Load voices (required for some browsers) ---
+  useEffect(() => {
+    const loadVoices = () => {
+      window.speechSynthesis.getVoices();
+    };
+    
+    if (window.speechSynthesis) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  // --- Styles & Mermaid Logic ---
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
       
-      /* --- 1. Node Animation (The Blocks) --- */
       @keyframes popIn {
         0% { opacity: 0; transform: scale(0.6) translateY(20px); }
         60% { transform: scale(1.05) translateY(-5px); }
         100% { opacity: 1; transform: scale(1) translateY(0); }
       }
 
-      /* --- 2. Edge Animation (The Black Lines) --- */
       @keyframes drawLine {
         from { stroke-dashoffset: 1000; opacity: 0; }
         to { stroke-dashoffset: 0; opacity: 1; }
       }
 
-      /* --- 3. Arrowhead Animation --- */
       @keyframes arrowFadeIn {
         from { opacity: 0; transform: scale(0); }
         to { opacity: 1; transform: scale(1); }
       }
 
-      /* --- BASE STYLES FOR MERMAID --- */
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+      }
+
       .mermaid .node rect, 
       .mermaid .node circle, 
       .mermaid .node polygon {
@@ -75,12 +147,10 @@ export default function Visual1() {
         stroke-width: 2px !important;
       }
 
-      /* Hide everything initially */
       .mermaid .node, .mermaid .edgePath, .mermaid .edgeLabel {
         opacity: 0; 
       }
 
-      /* --- SEQUENTIAL NODE REVEAL --- */
       .mermaid .node {
         animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         transform-origin: center;
@@ -97,7 +167,6 @@ export default function Visual1() {
       .mermaid .node:nth-of-type(9) { animation-delay: 2.6s; }
       .mermaid .node:nth-of-type(10) { animation-delay: 2.9s; }
       
-      /* --- SEQUENTIAL ARROW DRAWING --- */
       .mermaid .edgePath path {
         stroke: #1e293b !important;
         stroke-width: 2px !important;
@@ -106,7 +175,6 @@ export default function Visual1() {
         animation: drawLine 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
 
-      /* Stagger arrow animations after nodes */
       .mermaid .edgePath:nth-of-type(1) path { animation-delay: 1.3s; }
       .mermaid .edgePath:nth-of-type(2) path { animation-delay: 1.7s; }
       .mermaid .edgePath:nth-of-type(3) path { animation-delay: 2.1s; }
@@ -118,7 +186,6 @@ export default function Visual1() {
       .mermaid .edgePath:nth-of-type(9) path { animation-delay: 4.5s; }
       .mermaid .edgePath:nth-of-type(10) path { animation-delay: 4.9s; }
 
-      /* Arrowheads sync with their lines */
       .mermaid marker {
         fill: #1e293b !important;
       }
@@ -134,7 +201,6 @@ export default function Visual1() {
       .mermaid marker:nth-of-type(4) path { animation-delay: 3.0s; }
       .mermaid marker:nth-of-type(5) path { animation-delay: 3.4s; }
 
-      /* Edge Labels fade in with arrows */
       .mermaid .edgeLabel {
         background-color: white !important;
         animation: arrowFadeIn 0.5s ease-out forwards;
@@ -145,14 +211,16 @@ export default function Visual1() {
       .mermaid .edgeLabel:nth-of-type(4) { animation-delay: 2.8s; }
       .mermaid .edgeLabel:nth-of-type(5) { animation-delay: 3.2s; }
 
-      /* Text Styles */
       .mermaid .node .label {
         font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
         color: #1e293b !important;
       }
 
-      /* Custom Scrollbar */
+      .speaking-indicator {
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
       .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -185,6 +253,7 @@ export default function Visual1() {
     return () => {
       document.body.contains(script) && document.body.removeChild(script);
       document.head.contains(style) && document.head.removeChild(style);
+      stopSpeech();
     };
   }, []);
 
@@ -193,14 +262,11 @@ export default function Visual1() {
     const renderDiagram = async () => {
       if (animationData && mermaidRef.current && window.mermaid) {
         try {
-          // Clear existing content
           mermaidRef.current.innerHTML = '';
           
-          // Force a unique ID to ensure fresh render
           const id = `mermaid-${Date.now()}-${currentStep}`;
           const { svg } = await window.mermaid.render(id, animationData.steps[currentStep]?.mermaidCode || 'graph TD; Error-->Stop');
           
-          // Insert the new SVG
           mermaidRef.current.innerHTML = svg;
           
           const svgEl = mermaidRef.current.querySelector('svg');
@@ -210,12 +276,10 @@ export default function Visual1() {
             svgEl.style.minWidth = '400px';
           }
 
-          // ANIMATE NODES AND EDGES WITH JAVASCRIPT
           const nodes = mermaidRef.current.querySelectorAll('.node');
           const edges = mermaidRef.current.querySelectorAll('.edgePath');
           const edgeLabels = mermaidRef.current.querySelectorAll('.edgeLabel');
           
-          // Hide everything initially
           nodes.forEach((node) => {
             (node as HTMLElement).style.opacity = '0';
           });
@@ -234,7 +298,6 @@ export default function Visual1() {
             (label as HTMLElement).style.opacity = '0';
           });
           
-          // Animate nodes sequentially - just fade in
           nodes.forEach((node, i) => {
             setTimeout(() => {
               (node as HTMLElement).style.transition = 'opacity 0.5s ease-out';
@@ -242,7 +305,6 @@ export default function Visual1() {
             }, i * 300 + 200);
           });
           
-          // Animate edges after nodes
           const nodeDelay = nodes.length * 300 + 500;
           edges.forEach((edge, i) => {
             const path = edge.querySelector('path');
@@ -255,7 +317,6 @@ export default function Visual1() {
             }
           });
           
-          // Animate edge labels
           edgeLabels.forEach((label, i) => {
             setTimeout(() => {
               (label as HTMLElement).style.transition = 'opacity 0.5s ease-out';
@@ -275,6 +336,8 @@ export default function Visual1() {
   const generateAnimation = async () => {
     if (!topic.trim()) { setError('Please enter a topic'); return; }
     setLoading(true); setError(''); setAnimationData(null); setCurrentStep(0); setIsPlaying(false);
+    stopSpeech();
+    
     try {
       const response = await fetch('/api/generate-animation', {
         method: 'POST',
@@ -300,20 +363,29 @@ export default function Visual1() {
         } else {
           setCurrentStep(step);
         }
-      }, 5000);
+      }, 8000); // Increased to 8 seconds to allow speech to complete
     }
   };
 
   const nextStep = () => {
+    stopSpeech();
     if (animationData && currentStep < animationData.steps.length - 1) {
       setCurrentStep(c => c + 1);
     }
   };
 
   const prevStep = () => {
+    stopSpeech();
     if (currentStep > 0) {
       setCurrentStep(c => c - 1);
     }
+  };
+
+  const toggleVoice = () => {
+    if (voiceEnabled) {
+      stopSpeech();
+    }
+    setVoiceEnabled(!voiceEnabled);
   };
 
   return (
@@ -352,7 +424,7 @@ export default function Visual1() {
             Visualise Complexity.
           </h1>
           <p style={{ color: '#64748B', fontSize: '1.25rem', maxWidth: '600px', margin: '0 auto' }}>
-            Transform technical concepts into clear, step-by-step architectural diagrams instantly.
+            Transform technical concepts into clear, step-by-step architectural diagrams with voice narration.
           </p>
         </motion.div>
 
@@ -437,19 +509,41 @@ export default function Visual1() {
                   <p style={{ color: '#64748B', lineHeight: '1.6' }}>{animationData.description}</p>
                 </div>
                 
-                {/* Status Indicator */}
-                <div style={{ 
-                  background: '#F8FAFC', padding: '8px 16px', borderRadius: '12px',
-                  border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '12px'
-                }}>
-                  <span style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: '600' }}>
-                    Step {currentStep + 1} <span style={{ color: '#CBD5E1' }}>/</span> {animationData.steps.length}
-                  </span>
-                  <div style={{ width: '80px', height: '6px', background: '#E2E8F0', borderRadius: '3px' }}>
-                    <motion.div 
-                      animate={{ width: `${((currentStep + 1) / animationData.steps.length) * 100}%` }}
-                      style={{ height: '100%', background: '#4F46E5', borderRadius: '3px' }}
-                    />
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {/* Voice Toggle */}
+                  <button
+                    onClick={toggleVoice}
+                    style={{
+                      width: '44px', height: '44px', borderRadius: '12px',
+                      border: '1px solid #E2E8F0',
+                      background: voiceEnabled ? '#EEF2FF' : 'white',
+                      color: voiceEnabled ? '#4F46E5' : '#64748B',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    title={voiceEnabled ? 'Mute voice' : 'Enable voice'}
+                  >
+                    {voiceEnabled ? <Icons.VolumeOn /> : <Icons.VolumeOff />}
+                  </button>
+
+                  {/* Status Indicator */}
+                  <div style={{ 
+                    background: '#F8FAFC', padding: '8px 16px', borderRadius: '12px',
+                    border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '12px'
+                  }}>
+                    {isSpeaking && (
+                      <span className="speaking-indicator" style={{ fontSize: '1.2rem' }}>🔊</span>
+                    )}
+                    <span style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: '600' }}>
+                      Step {currentStep + 1} <span style={{ color: '#CBD5E1' }}>/</span> {animationData.steps.length}
+                    </span>
+                    <div style={{ width: '80px', height: '6px', background: '#E2E8F0', borderRadius: '3px' }}>
+                      <motion.div 
+                        animate={{ width: `${((currentStep + 1) / animationData.steps.length) * 100}%` }}
+                        style={{ height: '100%', background: '#4F46E5', borderRadius: '3px' }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

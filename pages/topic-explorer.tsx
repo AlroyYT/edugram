@@ -1,6 +1,7 @@
 // pages/topic-explorer.tsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Variants } from "framer-motion";
 import VideoSearch from "../components/VideoSearch";
 import CalculatorPopup from "../components/CalculatorPopup"; // Adjust path as needed
 import JarvisFloatingButton from '../components/JarvisFloatingButton';
@@ -13,7 +14,7 @@ const TopicExplorer = () => {
   const router = useRouter();
   
   // Animation variants
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
@@ -25,21 +26,21 @@ const TopicExplorer = () => {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: { 
       y: 0, 
       opacity: 1,
-      transition: { type: "spring", stiffness: 100 }
+      transition: { type: "spring" as const, stiffness: 100 }
     }
   };
   
-  const cardVariants = {
+  const cardVariants: Variants = {
     rest: { scale: 1, boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)" },
     hover: { 
       scale: 1.05, 
       boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
-      transition: { type: "spring", stiffness: 400, damping: 10 }
+      transition: { type: "spring" as const, stiffness: 400, damping: 10 }
     }
   };
 

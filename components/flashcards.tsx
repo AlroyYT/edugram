@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFileContext } from '../context/FileContext';
@@ -15,8 +15,78 @@ const FlashcardsEnhanced: React.FC = () => {
   const [fcrd84IsCardFlipped, setFcrd84IsCardFlipped] = useState(false);
   const [fcrd84UploadProgress, setFcrd84UploadProgress] = useState(0);
   const [fcrd84ShowProgressIndicator, setFcrd84ShowProgressIndicator] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const { uploadedFile } = useFileContext();
   const router = useRouter();
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Text-to-Speech Function
+  const speakText = (text: string) => {
+    if (!voiceEnabled) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechRef.current = utterance;
+
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeech = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
+  // Load voices
+  useEffect(() => {
+    const loadVoices = () => {
+      window.speechSynthesis.getVoices();
+    };
+    
+    if (window.speechSynthesis) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    return () => {
+      stopSpeech();
+    };
+  }, []);
+
+  // Speak when card changes or flips
+  useEffect(() => {
+    if (fcrd84StudyCards.length > 0 && voiceEnabled) {
+      const card = fcrd84StudyCards[fcrd84CardIndex];
+      if (card) {
+        const textToSpeak = fcrd84IsCardFlipped 
+          ? `Answer: ${card.answer}`
+          : `Question: ${card.question}`;
+        setTimeout(() => speakText(textToSpeak), 300);
+      }
+    }
+
+    return () => {
+      stopSpeech();
+    };
+  }, [fcrd84CardIndex, fcrd84IsCardFlipped, fcrd84StudyCards, voiceEnabled]);
 
   useEffect(() => {
     if (!uploadedFile) {
@@ -73,6 +143,7 @@ const FlashcardsEnhanced: React.FC = () => {
 
   const fcrd84NavigateNext = () => {
     if (fcrd84CardIndex < fcrd84StudyCards.length - 1) {
+      stopSpeech();
       setFcrd84IsCardFlipped(false);
       setTimeout(() => {
         setFcrd84CardIndex(fcrd84CardIndex + 1);
@@ -82,6 +153,7 @@ const FlashcardsEnhanced: React.FC = () => {
 
   const fcrd84NavigatePrevious = () => {
     if (fcrd84CardIndex > 0) {
+      stopSpeech();
       setFcrd84IsCardFlipped(false);
       setTimeout(() => {
         setFcrd84CardIndex(fcrd84CardIndex - 1);
@@ -90,10 +162,19 @@ const FlashcardsEnhanced: React.FC = () => {
   };
 
   const fcrd84ToggleCardFlip = () => {
+    stopSpeech();
     setFcrd84IsCardFlipped(!fcrd84IsCardFlipped);
   };
 
+  const toggleVoice = () => {
+    if (voiceEnabled) {
+      stopSpeech();
+    }
+    setVoiceEnabled(!voiceEnabled);
+  };
+
   const handleDone = async () => {
+    stopSpeech();
     await saveFlashcardsToPDF();
     router.push("/deaf");
   };
@@ -176,14 +257,40 @@ const FlashcardsEnhanced: React.FC = () => {
   return (
     <div className="fcrd84_studycard_dashboard">
       <div className="fcrd84_studycard_container">
-        <motion.h1
-          className="fcrd84_studycard_title"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          Flashcards
-        </motion.h1>
+        <div style={{ position: 'relative', marginBottom: '20px' }}>
+          <motion.h1
+            className="fcrd84_studycard_title"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            Flashcards
+          </motion.h1>
+          
+          {fcrd84StudyCards.length > 0 && (
+            <button
+              onClick={toggleVoice}
+              className="fcrd84_voice_toggle"
+              title={voiceEnabled ? 'Mute voice' : 'Enable voice'}
+              style={{ position: 'absolute', top: '0', right: '0' }}
+            >
+              {voiceEnabled ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+              )}
+              {isSpeaking && <span className="fcrd84_speaking_pulse"></span>}
+            </button>
+          )}
+        </div>
 
         <div className="fcrd84_flex_wrap">
           {/* Left Side - Flashcard or Processing Status */}
@@ -229,11 +336,15 @@ const FlashcardsEnhanced: React.FC = () => {
                   >
                     <div className="fcrd84_flashcard_inner">
                       <div className="fcrd84_flashcard_front">
-                        <h2>{fcrd84StudyCards[fcrd84CardIndex].question}</h2>
+                        <div className="fcrd84_card_content_scrollable">
+                          <h2>{fcrd84StudyCards[fcrd84CardIndex].question}</h2>
+                        </div>
                         <div className="fcrd84_card_hint">Click to reveal answer</div>
                       </div>
                       <div className="fcrd84_flashcard_back">
-                        <p>{fcrd84StudyCards[fcrd84CardIndex].answer}</p>
+                        <div className="fcrd84_card_content_scrollable">
+                          <p>{fcrd84StudyCards[fcrd84CardIndex].answer}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -286,6 +397,90 @@ const FlashcardsEnhanced: React.FC = () => {
       </div>
 
       <style jsx>{`
+        .fcrd84_studycard_title {
+          margin: 0;
+        }
+
+        .fcrd84_voice_toggle {
+          position: relative;
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          border: 2px solid #e2e8f0;
+          background: white;
+          color: #4f46e5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .fcrd84_voice_toggle:hover {
+          background: #eef2ff;
+          border-color: #4f46e5;
+        }
+
+        .fcrd84_voice_toggle svg {
+          width: 24px;
+          height: 24px;
+        }
+
+        .fcrd84_speaking_pulse {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          width: 12px;
+          height: 12px;
+          background: #10b981;
+          border-radius: 50%;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+          }
+        }
+
+        .fcrd84_card_content_scrollable {
+          max-height: 350px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding: 20px;
+          margin: -20px;
+          padding-right: 30px;
+        }
+
+        .fcrd84_card_content_scrollable::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .fcrd84_card_content_scrollable::-webkit-scrollbar-track {
+          background: transparent;
+          border-radius: 10px;
+        }
+
+        .fcrd84_card_content_scrollable::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 10px;
+        }
+
+        .fcrd84_card_content_scrollable::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.3);
+        }
+
+        .fcrd84_flashcard_front .fcrd84_card_content_scrollable h2,
+        .fcrd84_flashcard_back .fcrd84_card_content_scrollable p {
+          margin: 0;
+          word-wrap: break-word;
+        }
+
         .fcrd84_processing_container,
         .fcrd84_error_container {
           display: flex;

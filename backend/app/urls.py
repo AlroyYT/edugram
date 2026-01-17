@@ -61,4 +61,6 @@ urlpatterns = [
     path('speech-evaluate/', evaluate_pronunciation_view),
     # path("visual/mindmap/", visual_mindmap, name="visual-mindmap"),
     # path("visual/test-mindmap/", test_mindmap, name="test-mindmap")
+    path('videos/', views.list_videos, name='list_videos'),
+    path('videos/<int:video_id>/', views.delete_video, name='delete_video'),
 ]
