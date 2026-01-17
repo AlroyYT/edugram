@@ -15,7 +15,7 @@ export default async function handler(
   }
 
   // IMPORTANT: Replace this with your NEW API key (revoke the old one!)
-  const GEMINI_API_KEY = 'AIzaSyBGwtThxkgqtAY7jJZmmXTKnrCO4KQ-afE';
+  const GEMINI_API_KEY = '';
 
   try {
     const response = await fetch(

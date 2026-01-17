@@ -56,6 +56,8 @@ from urllib.parse import urljoin, quote
 import time
 from .utils.speech_support import get_openai_sentence, evaluate_sentence
 from app.utils.visual import generate_mind_map
+from .models import GeneratedVideo
+from .serializers import GeneratedVideoSerializer
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1552,20 +1554,28 @@ def generate_video(request):
                 "image": image_file
             })
 
-        # 3. Create video
-        video_path = create_video(processed_scenes)
+        # 3. Create video with unique filename
+        video_path, filename, duration = create_video(processed_scenes, topic)
 
         if not os.path.exists(video_path):
             return Response({"error": "Video generation failed"}, status=500)
 
-        # Optional: upload to S3 / media server
-        video_url = request.build_absolute_uri(f"/api/videos/{os.path.basename(video_path)}")
-                # 4. Cleanup
+        # 4. Save to database
+        video_url = request.build_absolute_uri(f"/api/videos/{filename}")
+        
+        video_record = GeneratedVideo.objects.create(
+            topic=topic,
+            filename=filename,
+            video_url=video_url,
+            duration=duration
+        )
+
+        # 5. Cleanup temp files
         cleanup_temp_files()
 
         return Response({
             "message": "Video generated successfully",
-            "video_url": video_url
+            "video": GeneratedVideoSerializer(video_record).data
         })
 
     except Exception as e:
@@ -1573,11 +1583,39 @@ def generate_video(request):
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-    
+
+
+@api_view(["GET"])
+def list_videos(request):
+    """List all generated videos"""
+    videos = GeneratedVideo.objects.all()
+    serializer = GeneratedVideoSerializer(videos, many=True, context={'request': request})
+    return Response(serializer.data)
+
+
+@api_view(["DELETE"])
+def delete_video(request, video_id):
+    """Delete a specific video"""
+    try:
+        video = GeneratedVideo.objects.get(id=video_id)
+        
+        # Delete the actual file
+        video_path = os.path.join(settings.BASE_DIR, "videos", video.filename)
+        if os.path.exists(video_path):
+            os.remove(video_path)
+        
+        # Delete the database record
+        video.delete()
+        
+        return Response({"message": "Video deleted successfully"})
+    except GeneratedVideo.DoesNotExist:
+        return Response({"error": "Video not found"}, status=404)
+
 
 def serve_backend_video(request, filename):
-    base_dir = settings.BASE_DIR  # points to /backend
-    file_path = os.path.join(base_dir, filename)
+    """Serve video files"""
+    videos_dir = os.path.join(settings.BASE_DIR, "videos")
+    file_path = os.path.join(videos_dir, filename)
 
     if not os.path.exists(file_path):
         raise Http404("File not found")
