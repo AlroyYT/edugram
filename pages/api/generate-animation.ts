@@ -15,7 +15,7 @@ export default async function handler(
   }
 
   // HARDCODED API KEY - REPLACE WITH YOUR KEY
-  const GEMINI_API_KEY = 'AIzaSyBGwtThxkgqtAY7jJZmmXTKnrCO4KQ-afE';
+  const GEMINI_API_KEY = '';
 
   try {
     const response = await fetch(

@@ -35,8 +35,8 @@ if DEVICE == "cuda":
 else:
     print("GPU not available, using CPU")
 
-# Load Whisper model with device specification - Use tiny for speed
-WHISPER_MODEL = whisper.load_model("small", device=DEVICE)  # Changed from "small" to "tiny"
+# Load Whisper model with device specification
+WHISPER_MODEL = whisper.load_model("small", device=DEVICE)
 
 # Thread pool for parallel processing
 THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=4)
@@ -83,7 +83,7 @@ class JarvisAI:
             # Transcribe with GPU support and optimized settings
             result = WHISPER_MODEL.transcribe(
                 converted_path,
-                fp16=torch.cuda.is_available(),  # Use FP16 on GPU for speed
+                fp16=torch.cuda.is_available(),
                 no_speech_threshold=0.6,
                 logprob_threshold=-1.0,
                 compression_ratio_threshold=2.4
@@ -150,7 +150,7 @@ class JarvisAI:
 
     @staticmethod
     def process_with_gemini_streaming_fast(text, context="", news_data=None):
-        """Optimized Gemini processing with shorter, more focused responses"""
+        """Optimized Gemini processing with COMPLETE responses"""
         try:
             # Check if this is a news query and we have news data
             is_news_query, category, search_term = JarvisAI.detect_news_intent(text)
@@ -159,21 +159,64 @@ class JarvisAI:
             if is_news_query and news_data and news_data.get("status") == "success" and news_data.get("articles"):
                 return JarvisAI._create_news_response_fast(news_data, search_term, category)
             
-            # Optimized prompt for faster, more concise responses
-            base_prompt = """You are Jarvis, a voice assistant by Alroy Saldanha. Be concise and direct.
+            # IMPROVED PROMPT - Forces complete responses with clean voice output
+            base_prompt = """You are Jarvis, a voice assistant by Alroy Saldanha. You MUST provide COMPLETE answers optimized for speech.
 
-            Rules:
-            - Keep responses under 100 words for voice clarity
-            - whenever asked to give coding questions , give the entire code without any comments and please complete it
-            - Be helpful but brief
-            - Use simple sentences for better TTS
-            - No long explanations unless specifically asked
-            - For complex topics, give overview first, offer details if needed
-            - Show empathy but stay focused
-            - Always end with proper punctuation
-            - explain in such a way anyone can easily understand the concepts
-            - dont explain a concept in only one line, take atleast 3-4 lines to explain
-            """
+CRITICAL RULES:
+- ALWAYS finish your complete answer - NEVER stop mid-sentence or mid-explanation
+- When giving code, provide the ENTIRE working code with NO omissions
+- When explaining concepts, give FULL explanations with examples
+- For mathematical problems, show ALL steps from start to finish
+- NEVER use "..." or "etc" to skip parts - always complete the response
+- If a question has multiple parts, answer ALL parts completely
+
+VOICE OUTPUT FORMATTING (CRITICAL):
+- NEVER use LaTeX symbols like $, \\, {}, ^, _, \frac, \int, etc.
+- Write math in plain English: "x squared" not "$x^2$", "integral of" not "\\int"
+- Say "n to the power of 2" instead of "n^2"
+- Say "x divided by y" instead of "x/y" or "\\frac{x}{y}"
+- Replace ALL special symbols with words
+- NO dollar signs, backslashes, curly braces, or LaTeX notation
+- Keep it conversational and speakable
+
+FOR EQUATIONS AND FORMULAS:
+- ALWAYS provide the actual equation/formula in simple notation first
+- Use basic notation: F=ma, E=mc^2, v=u+at (readable, no LaTeX)
+- Then explain in words: "which means force equals mass times acceleration"
+- For complex equations, break them into readable parts
+- Examples:
+  * "Bernoulli's equation is P + 1/2 ρv² + ρgh = constant, which means..."
+  * "Newton's second law is F=ma, force equals mass times acceleration"
+  * "The quadratic formula is x = (-b ± √(b²-4ac)) / 2a"
+
+Response Guidelines:
+- ULTRA CONCISE: Maximum 2-3 sentences for most answers (target ~50-100 words)
+- For coding questions: provide COMPLETE, working code without lengthy explanations
+- For math: give the KEY steps only in plain spoken English, skip obvious parts
+- For equations: State formula first, then brief explanation
+- Focus on the ANSWER, not lengthy background
+- Get straight to the point - no introductions like "Certainly!" or "I can help"
+- Always verify your response is complete before ending
+
+Examples of GOOD voice responses:
+- "Newton's second law is F=ma, which means force equals mass times acceleration"
+- "Bernoulli's equation is P + 1/2 ρv² + ρgh = constant. This states that static pressure plus dynamic pressure plus hydrostatic pressure remains constant along a streamline"
+- "To integrate n squared, use the power rule: n cubed over 3 plus C"
+- "The quadratic formula is x = (-b ± √(b²-4ac)) / 2a, used to solve equations of the form ax² + bx + c = 0"
+
+Examples of BAD responses (NEVER do this):
+- "$F = ma$" or "$\\int n^2 dx = \\frac{n^3}{3} + C$"
+- "The formula is..." (without stating the actual formula)
+- "Certainly! I can help you with that. Let me explain in detail..." (too wordy)
+
+Quality Check:
+1. Did I answer the complete question?
+2. Is my code complete and runnable?
+3. Did I explain all necessary steps?
+4. Are there NO special symbols or LaTeX in my response?
+5. Can this be spoken naturally by text-to-speech?
+
+If any answer is NO, fix it before finishing."""
             
             # Add news context if this was a failed news query
             if is_news_query and (not news_data or news_data.get("status") != "success"):
@@ -181,19 +224,19 @@ class JarvisAI:
             
             # Construct the full prompt with context if available
             if context:
-                # Limit context to avoid long processing times
-                context_lines = context.split('\n')[-10:]  # Last 10 lines only
+                context_lines = context.split('\n')[-10:]
                 limited_context = '\n'.join(context_lines)
-                prompt = f"{base_prompt}\n\n{limited_context}\nUser: \"{text}\""
+                prompt = f"{base_prompt}\n\n{limited_context}\nUser: \"{text}\"\n\nProvide your COMPLETE response:"
             else:
-                prompt = f"{base_prompt}\n\nUser: \"{text}\""
+                prompt = f"{base_prompt}\n\nUser: \"{text}\"\n\nProvide your COMPLETE response:"
             
-            # Configure for faster generation
+            # Configure for FAST and COMPLETE generation
             generation_config = genai.types.GenerationConfig(
-                max_output_tokens=600,  # Limit response length
-                temperature=0.7,
-                top_p=0.8,
-                top_k=40
+                max_output_tokens=800,  # Balanced for speed and completeness
+                temperature=0.8,  # Higher for faster generation
+                top_p=0.95,  # Faster sampling
+                top_k=20,  # Reduced for speed
+                stop_sequences=None
             )
             
             # Generate response
@@ -208,15 +251,16 @@ class JarvisAI:
                 generation_config=generation_config
             )
             
+            # Collect ALL response chunks
             for response in response_stream:
                 if response.text:
                     full_response += response.text
                     current_chunk += response.text
                     
-                    # Check if we have a complete sentence
-                    if any(current_chunk.rstrip().endswith(punct) for punct in ['.', '?', '!']):
+                    # Create chunks at natural sentence boundaries
+                    if any(current_chunk.rstrip().endswith(punct) for punct in ['.', '?', '!', '\n\n']):
                         chunk_text = current_chunk.strip()
-                        if chunk_text:  # Only add non-empty chunks
+                        if chunk_text and len(chunk_text) > 10:  # Only meaningful chunks
                             stream_chunks.append(chunk_text)
                         current_chunk = ""
 
@@ -227,6 +271,10 @@ class JarvisAI:
             # If no chunks were created, create one from full response
             if not stream_chunks and full_response.strip():
                 stream_chunks = [full_response.strip()]
+            
+            # Quality check - ensure we have a substantial response
+            if len(full_response.strip()) < 20:
+                print(f"WARNING: Response too short ({len(full_response)} chars)")
                 
             return {
                 'full_response': full_response.strip(),
@@ -317,33 +365,34 @@ class JarvisAI:
                     JarvisAI.fetch_latest_news_fast,
                     query=search_term,
                     category=category,
-                    count=3  # Limited for speed
+                    count=3
                 )
             
             # 5. Prepare context (limit for speed)
             context = ""
             if conversation_history:
                 context = "Recent chat:\n"
-                for msg in conversation_history[-4:]:  # Only last 4 messages
+                for msg in conversation_history[-4:]:
                     role = "You" if msg["role"] == "user" else "Me"
-                    content = msg['content'][:100]  # Limit content length
+                    content = msg['content'][:100]
                     context += f"{role}: {content}\n"
             
-            # 6. Get news data if requested
+            # 6. Get news data if requested with shorter timeout
             news_data = None
             if news_future:
                 try:
-                    news_data = news_future.result()
+                    news_data = news_future.result(timeout=2.5)  # Reduced from 4s
                 except concurrent.futures.TimeoutError:
                     print("News fetch timed out")
                     news_data = {"status": "timeout", "articles": []}
             
             print(f"News data ready in {time.time() - start_time:.2f}s")
             
-            # 7. Process with Gemini
+            # 7. Process with Gemini - WAIT FOR COMPLETE RESPONSE
             ai_start = time.time()
             response_data = JarvisAI.process_with_gemini_streaming_fast(chosen_text, context, news_data)
             print(f"AI response ready in {time.time() - ai_start:.2f}s")
+            print(f"Response length: {len(response_data['full_response'])} chars")
             
             return {
                 'text': chosen_text,
@@ -389,7 +438,7 @@ class JarvisAI:
             else:
                 url = "https://news.google.com/rss"
             
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=3)
             
             if response.status_code == 200:
                 from xml.etree import ElementTree as ET
@@ -454,7 +503,7 @@ class JarvisAI:
         if "about" in text:
             parts = text.split("about")
             if len(parts) > 1:
-                search_term = parts[1].strip()[:20]  # Limit length
+                search_term = parts[1].strip()[:20]
         
         return (is_news_query, category, search_term)
 
