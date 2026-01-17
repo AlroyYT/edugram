@@ -1,4 +1,7 @@
-from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
+try:
+    from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
+except ImportError:
+    from moviepy import ImageClip, AudioFileClip, concatenate_videoclips
 from django.conf import settings
 import os
 
