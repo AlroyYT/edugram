@@ -14,8 +14,12 @@ export default async function handler(
     return res.status(400).json({ error: 'Topic is required' });
   }
 
-  // HARDCODED API KEY - REPLACE WITH YOUR KEY
-  const GEMINI_API_KEY = '';
+  // Read API key from environment variable
+  const GEMINI_API_KEY = process.env.MY_GEMINI_API_KEY;
+
+  if (!GEMINI_API_KEY) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY is not configured' });
+  }
 
   try {
     const response = await fetch(
