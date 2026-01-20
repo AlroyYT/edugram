@@ -40,7 +40,6 @@ from .utils.image_generator import generate_image
 from .utils.audio_generator import generate_audio
 from .utils.video_editor import create_video, cleanup_temp_files
 # from app.utils.mind_map import generate_mind_map_direct
-from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 from rest_framework.decorators import api_view
 from datetime import datetime
 from django.shortcuts import render
@@ -58,6 +57,8 @@ from .utils.speech_support import get_openai_sentence, evaluate_sentence
 from app.utils.visual import generate_mind_map
 from .models import GeneratedVideo
 from .serializers import GeneratedVideoSerializer
+from moviepy.editor import AudioFileClip
+from .utils.subtitle_generator import generate_sentence_srt
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -629,23 +630,6 @@ def get_saved_materials(request):
             "error": "Failed to fetch saved materials",
             "message": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class SignLanguageView(APIView):
-    def post(self, request):
-        """
-        Handle POST requests for both text-to-gesture and speech-to-text conversions
-        """
-        endpoint = request.path.split('/')[-1]  # Get the endpoint from the URL
-        
-        if endpoint == 'convert-text-to-gesture':
-            return convert_text_to_gesture(request)
-        elif endpoint == 'speech-to-text':
-            return speech_to_text(request)
-        else:
-            return Response({
-                'status': 'error',
-                'message': 'Invalid endpoint'
-            }, status=status.HTTP_400_BAD_REQUEST)
 
 class SaveMaterialAPIView(APIView):
     def post(self, request):
@@ -1535,34 +1519,75 @@ def generate_video(request):
         )
 
     try:
-        # 1. Generate Script
+        # 1️⃣ Generate script
         script_data = generate_script(topic)
+
         if not script_data:
-            return Response({"error": "Script generation failed"}, status=500)
+            return Response(
+                {"error": "Script generation failed"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         processed_scenes = []
 
-        # 2. Generate assets
+        # 2️⃣ Generate assets
         for i, scene in enumerate(script_data):
-            audio_file = generate_audio(scene["text"], i)
+            text = scene["text"]
+
+            # 🎤 Generate audio
+            audio_file = generate_audio(text, i)
+
+            # 🕒 Get audio duration
+            audio_clip = AudioFileClip(audio_file)
+            duration = audio_clip.duration
+            audio_clip.close()
+
+            # 📝 Generate sentence-level subtitle
+            subtitle_file = os.path.join(
+                settings.BASE_DIR,
+                "temp",
+                f"temp_audio_{i}.srt"
+            )
+
+            generate_sentence_srt(
+                text=text,
+                duration=duration,
+                srt_path=subtitle_file
+            )
+
+            # 🖼️ Generate image
             image_file = generate_image(scene["image_prompt"], i)
 
-            time.sleep(3)  # Rate-limit protection
+            time.sleep(2)
 
             processed_scenes.append({
                 "audio": audio_file,
-                "image": image_file
+                "image": image_file,
+                "subtitle": subtitle_file
             })
 
-        # 3. Create video with unique filename
-        video_path, filename, duration = create_video(processed_scenes, topic)
+        # 3️⃣ Create video
+        video_path, filename, duration = create_video(
+            processed_scenes,
+            topic
+        )
 
         if not os.path.exists(video_path):
-            return Response({"error": "Video generation failed"}, status=500)
+            return Response(
+                {"error": "Video generation failed"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-        # 4. Save to database
-        video_url = request.build_absolute_uri(f"/api/videos/{filename}")
-        
+        # 4️⃣ URLs
+        video_url = request.build_absolute_uri(
+            f"/api/videos/{filename}"
+        )
+
+        subtitle_url = request.build_absolute_uri(
+            f"/api/subtitles/{filename.replace('.mp4', '.vtt')}"
+        )
+
+        # 5️⃣ Save DB
         video_record = GeneratedVideo.objects.create(
             topic=topic,
             filename=filename,
@@ -1570,13 +1595,20 @@ def generate_video(request):
             duration=duration
         )
 
-        # 5. Cleanup temp files
+        # 6️⃣ Cleanup
         cleanup_temp_files()
 
-        return Response({
-            "message": "Video generated successfully",
-            "video": GeneratedVideoSerializer(video_record).data
-        })
+        # 7️⃣ RETURN (🔥 FIX HERE)
+        response_data = GeneratedVideoSerializer(video_record).data
+        response_data["subtitle_url"] = subtitle_url
+
+        return Response(
+            {
+                "message": "Video generated successfully",
+                "video": response_data
+            },
+            status=status.HTTP_201_CREATED
+        )
 
     except Exception as e:
         return Response(
@@ -1584,6 +1616,16 @@ def generate_video(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+def serve_subtitle(request, filename):
+    path = os.path.join(settings.BASE_DIR, "subtitles", filename)
+
+    if not os.path.exists(path):
+        raise Http404(f"Subtitle not found: {filename}")
+
+    return FileResponse(
+        open(path, "rb"),
+        content_type="text/vtt"
+    )
 
 @api_view(["GET"])
 def list_videos(request):

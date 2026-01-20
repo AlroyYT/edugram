@@ -10,6 +10,7 @@ interface Video {
   video_url: string;
   created_at: string;
   duration: number | null;
+  subtitle_url?: string; 
 }
 
 export default function Home() {
@@ -181,14 +182,29 @@ export default function Home() {
             <h3 style={{ marginTop: 0, fontSize: "18px" }}>{video.topic}</h3>
             
             <video
-              src={video.video_url}
-              controls
-              style={{
-                width: "100%",
-                borderRadius: "6px",
-                marginBottom: "10px",
-              }}
-            />
+  key={video.video_url}          // 🔥 forces reload
+  controls
+  crossOrigin="anonymous"        // 🔥 REQUIRED
+  style={{
+    width: "100%",
+    borderRadius: "6px",
+    marginBottom: "10px",
+  }}
+>
+  <source src={video.video_url} type="video/mp4" />
+
+  {video.subtitle_url && (
+    <track
+      src={video.subtitle_url}
+      kind="subtitles"
+      srcLang="en"
+      label="English"
+      default
+    />
+  )}
+</video>
+
+
 
             <div style={{ fontSize: "14px", color: "#666" }}>
               <p style={{ margin: "5px 0" }}>

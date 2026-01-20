@@ -16,7 +16,7 @@ from .views import (
     delete_saved_material,
     download_file,
     ImageAnalysisView,
-    health_check,
+    health_check, serve_subtitle,
     search_paper,
     generate_sentence_view,
     evaluate_pronunciation_view,
@@ -26,7 +26,6 @@ from .views import (
     # Add the new hand sign detection functions  
 )
 
-from .utils.sign_lang import convert_text_to_gesture, speech_to_text
 from .utils.sign2 import animation_view
 
 urlpatterns = [
@@ -36,8 +35,6 @@ urlpatterns = [
     path('generate-mcqs/', GenerateMCQsAPIView.as_view(), name='generate-mcqs'),
     path('generate-flashcards/', GenerateFlashcardsAPIView.as_view(), name='generate-flashcards'),
     path('process_audio/', process_audio),
-    path('convert-text-to-gesture/', convert_text_to_gesture, name='convert-text-to-gesture'),
-    path('speech-to-text/', speech_to_text, name='speech-to-text'),
     path('save-material/', SaveMaterialAPIView.as_view(), name='save-material'),
     path('saved-materials/', get_saved_materials, name='get_saved_materials'),
     path('youtube-search/', youtube_search, name='youtube_search'),
@@ -62,5 +59,6 @@ urlpatterns = [
     # path("visual/mindmap/", visual_mindmap, name="visual-mindmap"),
     # path("visual/test-mindmap/", test_mindmap, name="test-mindmap")
     path('videos/', views.list_videos, name='list_videos'),
+    path("subtitles/<path:filename>", serve_subtitle),
     path('videos/<int:video_id>/', views.delete_video, name='delete_video'),
 ]
