@@ -177,38 +177,39 @@ const DeafSupportHub = () => {
   };
 
   const handleDelete = async (material: any) => {
-  if (!material || !material.fileName) {
-    displayNotification('Invalid material');
-    return;
-  }
-  
-  setProcessStatus("Deleting...");
-  
-  try {
-    // Simple axios DELETE request
-    const response = await axios.delete(
-      `${backend_url}/api/saved-materials/${encodeURIComponent(material.fileName)}/`
-    );
-    
-    console.log('Delete response:', response.data);
-    
-    // Update local state
-    setSavedMaterials(prevMaterials => 
-      prevMaterials.filter(m => m.fileName !== material.fileName)
-    );
-    displayNotification('Material deleted successfully');
-    
-  } catch (error: any) {
-    console.error('Delete error:', error);
-    if (error.response) {
-      displayNotification(`Error: ${error.response.status} - ${error.response.data?.message || 'Delete failed'}`);
-    } else {
-      displayNotification('Network error - please try again');
+    if (!material || !material.fileName) {
+      displayNotification('Invalid material');
+      return;
     }
-  } finally {
-    setProcessStatus("");
-  }
-};
+    
+    setProcessStatus("Deleting...");
+    
+    try {
+      // Simple axios DELETE request
+      const response = await axios.delete(
+        `${backend_url}/api/saved-materials/${encodeURIComponent(material.fileName)}/`
+      );
+      
+      console.log('Delete response:', response.data);
+      
+      // Update local state
+      setSavedMaterials(prevMaterials => 
+        prevMaterials.filter(m => m.fileName !== material.fileName)
+      );
+      displayNotification('Material deleted successfully');
+      
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      if (error.response) {
+        displayNotification(`Error: ${error.response.status} - ${error.response.data?.message || 'Delete failed'}`);
+      } else {
+        displayNotification('Network error - please try again');
+      }
+    } finally {
+      setProcessStatus("");
+    }
+  };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -245,10 +246,12 @@ const DeafSupportHub = () => {
       case "topicExplorer":
         return (
           <motion.div 
-            className="content-explorer"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
+            {...{
+              className: "content-explorer",
+              initial: "hidden",
+              animate: "visible",
+              variants: containerVariants
+            } as any}
           >
             <motion.h2 variants={itemVariants} className="content-title">
               Explore by Topic
@@ -299,10 +302,12 @@ const DeafSupportHub = () => {
       case "savedBookmarks":
         return (
           <motion.div 
-            className="bookmarks-panel"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
+            {...{
+              className: "bookmarks-panel",
+              initial: "hidden",
+              animate: "visible",
+              variants: containerVariants
+            } as any}
           >
             <motion.h2 variants={itemVariants} className="content-title">
               Your Saved Materials
@@ -310,70 +315,78 @@ const DeafSupportHub = () => {
             
             {isLoadingMaterials ? (
               <motion.div 
-                className="loading-state"
-                variants={itemVariants}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                {...{
+                  className: "loading-state",
+                  variants: itemVariants,
+                  initial: { opacity: 0 },
+                  animate: { opacity: 1 }
+                } as any}
               >
                 <div className="loading-spinner"></div>
                 <p>Loading your materials...</p>
               </motion.div>
             ) : savedMaterials.length > 0 ? (
               <motion.div 
-                className="materials-grid"
-                variants={itemVariants}
+                {...{
+                  className: "materials-grid",
+                  variants: itemVariants
+                } as any}
               >
                 {savedMaterials.map((material, index) => (
                   <motion.div
-                  key={material.id}
-                  className="material-card"
-                  variants={cardVariants}
-                  initial="rest"
-                  whileHover="hover"
-                  custom={index}
-                >
-                  <div className="material-icon">
-                    {/* Your existing icon code */}
-                  </div>
-                  <div className="material-info">
-                    <h3>{material.fileName}</h3>
-                    <p className="material-type">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
-                    <p className="material-date">{new Date(material.date).toLocaleDateString()}</p>
-                  </div>
-                  <div className="material-actions">
-                    <button 
-                      onClick={() => handleDownload(material.filePath, material.fileName)}
-                      className="download-button"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    key={material.id}
+                    className="material-card"
+                    variants={cardVariants}
+                    initial="rest"
+                    whileHover="hover"
+                    custom={index}
+                  >
+                    <div className="material-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
                       </svg>
-                      Download
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(material)}
-                      className="delete-button"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                      Delete
-                    </button>
-                  </div>
-                </motion.div>
+                    </div>
+                    <div className="material-info">
+                      <h3>{material.fileName}</h3>
+                      <p className="material-type">{material.type.charAt(0).toUpperCase() + material.type.slice(1)}</p>
+                      <p className="material-date">{new Date(material.date).toLocaleDateString()}</p>
+                    </div>
+                    <div className="material-actions">
+                      <button 
+                        onClick={() => handleDownload(material.filePath, material.fileName)}
+                        className="download-button"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="7 10 12 15 17 10"></polyline>
+                          <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(material)}
+                        className="delete-button"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  </motion.div>
                 ))}
               </motion.div>
             ) : (
               <motion.div 
-                className="empty-state"
-                variants={itemVariants}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                {...{
+                  className: "empty-state",
+                  variants: itemVariants,
+                  initial: { opacity: 0 },
+                  animate: { opacity: 1 }
+                } as any}
               >
                 <div className="empty-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
@@ -393,10 +406,12 @@ const DeafSupportHub = () => {
       default:
         return (
           <motion.div 
-            className="document-portal"
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
+            {...{
+              className: "document-portal",
+              initial: "hidden",
+              animate: "visible",
+              variants: containerVariants
+            } as any}
           >
             <motion.h2 variants={itemVariants} className="content-title">
               Knowledge Portal
@@ -686,11 +701,8 @@ const DeafSupportHub = () => {
             </motion.div>
           </div>
         </motion.aside>
-        
-
       </div>
     </div>
-    
   );
 };
 
