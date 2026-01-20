@@ -25,21 +25,51 @@ from django.conf import settings
 import google.generativeai as genai
 
 # Load models once
-genai.configure(api_key=settings.GEMINI_API_KEY)
-GEMINI_MODEL = genai.GenerativeModel("gemini-2.5-flash")
+# genai.configure(api_key=settings.GEMINI_API_KEY)
+# GEMINI_MODEL = genai.GenerativeModel("gemini-2.5-flash")
 
 # Check for GPU availability and set device
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-if DEVICE == "cuda":
-    print(f"Using GPU: {torch.cuda.get_device_name(0)}")
-else:
-    print("GPU not available, using CPU")
+# DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# if DEVICE == "cuda":
+#     print(f"Using GPU: {torch.cuda.get_device_name(0)}")
+# else:
+#     print("GPU not available, using CPU")
 
-# Load Whisper model with device specification
-WHISPER_MODEL = whisper.load_model("small", device=DEVICE)
+# # Load Whisper model with device specification
+# WHISPER_MODEL = whisper.load_model("small", device=DEVICE)
+
+# =========================
+# Lazy-loaded ML resources
+# =========================
+
+_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+_WHISPER_MODEL = None
+_GEMINI_MODEL = None
+_MODEL_LOCK = threading.Lock()
+
+
+def get_whisper_model():
+    global _WHISPER_MODEL
+    if _WHISPER_MODEL is None:
+        with _MODEL_LOCK:
+            if _WHISPER_MODEL is None:
+                print("Loading Whisper model...")
+                _WHISPER_MODEL = whisper.load_model("small", device=_DEVICE)
+    return _WHISPER_MODEL
+
+
+def get_gemini_model():
+    global _GEMINI_MODEL
+    if _GEMINI_MODEL is None:
+        with _MODEL_LOCK:
+            if _GEMINI_MODEL is None:
+                print("Initializing Gemini model...")
+                genai.configure(api_key=settings.GEMINI_API_KEY)
+                _GEMINI_MODEL = genai.GenerativeModel("gemini-2.5-flash")
+    return _GEMINI_MODEL
 
 # Thread pool for parallel processing
-THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 # Cache for TTS to avoid regenerating same responses
 TTS_CACHE = {}
@@ -81,13 +111,15 @@ class JarvisAI:
                 return None
             
             # Transcribe with GPU support and optimized settings
-            result = WHISPER_MODEL.transcribe(
+            model = get_whisper_model()
+            result = model.transcribe(
                 converted_path,
                 fp16=torch.cuda.is_available(),
                 no_speech_threshold=0.6,
                 logprob_threshold=-1.0,
                 compression_ratio_threshold=2.4
             )
+
             text = result.get("text", "").strip()
             
             if not text:
@@ -245,11 +277,13 @@ If any answer is NO, fix it before finishing."""
             current_chunk = ""
             
             # Stream the response
-            response_stream = GEMINI_MODEL.generate_content(
-                prompt, 
+            gemini = get_gemini_model()
+            response_stream = gemini.generate_content(
+                prompt,
                 stream=True,
                 generation_config=generation_config
             )
+
             
             # Collect ALL response chunks
             for response in response_stream:
@@ -333,7 +367,7 @@ If any answer is NO, fix it before finishing."""
         """Parallel processing for maximum speed"""
         start_time = time.time()
         
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             # Start all tasks in parallel
             futures = {}
             
