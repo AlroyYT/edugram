@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import { backend_url } from '../components/config';
+import { useTextToSpeech } from "../components/useTextToSpeech";
 
 type WordData = {
   word: string;
@@ -14,7 +15,15 @@ type WordStatus = {
   status: "displaying" | "completed" | "pending";
 };
 
+
 const Summary = () => {
+  const {
+    speakText,
+    stopSpeech,
+    toggleVoice,
+    isSpeaking,
+    voiceEnabled
+  } = useTextToSpeech();
   const router = useRouter();
   const [summaryText, setSummaryText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +48,18 @@ const Summary = () => {
       setIsLoading(false);
     }
   }, [summary]);
+useEffect(() => {
+  if (summaryText && voiceEnabled) {
+    const timeout = setTimeout(() => {
+      speakText(`Here is the summary. ${summaryText}`);
+    }, 600);
 
+    return () => {
+      clearTimeout(timeout);
+      stopSpeech();
+    };
+  }
+}, [summaryText, voiceEnabled]);
   // Helper function to check if a word contains only letters
   const isValidWord = (word: string): boolean => {
     // Remove common punctuation and check if remaining characters are letters
@@ -749,6 +769,20 @@ const Summary = () => {
               <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1F2937' }}>
                 Document Summary
               </h1>
+              <button
+    onClick={toggleVoice}
+    title={voiceEnabled ? "Mute voice" : "Enable voice"}
+    style={{
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '1.25rem',
+      lineHeight: 1
+    }}
+  >
+    {voiceEnabled ? "🔊" : "🔇"}
+    {isSpeaking && <span style={{ marginLeft: 6 }}>🟢</span>}
+  </button>
               <button
                 onClick={handleBackClick}
                 style={{ ...styles.button, background: '#E5E7EB', color: '#374151' }}

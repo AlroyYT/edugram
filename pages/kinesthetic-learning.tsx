@@ -454,10 +454,10 @@ const KinestheticLearning = () => {
 
       {/* Navigation Links */}
       <div className={styles.footer}>
-        <Link href="/">← Back Home</Link>
+       <Link href="/features">← Back Home</Link>
       </div>
     </div>
-  );
+  ); 
 };
 
 export default KinestheticLearning;

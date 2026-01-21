@@ -96,6 +96,17 @@ const Features = () => {
       hoverColor: "#ff6a30",
       bgGradient: "linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(255, 69, 0, 0.05) 100%)",
     },
+    {
+  title: "Kinesthetic",
+  message: "LEARN BY DOING",
+  description: "Hands-on AI learning with activities, simulations, real-world challenges, and practice tasks for better understanding and memory.",
+  icon: "🖐️",
+  color: "#0be072",
+  link: "/kinesthetic-learning",
+  hoverColor: "#04530b",
+  bgGradient: "linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(255, 69, 0, 0.05) 100%)",
+}
+
   ];
 
   return (

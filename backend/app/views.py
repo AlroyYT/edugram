@@ -1551,7 +1551,8 @@ def generate_video(request):
 
             processed_scenes.append({
                 "audio": audio_file,
-                "image": image_file
+                "image": image_file,
+                "text": scene["text"]
             })
 
         # 3. Create video with unique filename
