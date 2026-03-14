@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { backend_url } from '../components/config';
+import { backend_url } from './config';
 const VoiceAssistant = () => {
   const [isListening, setIsListening] = useState(false);
   const [triggered, setTriggered] = useState(false);
