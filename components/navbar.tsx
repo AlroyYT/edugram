@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
+import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
   const navbarRef = useRef<HTMLElement | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,22 +25,22 @@ const Navbar = () => {
   return (
     <nav className="edu-navbar" ref={navbarRef}>
       <div className="edu-navbar-brand">
-        <a href="/">EDUGRAM</a>
+        <a href="/">{t("navbar_brand")}</a>
       </div>
 
       <ul className="edu-navbar-menu">
         <li>
-          <a href="/dashboard">Dashboard</a>
+          <a href="/dashboard">{t("nav_dashboard")}</a>
         </li>
         <li>
-          <a href="/courses">Courses</a>
+          <a href="/courses">{t("nav_courses")}</a>
         </li>
         <li>
-          <a href="/resources">Resources</a>
+          <a href="/resources">{t("nav_resources")}</a>
         </li>
         <li>
           <button onClick={() => signOut()} className="edu-logout-btn">
-            Log Out
+            {t("nav_logout")}
           </button>
         </li>
       </ul>

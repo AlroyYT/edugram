@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import SearchByTopic from "./SearchByTopic"; 
+import { useTranslation } from 'react-i18next';
+import SearchByTopic from "./SearchByTopic";
 
 const AssistiveTools = () => {
   const [currentView, setCurrentView] = useState<string>("default"); // Track which view to show
   const [file, setFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
+  const { t } = useTranslation();
 
   const router = useRouter();
 
@@ -20,10 +22,10 @@ const AssistiveTools = () => {
 
   const handleUpload = async () => {
     if (!file) {
-      setUploadStatus("Error: No file selected");
+      setUploadStatus(t("no_file_selected"));
       return;
     }
-    setUploadStatus("Uploading...");
+    setUploadStatus(t("uploading"));
 
     const formData = new FormData();
     formData.append("file", file);
@@ -38,16 +40,16 @@ const AssistiveTools = () => {
           },
         }
       );
-      setUploadStatus("Successfully uploaded");
+      setUploadStatus(t("upload_success"));
     } catch (error) {
-      setUploadStatus("Error in uploading");
+      setUploadStatus(t("upload_error"));
       console.error(error);
     }
   };
 
   const handleGenerateMCQs = async () => {
     if (!file) {
-      setUploadStatus("Error: No file selected for MCQs generation");
+      setUploadStatus(t("no_file_mcqs"));
       return;
     }
 
@@ -66,14 +68,14 @@ const AssistiveTools = () => {
       );
       router.push("/mcqs"); // Navigate to the MCQs page after generation
     } catch (error) {
-      setUploadStatus("Error generating MCQs");
+      setUploadStatus(t("error_mcqs"));
       console.error(error);
     }
   };
 
   const handleSummarize = async () => {
     if (!file) {
-      setUploadStatus("Error: No file selected for summarization");
+      setUploadStatus(t("no_file_summary"));
       return;
     }
 
@@ -96,14 +98,14 @@ const AssistiveTools = () => {
         query: { summary: response.data.summary }, // Pass the summary as query param
       });
     } catch (error) {
-      setUploadStatus("Error generating summary");
+      setUploadStatus(t("error_summary"));
       console.error(error);
     }
   };
 
   const handleGenerateFlashcards = async () => {
     if (!file) {
-      setUploadStatus("Error: No file selected for flashcards generation");
+      setUploadStatus(t("no_file_flashcards"));
       return;
     }
 
@@ -122,7 +124,7 @@ const AssistiveTools = () => {
       );
       router.push("/flash"); // Navigate to the flashcards page after generation
     } catch (error) {
-      setUploadStatus("Error generating flashcards");
+      setUploadStatus(t("error_flashcards"));
       console.error(error);
     }
   };
@@ -134,9 +136,9 @@ const AssistiveTools = () => {
       case "transcription":
         return (
           <div className="upload-interface">
-            <h3>Upload an audio or video file to get transcription</h3>
+            <h3>{t("upload_transcription")}</h3>
             <label htmlFor="file-upload" className="custom-file-upload">
-              Choose File
+              {t("choose_file")}
             </label>
             <input
               id="file-upload"
@@ -145,40 +147,40 @@ const AssistiveTools = () => {
               onChange={handleFileChange}
             />
             <br />
-            {fileName && <p>Selected File: {fileName}</p>} {/* Display selected file name */}
+            {fileName && <p>{t("selected_file")} {fileName}</p>} {/* Display selected file name */}
             <br />
             <button className="upload-action-btn" onClick={handleUpload}>
-              Upload
+              {t("upload")}
             </button>
             {uploadStatus && <p className="upload-status">{uploadStatus}</p>}
           </div>
         );
       default:
-        return <p>Unknown view</p>;
+        return <p>{t("unknown_view")}</p>;
     }
   };
 
   return (
     <div className="study-upload-container">
       <div className="header">
-        <span>Welcome to Assistive Tools</span>
+        <span>{t("welcome_assistive")}</span>
       </div>
 
       <div className="upload-sidebar">
         <div className="sidebar-title">
           <div className="status-indicator"></div>
-          <span>Learning Panel</span>
+          <span>{t("learning_panel")}</span>
         </div>
         <div className="sidebar-buttons">
           <button
             className="sidebar-btn"
             onClick={() => setCurrentView("searchByTopic")}
           >
-            Audio/Video Transcriber
+            {t("audio_video_transcriber")}
           </button>
-          <button className="sidebar-btn">Voice-to-Gesture</button>
+          <button className="sidebar-btn">{t("voice_to_gesture")}</button>
           <button className="sidebar-btn" onClick={() => setCurrentView("transcription")}>
-            Sign Language Dictionary
+            {t("sign_language_dictionary")}
           </button>
         </div>
       </div>

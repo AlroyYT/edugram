@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import Head from 'next/head';
+import { useTranslation } from 'react-i18next';
 
 const Landing = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleMouseMove = (e: { clientX: any; clientY: any; }) => {
@@ -24,55 +26,55 @@ const Landing = () => {
   }, []);
 
   const testimonials = [
-    { text: "EDUGRAM transformed my learning experience!", author: "Sarah Chen", role: "Computer Science Student" },
-    { text: "The AI-powered insights are incredible.", author: "Michael Rodriguez", role: "Data Science Professional" },
-    { text: "Finally, a platform that adapts to how I learn.", author: "Emily Johnson", role: "Engineering Student" }
+    { text: t("testimonial_1_text"), author: t("testimonial_1_author"), role: t("testimonial_1_role") },
+    { text: t("testimonial_2_text"), author: t("testimonial_2_author"), role: t("testimonial_2_role") },
+    { text: t("testimonial_3_text"), author: t("testimonial_3_author"), role: t("testimonial_3_role") }
   ];
 
   const features = [
     {
       icon: "🎯",
-      title: "AI-Powered Personalization",
-      description: "Advanced machine learning algorithms create personalized learning paths tailored to your unique cognitive patterns and learning preferences.",
+      title: t("feature_ai_title"),
+      description: t("feature_ai_desc"),
       gradient: "from-blue-500 via-purple-500 to-pink-500"
     },
     {
       icon: "🚀",
-      title: "Accelerated Learning",
-      description: "Boost your learning speed by 3x with our scientifically-backed spaced repetition and active recall techniques.",
+      title: t("feature_accel_title"),
+      description: t("feature_accel_desc"),
       gradient: "from-green-400 via-blue-500 to-purple-600"
     },
     {
       icon: "🔍",
-      title: "Smart Analytics",
-      description: "Real-time performance insights and predictive analytics help you identify strengths and optimize weak areas.",
+      title: t("feature_analytics_title"),
+      description: t("feature_analytics_desc"),
       gradient: "from-orange-400 via-pink-500 to-red-500"
     },
     {
       icon: "🌟",
-      title: "Interactive Content",
-      description: "Engage with dynamic, multimedia content including AR/VR experiences, interactive simulations, and gamified challenges.",
+      title: t("feature_interactive_title"),
+      description: t("feature_interactive_desc"),
       gradient: "from-purple-400 via-indigo-500 to-blue-600"
     },
     {
       icon: "📊",
-      title: "Progress Visualization",
-      description: "Beautiful, intuitive dashboards provide comprehensive views of your learning journey with actionable insights.",
+      title: t("feature_progress_title"),
+      description: t("feature_progress_desc"),
       gradient: "from-teal-400 via-cyan-500 to-blue-600"
     },
     {
       icon: "🤝",
-      title: "Collaborative Learning",
-      description: "Connect with peers, join study groups, and participate in knowledge-sharing communities worldwide.",
+      title: t("feature_collab_title"),
+      description: t("feature_collab_desc"),
       gradient: "from-pink-400 via-red-500 to-yellow-500"
     }
   ];
 
   const stats = [
-    { value: "500K+", label: "Active Learners" },
-    { value: "98%", label: "Success Rate" },
-    { value: "50+", label: "Countries" },
-    { value: "4.9★", label: "User Rating" }
+    { value: "500K+", label: t("stat_learners") },
+    { value: "98%", label: t("stat_success") },
+    { value: "50+", label: t("stat_countries") },
+    { value: "4.9★", label: t("stat_rating") }
   ];
 
   return (
@@ -96,7 +98,7 @@ const Landing = () => {
         </div>
 
         {/* Mouse Follower */}
-        <div 
+        <div
           className="edu-mouse-follower"
           style={{
             left: mousePosition.x - 200,
@@ -109,19 +111,17 @@ const Landing = () => {
           <div className="edu-hero-content">
             <div className="edu-hero-text">
               <div className="edu-hero-badge">
-                <span>✨ Powered by Advanced AI</span>
+                <span>{t("hero_badge")}</span>
               </div>
-              
+
               <h1 className="edu-hero-title">
-                Transform Learning with 
-                <span className="edu-gradient-text"> EDUGRAM</span>
+                {t("hero_title_1")}
+                <span className="edu-gradient-text"> {t("hero_title_2")}</span>
                 <div className="edu-title-decoration"></div>
               </h1>
-              
+
               <p className="edu-hero-description">
-                Experience the future of education with our revolutionary AI-powered platform. 
-                Join over 500,000 learners who've accelerated their journey to success with 
-                personalized, adaptive learning experiences.
+                {t("hero_description")}
               </p>
 
               <div className="edu-hero-stats">
@@ -134,22 +134,22 @@ const Landing = () => {
               </div>
 
               <div className="edu-hero-actions">
-                <button 
-                  onClick={() => signIn('google')} 
+                <button
+                  onClick={() => signIn('google')}
                   className="edu-primary-cta"
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
                   <img src="/images/google-icon-logo-svgrepo-com.svg" alt="Google" />
-                  <span>Start Learning with Google</span>
+                  <span>{t("hero_cta_google")}</span>
                   <div className="edu-btn-glow"></div>
                 </button>
-                
-                <button 
+
+                <button
                   className="edu-secondary-cta"
                   onClick={() => window.open('https://www.youtube.com/watch?v=NI1kW_3qH88&t=0s', '_blank')}
                 >
-                  <span>Watch Demo</span>
+                  <span>{t("hero_cta_demo")}</span>
                   <div className="edu-play-icon">▶</div>
                 </button>
               </div>
@@ -183,10 +183,10 @@ const Landing = () => {
         {/* Features Grid */}
         <section className="edu-features-section">
           <div className="edu-section-header">
-            <h2>Why Choose EDUGRAM?</h2>
-            <p>Cutting-edge features designed to maximize your learning potential</p>
+            <h2>{t("why_choose")}</h2>
+            <p>{t("why_choose_desc")}</p>
           </div>
-          
+
           <div className="edu-features-grid">
             {features.map((feature, index) => (
               <div key={index} className="edu-feature-card">
@@ -206,20 +206,20 @@ const Landing = () => {
         <section className="edu-demo-section">
           <div className="edu-demo-content">
             <div className="edu-demo-text">
-              <h2>Experience the Future of Learning</h2>
-              <p>See how our AI adapts to your learning style in real-time</p>
+              <h2>{t("experience_future")}</h2>
+              <p>{t("experience_future_desc")}</p>
               <div className="edu-demo-features">
                 <div className="edu-demo-feature">
                   <div className="edu-check-icon">✓</div>
-                  <span>Real-time adaptation to your pace</span>
+                  <span>{t("demo_feature_1")}</span>
                 </div>
                 <div className="edu-demo-feature">
                   <div className="edu-check-icon">✓</div>
-                  <span>Personalized content recommendations</span>
+                  <span>{t("demo_feature_2")}</span>
                 </div>
                 <div className="edu-demo-feature">
                   <div className="edu-check-icon">✓</div>
-                  <span>Interactive progress tracking</span>
+                  <span>{t("demo_feature_3")}</span>
                 </div>
               </div>
             </div>
@@ -233,16 +233,16 @@ const Landing = () => {
                 <div className="edu-mockup-content">
                   <div className="edu-progress-bars">
                     <div className="edu-progress-bar">
-                      <span>Machine Learning</span>
-                      <div className="edu-progress"><div style={{width: '85%'}}></div></div>
+                      <span>{t("machine_learning")}</span>
+                      <div className="edu-progress"><div style={{ width: '85%' }}></div></div>
                     </div>
                     <div className="edu-progress-bar">
-                      <span>Data Structures</span>
-                      <div className="edu-progress"><div style={{width: '72%'}}></div></div>
+                      <span>{t("data_structures")}</span>
+                      <div className="edu-progress"><div style={{ width: '72%' }}></div></div>
                     </div>
                     <div className="edu-progress-bar">
-                      <span>Algorithms</span>
-                      <div className="edu-progress"><div style={{width: '91%'}}></div></div>
+                      <span>{t("algorithms")}</span>
+                      <div className="edu-progress"><div style={{ width: '91%' }}></div></div>
                     </div>
                   </div>
                 </div>
@@ -254,14 +254,14 @@ const Landing = () => {
         {/* Call to Action */}
         <section className="edu-final-cta">
           <div className="edu-cta-content">
-            <h2>Ready to Transform Your Learning?</h2>
-            <p>Join the revolution in personalized education</p>
-            <button 
-              onClick={() => signIn('google')} 
+            <h2>{t("ready_transform")}</h2>
+            <p>{t("join_revolution")}</p>
+            <button
+              onClick={() => signIn('google')}
               className="edu-final-cta-btn"
             >
               <img src="/images/google-icon-logo-svgrepo-com.svg" alt="Google" />
-              <span>Get Started Now</span>
+              <span>{t("get_started")}</span>
             </button>
           </div>
         </section>
