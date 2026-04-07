@@ -57,7 +57,9 @@ const SignLanguageAnimation: React.FC<{ text: string }> = ({ text }) => {
   if (animationData.length === 0) return null;
 
   const word = animationData[currentIndex];
-  const mediaSrc = `${backend_url}/static/animations/${word.format}/${word.word}.${word.format}`;
+  // const mediaSrc = `${backend_url}/static/animations/${word.format}/${word.word}.${word.format}`;
+  // This ensures that EVERY request goes through your serve_sign_video logic
+const mediaSrc = `${backend_url}/api/sign-video/${word.word}/`;
 
   return (
     <div className="sign-animation-box">

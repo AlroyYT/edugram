@@ -114,30 +114,23 @@ const AnimationView: React.FC = () => {
   }, [currentIndex]);
 
   const handleVideoEnded = () => {
-    if (currentIndex < videoRefs.current.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setCurrentIndex(-1);
-    }
-  };
+  if (currentIndex < animationData.length - 1) {
+    setCurrentIndex(prev => prev + 1); // Move to next word
+  } else {
+    // Sequence finished - you can either stay on the last frame or reset
+    console.log("All animations finished");
+    // If you want it to disappear after finishing: setCurrentIndex(-1);
+  }
+};
 
-  const renderWord = (wordData: WordData, index: number) => {
-    if (wordData.format === "none") {
-      return (
-        <div 
-          key={wordData.word} 
-          className={`word-display ${currentIndex === index ? 'active' : ''}`}
-        >
-          {wordData.word}
-        </div>
-      );
-    }
+  const renderWord = (wordData: any, index: number) => {
+    // Use the URL sent by the backend if it exists, otherwise construct it
+    // const mediaSrc = wordData.url || `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    const mediaSrc = 'http://127.0.0.1:8000/api/sign-video/finish/';
 
-    const mediaSrc = `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
-    
     return (
       <div 
-        key={wordData.word}
+        key={index} // Use index to avoid issues with duplicate words
         className={`media-container ${currentIndex === index ? 'active' : ''}`}
       >
         <div className="media-wrapper">
@@ -146,17 +139,13 @@ const AnimationView: React.FC = () => {
               ref={el => {
                 if (el) videoRefs.current[index] = el;
               }}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                borderRadius: '20px',
-                display: currentIndex === index ? 'block' : 'none'
-              }}
+              // ... keep your existing style
+              src={mediaSrc} // Set src directly on the video tag for easier reloads
+              autoPlay
               muted
               onEnded={handleVideoEnded}
+              playsInline
             >
-              <source src={mediaSrc} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           ) : (
@@ -868,7 +857,7 @@ const AnimationView: React.FC = () => {
                       key={index} 
                       className={`word-status ${status.status}`}
                     >
-                      {status.word}
+                      {/* {status.word} */}
                     </div>
                   ))}
                 </div>
@@ -876,26 +865,64 @@ const AnimationView: React.FC = () => {
             )}
 
             <div className="animation-section">
-              {animationData.length > 0 && !loading ? (
-                animationData.map((wordData, index) => renderWord(wordData, index))
-              ) : !loading && !error ? (
-                <div className="placeholder-text">
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤟</div>
-                  <p>Your sign language animation will appear here</p>
-                  <p style={{ fontSize: '1rem', marginTop: '0.5rem', opacity: 0.7 }}>
-                    Enter text above and click generate to get started
-                  </p>
-                </div>
-              ) : loading ? (
-                <div className="placeholder-text">
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔄</div>
-                  <p>Creating your sign language animation...</p>
-                  <p style={{ fontSize: '1rem', marginTop: '0.5rem', opacity: 0.7 }}>
-                    Processing {sentence.split(' ').length} words
-                  </p>
-                </div>
-              ) : null}
-            </div>
+  {animationData.length > 0 && !loading && currentIndex >= 0 ? (
+    <div className="media-container active">
+      <div className="media-wrapper">
+        {animationData[currentIndex].format === "mp4" ? (
+          <video 
+            key={currentIndex} // CRITICAL: This forces the video player to reset for each new word
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              borderRadius: '20px',
+            }}
+            src={animationData[currentIndex].url || `http://127.0.0.1:8000/api/sign-video/${animationData[currentIndex].word}/`}
+            autoPlay
+            muted
+            onEnded={handleVideoEnded}
+            playsInline
+          >
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <img 
+            src={animationData[currentIndex].url || `http://127.0.0.1:8000/api/sign-video/${animationData[currentIndex].word}/`}
+            // alt={animationData[currentIndex].word}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              borderRadius: '20px',
+            }}
+          />
+        )}
+        {/* Overlay showing the current word */}
+        <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          background: 'rgba(0,0,0,0.5)',
+          color: 'white',
+          padding: '5px 15px',
+          borderRadius: '20px',
+          fontWeight: 'bold'
+        }}>
+          {/* {animationData[currentIndex].word} */}
+        </div>
+      </div>
+    </div>
+  ) : !loading && !error ? (
+    <div className="placeholder-text">
+      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤟</div>
+      <p>Your sign language animation will appear here</p>
+    </div>
+  ) : loading ? (
+    <div className="placeholder-text">
+      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔄</div>
+      <p>Creating your sign language animation...</p>
+    </div>
+  ) : null}
+</div>
 
             <div className="footer">
               <p>🚀 Empowering inclusive communication with cutting-edge AI technology Built by EDUGRAM core developers</p>

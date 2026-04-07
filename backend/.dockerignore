@@ -29,3 +29,20 @@ Thumbs.db
 # Docker
 Dockerfile
 docker-compose.yml
+
+#extra files
+gesture_generator.log
+req.txt
+temp_audio_0.mp3
+temp_audio_1.mp3
+temp_audio_2.mp3
+temp_audio_3.mp3
+temp_audio_4.mp3
+temp_img_0.jgp
+temp_img_1.jgp
+temp_img_2.jgp
+temp_img_3.jgp
+temp_img_4.jgp
+final_video.mp4
+explain_how_cpu_works_20260119_183110_82558e55.mp4
+staticfiles

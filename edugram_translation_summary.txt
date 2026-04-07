@@ -1,0 +1,134 @@
+
+PROJECT SUMMARY: EDUGRAM AUTO TRANSLATION ATTEMPT
+
+Project:
+Edugram (Next.js + React)
+
+Goal:
+Implement multi-language support (Indian languages) across the entire website
+without manually modifying every component (like Google Translate behavior).
+
+--------------------------------------------------
+
+APPROACHES TRIED:
+
+1. Google Translate Widget
+- Rejected due to visible Google branding (not suitable for college demo)
+
+2. i18next
+- Rejected because it requires adding translation keys in every file
+
+3. Custom Auto-Translate System (Chosen Approach)
+
+--------------------------------------------------
+
+IMPLEMENTATION DETAILS:
+
+Frontend:
+- Language switcher with buttons (English, Hindi, Kannada, Tamil, Telugu)
+- autoTranslate function:
+    1. Extract text from DOM
+    2. Send to backend API
+    3. Receive translated text
+    4. Replace text in DOM
+
+Backend:
+- API endpoint: /api/translate
+- Uses LibreTranslate API
+- Input: { texts: [...], target: "hi" }
+- Output: { translations: [...] }
+
+--------------------------------------------------
+
+VERSIONS TRIED:
+
+Version 1:
+- Used document.querySelectorAll("*") and innerText
+- Issues:
+  - Duplicate texts
+  - CSS/JSON included
+  - Layout breaks
+
+Version 2:
+- Used TreeWalker and nodeValue with index mapping
+- Issues:
+  - React replaces DOM → stale nodes
+  - Index mismatch
+  - Duplicate text problems
+
+Version 3:
+- Added setTimeout delay
+- Stored language in localStorage
+- Issues:
+  - React re-render overwrites translation
+  - Not consistent
+
+Version 4:
+- Used Map<string, Node[]> for safer mapping
+- Issues:
+  - Still not updating UI reliably
+  - React hydration conflicts
+
+--------------------------------------------------
+
+BACKEND ISSUES:
+
+- 429 Too Many Requests (rate limiting)
+- Docker LibreTranslate stuck during startup
+- External API failure (ENOTFOUND)
+- Eventually fixed → API works correctly
+
+--------------------------------------------------
+
+CURRENT STATUS:
+
+- API works ✅
+- Text extraction works ✅
+- No runtime errors ✅
+- UI does NOT update ❌
+
+--------------------------------------------------
+
+ROOT PROBLEM:
+
+React + Next.js rendering conflict
+
+Flow:
+1. Page renders in English
+2. Translation script modifies DOM
+3. React re-renders
+4. DOM resets back to English
+
+Additional issues:
+- Hydration mismatch errors
+- Duplicate text nodes
+- Dynamic rendering overrides changes
+
+--------------------------------------------------
+
+REQUIREMENT:
+
+Need a global translation solution:
+- Works across entire app
+- No manual changes in each component
+- Suitable for demo purposes
+
+--------------------------------------------------
+
+KEY QUESTION:
+
+How to implement global auto-translation in Next.js
+without React overwriting DOM changes?
+
+Possible directions:
+1. Better architecture?
+2. Hook into React lifecycle?
+3. Middleware / proxy-based translation?
+4. Avoid DOM manipulation entirely?
+
+--------------------------------------------------
+
+FINAL NOTE:
+
+Current approach = DOM manipulation
+Works in plain JS but unstable in React/Next.js due to virtual DOM control.

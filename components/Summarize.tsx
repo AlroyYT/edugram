@@ -215,8 +215,9 @@ const Summarize = ({ file }: { file: File | null }) => {
       );
     }
 
-    const mediaSrc = `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
-    
+    // This ensures that EVERY request goes through your serve_sign_video logic
+const mediaSrc = `${backend_url}/api/sign-video/${wordData.word}/`;
+
     return (
       <div 
         key={wordData.word}

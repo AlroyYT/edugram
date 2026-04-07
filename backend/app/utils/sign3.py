@@ -50,16 +50,35 @@ load_isl_model()
 
 def apply_rule_engine(text):
     """
-    Implements Steps 2, 3, and 4: Simplifying and extracting meaning.
+    Implements Syntactic Transfer:
+    1. Temporal Hoisting (Time-First Rule)
+    2. Functional Morpheme Deletion (Stop-words)
+    3. Lemmatization (Root forms)
     """
-    # Step 3: Remove Non-Essential Words 
+    # --- SYNTACTIC HOISTING: TIME-FIRST RULE ---
+    # Define common temporal markers in ISL
+    time_markers = r'\b(yesterday|today|tomorrow|now|soon|later|morning|night|afternoon|evening|daily|weekly|month|year)\b'
+    
+    # Extract the time word if it exists
+    found_time = re.search(time_markers, text, flags=re.IGNORECASE)
+    
+    if found_time:
+        time_word = found_time.group(0)
+        # Remove the time word from its original position
+        text = re.sub(time_markers, '', text, flags=re.IGNORECASE)
+        # Hoist the time word to the front (Sentence-Initial Position)
+        text = f"{time_word} {text}"
+
+    # --- FUNCTIONAL MORPHEME DELETION (Stop Words) ---
     stop_words = r'\b(am|is|are|the|a|an|to|at|in|of|been|be|was|were|do|does|did|has|have|had)\b'
     text = re.sub(stop_words, '', text, flags=re.IGNORECASE)
     
-    # Step 4: Convert to Root Forms 
-    text = re.sub(r'ing\b', '', text, flags=re.IGNORECASE)  # e.g., eating -> eat
-    text = re.sub(r'ed\b', '', text, flags=re.IGNORECASE)   # e.g., played -> play
+    # --- LEMMATIZATION (Simplification to Root Forms) ---
+    # Reducing inflectional morphology to base lemmas
+    text = re.sub(r'ing\b', '', text, flags=re.IGNORECASE)  # e.g., "running" -> "run"
+    text = re.sub(r'ed\b', '', text, flags=re.IGNORECASE)   # e.g., "played" -> "play"
     
+    # Step 10 Clean up: Remove extra spaces and normalize to Uppercase (ISL Glossing style)
     return " ".join(text.split()).upper()
 
 def predict_gloss_with_model(text):

@@ -42,12 +42,22 @@ const Summary = () => {
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
-    if (summary && typeof summary === 'string') {
+  if (summary && typeof summary === 'string') {
+    try {
+      // Try standard decoding first
       const decodedSummary = decodeURIComponent(summary);
       setSummaryText(decodedSummary);
-      setIsLoading(false);
+    } catch (e) {
+      console.error("URI Decoding failed, falling back to manual cleanup:", e);
+      
+      // FALLBACK: If decodeURIComponent fails due to malformed % signs, 
+      // we manually replace the query-encoded plus signs and use the raw string.
+      const manualDecode = summary.replace(/\+/g, ' ');
+      setSummaryText(manualDecode);
     }
-  }, [summary]);
+    setIsLoading(false);
+  }
+}, [summary]);
 useEffect(() => {
   if (summaryText && voiceEnabled) {
     const timeout = setTimeout(() => {
@@ -243,7 +253,8 @@ useEffect(() => {
       return null;
     }
   
-    const mediaSrc = `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    // This ensures that EVERY request goes through your serve_sign_video logic
+const mediaSrc = `${backend_url}/api/sign-video/${wordData.word}/`;
     
     return (
       <div 

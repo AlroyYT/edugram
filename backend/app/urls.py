@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 # from app.views import visual_mindmap,test_mindmap
 
@@ -22,11 +22,14 @@ from .views import (
     evaluate_pronunciation_view,
     serve_backend_video,
     generate_drag_and_match,
-    design_digital_circuit
+    design_digital_circuit, 
+    # animation_view,
+    serve_sign_video
     # Add the new hand sign detection functions  
 )
 
-from .utils.sign2 import animation_view
+# from .utils.sign2 import animation_view
+from .utils.sign_backup import animation_view
 
 urlpatterns = [
     # Your existing URLs
@@ -46,10 +49,14 @@ urlpatterns = [
     # Image Analysis URLs
     path('analyze-image/', ImageAnalysisView.as_view(), name='analyze_image'),
     
+    # app/urls.py
+    path('sign-video/<str:video_name>/', views.serve_sign_video, name='serve_sign_video'),
+    
     # Kinesthetic Learning
     path('generate-drag-and-match/', generate_drag_and_match, name='generate_drag_and_match'),
     path('design-digital-circuit/', design_digital_circuit, name='design_digital_circuit'),
-    
+    re_path(r'^static/animations/mp4/(?P<video_name>[\w-]+)(\.mp4)?/?$', serve_sign_video),
+
     # Paper Search URL
     path('search-paper/', search_paper, name='search_paper'),
     

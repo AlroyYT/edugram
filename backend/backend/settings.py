@@ -195,7 +195,12 @@ CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 # STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# This is for when you run collectstatic in production
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

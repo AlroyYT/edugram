@@ -7,6 +7,7 @@ import urllib
 import whisper
 import base64
 import re
+import torch
 import time
 import traceback
 import mediapipe as mp
@@ -59,6 +60,10 @@ from .models import GeneratedVideo
 from .serializers import GeneratedVideoSerializer
 from moviepy.editor import AudioFileClip
 from .utils.subtitle_generator import generate_sentence_srt
+from transformers import T5ForConditionalGeneration, T5Tokenizer
+from deep_translator import GoogleTranslator
+from django.contrib.staticfiles import finders
+from safetensors.torch import load_file
 
 # Set up ffmpeg path using relative path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1880,3 +1885,138 @@ Design the circuit now:"""
         return JsonResponse({"error": str(e)}, status=500)
 
 
+MODEL_DIR = os.path.join(settings.BASE_DIR, 'isl_model')
+weights_path = os.path.join(MODEL_DIR, 'model.safetensors')
+
+# 1. Load Tokenizer from base to avoid local config issues
+tokenizer = T5Tokenizer.from_pretrained("t5-small", legacy=False)
+
+# 2. Initialize empty Model architecture
+model = T5ForConditionalGeneration.from_pretrained("t5-small")
+
+try:
+    # 3. Manually load the weights dictionary
+    state_dict = load_file(weights_path)
+    
+    # 4. Inject weights into the model
+    # strict=False allows it to load even if there's a slight mismatch
+    model.load_state_dict(state_dict, strict=False)
+    
+    model.to(torch.device("cpu"))
+    model.eval()
+    print("✅ SUCCESS: ISL Model loaded manually, bypassing metadata error.")
+except Exception as e:
+    print(f"❌ Manual Load Failed: {e}")
+    # Fallback to base model so the server doesn't crash
+    model = T5ForConditionalGeneration.from_pretrained("t5-small")
+
+def translate_to_english(text):
+    """Converts Hindi, Kannada, etc. to English first."""
+    try:
+        return GoogleTranslator(source='auto', target='en').translate(text)
+    except:
+        return text # Fallback to original if translation fails
+
+def get_isl_gloss(english_text):
+    """Uses your trained T5 model to get the ISL structure."""
+    input_text = "translate English to ISL: " + english_text
+    inputs = tokenizer(input_text, return_tensors="pt", max_length=128, truncation=True)
+    
+    with torch.no_grad():
+        outputs = model.generate(inputs["input_ids"], max_length=128)
+    
+    return tokenizer.decode(outputs[0], skip_special_tokens=True).lower()
+
+@csrf_exempt
+def animation_view(request):
+    if request.method == 'POST':
+        raw_text = request.POST.get('sen', '')
+        if not raw_text:
+            return JsonResponse({'error': 'No text provided'}, status=400)
+
+        # print("\n" + "="*50)
+        # print("DEBUG: ISL FILE SEARCH")
+        # print("="*50)
+        
+        # # 1. Print where Django is looking
+        # print(f"BASE_DIR: {settings.BASE_DIR}")
+        # print(f"STATICFILES_DIRS: {settings.STATICFILES_DIRS}")
+        
+        # # 2. List ALL files Django can see in 'animations'
+        # print("\nListing all files found in 'animations' directory via finders:")
+        # found_anything = False
+        # # This checks the virtual combined static structure
+        # for finder in finders.get_finders():
+        #     for path, storage in finder.list([]):
+        #         if path.startswith('animations'):
+        #             print(f" FOUND FILE: {path}")
+        #             found_anything = True
+        
+        # if not found_anything:
+        #     print(" !!! WARNING: No files found starting with 'animations/'")
+
+        STATIC = os.path.join(settings.BASE_DIR, 'static')
+        # print(f"\nChecking actual filesystem at: {STATIC}/animations")
+
+        # STEP A: Translate to English (Handles Hindi, Tamil, etc.)
+        english_text = translate_to_english(raw_text)
+
+        # STEP B: Get Contextual ISL Gloss from your AI Model
+        isl_gloss = get_isl_gloss(english_text)
+        sentence = request.POST.get('sen', '').lower()
+        
+        # STEP C: Map Gloss words to Video Files
+        final_animation_list = []
+        words_to_find = isl_gloss.split()
+
+        # Inside your animation_view loop in views.py:
+        for word in words_to_find:
+            # Use your existing 'finders.find' logic to check if it exists
+            found = finders.find(f'animations/mp4/{word}.mp4')
+            
+            if found:
+                final_animation_list.append({
+                    'word': word,
+                    # Pointing to your new custom URL
+                    'url': f"http://127.0.0.1:8000/api/sign-video/{word}/", 
+                    'format': 'mp4'
+                })
+            else:
+                # ... your existing fallback for spelling ...
+                for char in word:
+                    if finders.find(f'animations/mp4/{char}.mp4'):
+                        final_animation_list.append({
+                            'word': char,
+                            'url': f"http://127.0.0.1:8000/api/sign-video/{char}/",
+                            'format': 'mp4'
+                        })
+
+        return JsonResponse({
+            'original_text': raw_text,
+            'translated_english': english_text,
+            'isl_gloss': isl_gloss,
+            'words': final_animation_list
+        })
+    
+
+def serve_sign_video(request, video_name):
+    # 1. Clean the video_name (strip .mp4 if the URL included it)
+    clean_name = video_name.replace('.mp4', '').lower().strip()
+    
+    # 2. Define the absolute path to your animations folder
+    # Adjust 'app' if your static folder is inside an app directory
+    base_anim_path = os.path.join(settings.BASE_DIR, 'static', 'animations', 'mp4')
+    
+    # 3. Check for MP4 first
+    mp4_path = os.path.join(base_anim_path, f"{clean_name}.mp4")
+    if os.path.exists(mp4_path):
+        return FileResponse(open(mp4_path, 'rb'), content_type='video/mp4')
+    
+    # 4. Fallback to WEBP (The "Same Logic" as your API)
+    webp_path = os.path.join(base_anim_path, f"{clean_name}.webp")
+    if os.path.exists(webp_path):
+        return FileResponse(open(webp_path, 'rb'), content_type='image/webp')
+        
+    # 5. Final Fail
+    print(f"❌ File not found in static storage: {clean_name}")
+    raise Http404(f"Video '{clean_name}' not found.")
