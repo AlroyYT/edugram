@@ -138,3 +138,5 @@ backend/app/__pycache__
 backend/app/utils/__pycache__
 
 __pycache__/
+
+backend/isl_model
