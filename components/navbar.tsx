@@ -23,7 +23,7 @@ const Navbar = () => {
   return (
     <nav className="edu-navbar" ref={navbarRef}>
       <div className="edu-navbar-brand">
-        <a href="/">EDUGRAM</a>
+        <a href="/">NEURO-LEARN</a>
       </div>
 
       <ul className="edu-navbar-menu">

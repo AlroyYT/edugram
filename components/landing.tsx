@@ -24,7 +24,7 @@ const Landing = () => {
   }, []);
 
   const testimonials = [
-    { text: "EDUGRAM transformed my learning experience!", author: "Sarah Chen", role: "Computer Science Student" },
+    { text: "NEURO-LEARN transformed my learning experience!", author: "Sarah Chen", role: "Computer Science Student" },
     { text: "The AI-powered insights are incredible.", author: "Michael Rodriguez", role: "Data Science Professional" },
     { text: "Finally, a platform that adapts to how I learn.", author: "Emily Johnson", role: "Engineering Student" }
   ];
@@ -78,8 +78,8 @@ const Landing = () => {
   return (
     <>
       <Head>
-        <title>EDUGRAM | Your AI-Powered Learning Platform</title>
-        <meta name="description" content="Personalized learning experiences with EDUGRAM's AI technology" />
+        <title>NEURO-LEARN | Your AI-Powered Learning Platform</title>
+        <meta name="description" content="Personalized learning experiences with NEURO-LEARN's AI technology" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -114,7 +114,7 @@ const Landing = () => {
               
               <h1 className="edu-hero-title">
                 Transform Learning with 
-                <span className="edu-gradient-text"> EDUGRAM</span>
+                <span className="edu-gradient-text"> NEURO-LEARN</span>
                 <div className="edu-title-decoration"></div>
               </h1>
               
@@ -168,7 +168,7 @@ const Landing = () => {
             <div className="edu-hero-visual">
               <div className="edu-image-container">
                 <div className="edu-image-glow"></div>
-                <img src="/images/edugramlogo.png" alt="EDUGRAM Learning Platform" />
+                <img src="/images/neuro-learn.png" alt="EDUGRAM Learning Platform" />
                 <div className="edu-floating-elements">
                   <div className="edu-float-1">📚</div>
                   <div className="edu-float-2">🎓</div>
@@ -183,7 +183,7 @@ const Landing = () => {
         {/* Features Grid */}
         <section className="edu-features-section">
           <div className="edu-section-header">
-            <h2>Why Choose EDUGRAM?</h2>
+            <h2>Why Choose NEURO-LEARN?</h2>
             <p>Cutting-edge features designed to maximize your learning potential</p>
           </div>
           

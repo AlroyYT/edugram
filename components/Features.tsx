@@ -57,18 +57,18 @@ const Features = () => {
 
   const features = [
     {
-      title: "Blind Assistance",
-      message: "This is blind assistance",
+      title: "Auditory Study",
+      message: "This is auditory study",
       description: "Advanced tools designed specifically for visually impaired users, providing audio descriptions and enhanced navigation support.",
       icon: "👁️",
-      link:"/voice-assistant",
+      link:"/jarvis2",
       color: "#8A2BE2",
       hoverColor: "#9d4df3",
       bgGradient: "linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(138, 43, 226, 0.05) 100%)",
     },
     {
-      title: "Deaf Assistance",
-      message: "This is deaf assistance",
+      title: "Reading and Writing",
+      message: "This is reading and writing assistance",
       description: "Comprehensive solutions for hearing-impaired individuals with visual cues, transcription services, and sign language integration.",
       icon: "👂",
       link: "/deaf",

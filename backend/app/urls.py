@@ -22,7 +22,11 @@ from .views import (
     evaluate_pronunciation_view,
     serve_backend_video,
     generate_drag_and_match,
-    design_digital_circuit
+    design_digital_circuit,
+    jarvis_health,
+    jarvis_configure,
+    jarvis_chat,
+    jarvis_reset,
     # Add the new hand sign detection functions  
 )
 
@@ -63,4 +67,9 @@ urlpatterns = [
     # path("visual/test-mindmap/", test_mindmap, name="test-mindmap")
     path('videos/', views.list_videos, name='list_videos'),
     path('videos/<int:video_id>/', views.delete_video, name='delete_video'),
+    path('health/',    jarvis_health,     name='jarvis_health'),
+    path('configure/', jarvis_configure,  name='jarvis_configure'),
+    path('chat/',      jarvis_chat,       name='jarvis_chat'),
+    path('reset',     jarvis_reset,      name='jarvis_reset'),
+    
 ]
