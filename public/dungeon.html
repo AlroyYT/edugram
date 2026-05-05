@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Dungeon Learning Quest</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;font-family:'VT323',monospace;overflow:hidden;width:100vw;height:100vh;display:flex;flex-direction:column;margin:0;padding:0;}
+
+/* ── PROMPT SCREEN ── */
+#prompt-screen{position:fixed;inset:0;background:#07070e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:24px;padding:24px}
+#prompt-screen h1{font-family:'Press Start 2P',monospace;font-size:clamp(10px,2vw,16px);color:#c8a000;text-align:center;line-height:1.8;text-shadow:0 0 20px #c8a00066}
+#prompt-screen p{font-size:clamp(14px,2vw,18px);color:#7a6a9a;text-align:center;max-width:600px;line-height:1.6}
+#topic-input{width:min(560px,90vw);background:#0d0d1a;border:2px solid #4a2a7a;color:#e0d8f0;font-family:'VT323',monospace;font-size:20px;padding:14px 18px;outline:none;resize:none;height:90px}
+#topic-input:focus{border-color:#c8a000}
+#topic-input::placeholder{color:#3a2a5a}
+.difficulty-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.diff-btn{font-family:'Press Start 2P',monospace;font-size:8px;padding:10px 16px;background:#0d0d1a;border:2px solid #2a1a4a;color:#666;cursor:pointer;transition:all .2s}
+.diff-btn.selected{border-color:#c8a000;color:#c8a000;background:#1a1500}
+#start-btn{font-family:'Press Start 2P',monospace;font-size:10px;padding:14px 28px;background:#1a0a30;border:2px solid #c8a000;color:#c8a000;cursor:pointer;transition:all .2s;position:relative}
+#start-btn:hover{background:#2a1a40;box-shadow:0 0 20px #c8a00044}
+#start-btn:disabled{opacity:.4;cursor:not-allowed}
+#loading-overlay{position:fixed;inset:0;background:#07070edd;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:20px}
+#loading-overlay h2{font-family:'Press Start 2P',monospace;font-size:12px;color:#c8a000}
+#loading-overlay p{font-size:18px;color:#7a6a9a;text-align:center;max-width:400px}
+.spinner{width:40px;height:40px;border:3px solid #2a1a4a;border-top-color:#c8a000;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── HUD ── */
+#hud{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#0d0d1a;border-bottom:2px solid #2a1a4a;flex-shrink:0;height:52px;gap:8px;flex-wrap:wrap}
+#hud .title{font-family:'Press Start 2P',monospace;font-size:7px;color:#c8a000;white-space:nowrap}
+.hud-center{display:flex;gap:6px}
+.dtab{font-size:8px;padding:3px 8px;border:1px solid #333;cursor:pointer;font-family:'Press Start 2P',monospace;background:transparent;color:#555;white-space:nowrap}
+.dtab.active{border-color:#c8a000;color:#c8a000;background:#1a1500}
+.dtab.locked{color:#2a2a2a;border-color:#1a1a1a;cursor:not-allowed}
+.dtab.done{border-color:#225522;color:#22aa44;background:#0a150a}
+.hud-right{display:flex;gap:12px;align-items:center}
+.bar-wrap{display:flex;align-items:center;gap:5px}
+.bar-label{font-size:10px;color:#888;width:20px}
+.bar-outer{width:70px;height:9px;background:#1a0a0a;border:1px solid #442222}
+#player-hp-bar{height:100%;background:#22cc44;transition:width .3s}
+.stat-block{display:flex;flex-direction:column;align-items:center}
+.stat-label{font-size:9px;color:#555}
+.stat-val{font-size:13px;color:#e0d080}
+#hp-num{font-size:13px;color:#e0d080}
+
+/* ── GAME ── */
+#game-area{flex:1;position:relative;overflow:hidden;width:100%;min-height:0;}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;}
+/* ── HUD OVERLAYS ── */
+#dungeon-label{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:9px;color:#c8a00077;pointer-events:none;white-space:nowrap}
+#topic-label{position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:13px;color:#6a5a8a;pointer-events:none;white-space:nowrap;max-width:80vw;overflow:hidden;text-overflow:ellipsis}
+#interact-btn{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#1a0a30;border:2px solid #c8a000;color:#c8a000;font-family:'Press Start 2P',monospace;font-size:7px;padding:7px 14px;cursor:pointer;display:none;animation:pulse-btn .8s ease-in-out infinite alternate;z-index:10;white-space:nowrap}
+@keyframes pulse-btn{from{box-shadow:0 0 4px #c8a000}to{box-shadow:0 0 16px #c8a000,0 0 30px #c8a00033}}
+#key-hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:12px;color:#333;pointer-events:none;white-space:nowrap}
+#msg-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a0a1a;border:2px solid #aa3300;color:#ff6644;font-family:'Press Start 2P',monospace;font-size:8px;padding:10px 18px;display:none;text-align:center;z-index:20;white-space:nowrap}
+#hazard-alert{position:absolute;top:0;left:0;right:0;height:60px;display:none;align-items:center;justify-content:center;z-index:15;pointer-events:none}
+#hazard-text{font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,13px);text-align:center;animation:hazard-flash .3s ease-in-out infinite alternate;padding:0 10px}
+@keyframes hazard-flash{from{opacity:.7}to{opacity:1}}
+
+/* ── BATTLE MODAL ── */
+#battle-modal{position:absolute;inset:0;background:#00000099;display:none;align-items:center;justify-content:center;z-index:30}
+#battle-box{background:#08080f;border:2px solid #4a2a7a;width:min(640px,96vw);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+#battle-top{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;border-bottom:1px solid #1a1a2a;gap:12px;flex-wrap:wrap}
+.battle-entity{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+.entity-name{font-family:'Press Start 2P',monospace;font-size:7px}
+.entity-name.player-name{color:#44aaff}
+.entity-name.dragon-name{color:#ff4444}
+.entity-hp-wrap{display:flex;align-items:center;gap:6px}
+.entity-hp-label{font-size:10px;color:#666;min-width:20px}
+.entity-hp-outer{flex:1;height:12px;border:1px solid #333}
+.entity-hp-inner{height:100%;transition:width .4s}
+.player-hp-inner{background:#22cc44}
+.dragon-hp-inner{background:#dd2222}
+.entity-hp-num{font-size:11px;color:#888;min-width:50px;text-align:right}
+#battle-sprite{text-align:center;padding:6px 0;flex-shrink:0}
+#dragon-canvas{width:180px;height:110px;image-rendering:pixelated;display:block;margin:0 auto}
+#battle-body{padding:12px 14px}
+#battle-story{font-size:13px;color:#9988aa;margin-bottom:10px;line-height:1.5;font-style:italic;border-left:2px solid #4a2a7a;padding-left:8px}
+#q-progress{font-family:'Press Start 2P',monospace;font-size:7px;color:#555;margin-bottom:8px}
+#q-type-badge{display:inline-block;font-family:'Press Start 2P',monospace;font-size:6px;padding:3px 8px;margin-bottom:8px;border-radius:0}
+.badge-mcq{background:#1a0a30;border:1px solid #6644aa;color:#9966cc}
+.badge-fill{background:#0a1a10;border:1px solid #226644;color:#44aa66}
+.badge-num{background:#1a1000;border:1px solid #885500;color:#cc8800}
+#q-text{font-size:17px;color:#e0d8f0;margin-bottom:12px;line-height:1.5;min-height:44px}
+#options-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+#options-grid.single-col{grid-template-columns:1fr}
+.opt-btn{background:#0d0d1a;border:1px solid #3a2a5a;color:#c8c0e0;font-family:'VT323',monospace;font-size:15px;padding:9px 11px;cursor:pointer;text-align:left;transition:all .15s;line-height:1.3;word-break:break-word}
+.opt-btn:hover:not(:disabled){border-color:#9966cc;background:#14103a;color:#e8e0ff}
+.opt-btn.correct{border-color:#22cc44!important;background:#0a1f0a!important;color:#44ff66!important}
+.opt-btn.wrong{border-color:#cc2222!important;background:#1f0a0a!important;color:#ff4444!important}
+.opt-btn:disabled{cursor:not-allowed;opacity:.7}
+#fill-input-wrap{margin-bottom:12px;display:none}
+#fill-input{width:100%;background:#0d0d1a;border:1px solid #3a2a5a;color:#e0d8f0;font-family:'VT323',monospace;font-size:18px;padding:10px 14px;outline:none}
+#fill-input:focus{border-color:#9966cc}
+#fill-submit-btn{font-family:'Press Start 2P',monospace;font-size:7px;padding:8px 14px;background:#1a0a30;border:2px solid #9966cc;color:#cc99ff;cursor:pointer;margin-top:6px}
+#feedback-line{font-size:14px;min-height:18px;margin-bottom:8px;color:#aaa;line-height:1.4}
+#battle-next-btn{font-family:'Press Start 2P',monospace;font-size:7px;padding:8px 16px;background:#1a0a30;border:2px solid #9966cc;color:#cc99ff;cursor:pointer;display:none}
+#battle-result{display:none;text-align:center;padding:14px}
+.result-title{font-family:'Press Start 2P',monospace;font-size:11px;margin-bottom:10px}
+.result-title.win{color:#22cc44}
+.result-title.lose{color:#cc2222}
+#result-desc{font-size:15px;color:#aaa;margin-bottom:14px;line-height:1.5}
+#result-close-btn{font-family:'Press Start 2P',monospace;font-size:7px;padding:9px 14px;background:#0a1a0a;border:2px solid #22cc44;color:#22cc44;cursor:pointer}
+#result-close-btn.defeat-btn{background:#1a0a0a;border-color:#cc2222;color:#cc2222}
+
+/* ── WIN ── */
+#win-screen{position:absolute;inset:0;background:#000000dd;display:none;align-items:center;justify-content:center;z-index:40;flex-direction:column;gap:18px}
+#win-screen h1{font-family:'Press Start 2P',monospace;font-size:clamp(12px,3vw,20px);color:#c8a000;text-align:center;line-height:1.8;text-shadow:0 0 20px #c8a000}
+#win-screen p{font-size:18px;color:#888;text-align:center}
+#win-screen button{font-family:'Press Start 2P',monospace;font-size:8px;padding:12px 22px;background:#1a1500;border:2px solid #c8a000;color:#c8a000;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- ══ PROMPT SCREEN ══ -->
+<div id="prompt-screen">
+  <h1>⚔ DUNGEON<br>LEARNING QUEST ⚔</h1>
+  <p>What topic do you want to learn today? The dungeon and all its dragons will be built around your answer.</p>
+  <textarea id="topic-input" placeholder="e.g. React hooks, SQL joins, Newton's laws of motion, Python decorators..."></textarea>
+  <div class="difficulty-row">
+    <button class="diff-btn selected" data-diff="easy" onclick="selectDiff(this)">EASY</button>
+    <button class="diff-btn" data-diff="medium" onclick="selectDiff(this)">MEDIUM</button>
+    <button class="diff-btn" data-diff="hard" onclick="selectDiff(this)">HARD</button>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+  <button id="start-btn" onclick="startGame(false)">⚔ ENTER DUNGEON (AI)</button>
+  <button id="default-btn" onclick="startGame(true)" style="font-family:'Press Start 2P',monospace;font-size:10px;padding:14px 28px;background:#0a1a0a;border:2px solid #22cc44;color:#22cc44;cursor:pointer;transition:all .2s" onmouseover="this.style.background='#0f2a0f'" onmouseout="this.style.background='#0a1a0a'">🎮 DEFAULT MODE</button>
+</div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <h2>GENERATING DUNGEON...</h2>
+  <p id="loading-msg">Consulting the ancient scrolls of Gemini...</p>
+</div>
+
+<!-- ══ HUD ══ -->
+<div id="hud">
+  <div class="title">⚔ DLQ</div>
+  <div class="hud-center" id="dungeon-tabs"></div>
+  <div class="hud-right">
+    <div class="bar-wrap">
+      <div class="bar-label">HP</div>
+      <div class="bar-outer"><div id="player-hp-bar" style="width:100%"></div></div>
+      <span id="hp-num">100</span>
+    </div>
+    <div class="stat-block"><div class="stat-label">XP</div><div class="stat-val" id="xp-num">0</div></div>
+    <div class="stat-block"><div class="stat-label">LVL</div><div class="stat-val" id="lvl-num">1</div></div>
+  </div>
+</div>
+
+<!-- ══ GAME AREA ══ -->
+<div id="game-area">
+  <canvas id="canvas"></canvas>
+  <div id="dungeon-label"></div>
+  <div id="topic-label"></div>
+  <button id="interact-btn">[ E ] ACTION</button>
+  <div id="key-hint">WASD move · E interact · SPACE jump · SHIFT duck</div>
+  <div id="msg-toast"></div>
+  <div id="hazard-alert"><div id="hazard-text"></div></div>
+
+  <!-- BATTLE MODAL -->
+  <div id="battle-modal">
+    <div id="battle-box">
+      <div id="battle-top">
+        <div class="battle-entity">
+          <div class="entity-name player-name">🗡 HERO</div>
+          <div class="entity-hp-wrap">
+            <div class="entity-hp-label">HP</div>
+            <div class="entity-hp-outer"><div class="entity-hp-inner player-hp-inner" id="bmod-player-hp" style="width:100%"></div></div>
+            <div class="entity-hp-num" id="bmod-player-hp-num">100/100</div>
+          </div>
+        </div>
+        <div id="battle-sprite"><canvas id="dragon-canvas" width="180" height="110"></canvas></div>
+        <div class="battle-entity" style="align-items:flex-end">
+          <div class="entity-name dragon-name" id="dragon-name-label">DRAGON</div>
+          <div class="entity-hp-wrap">
+            <div class="entity-hp-label">HP</div>
+            <div class="entity-hp-outer"><div class="entity-hp-inner dragon-hp-inner" id="bmod-dragon-hp" style="width:100%"></div></div>
+            <div class="entity-hp-num" id="bmod-dragon-hp-num">100/100</div>
+          </div>
+        </div>
+      </div>
+      <div id="battle-body">
+        <div id="battle-story"></div>
+        <div id="q-progress"></div>
+        <span id="q-type-badge" class="badge-mcq">MCQ</span>
+        <div id="q-text"></div>
+        <div id="options-grid"></div>
+        <div id="fill-input-wrap">
+          <input type="text" id="fill-input" placeholder="Type your answer..."/>
+          <button id="fill-submit-btn" onclick="submitFillAnswer()">SUBMIT ▶</button>
+        </div>
+        <div id="feedback-line"></div>
+        <button id="battle-next-btn">NEXT QUESTION ▶</button>
+      </div>
+      <div id="battle-result">
+        <div class="result-title" id="result-title"></div>
+        <p id="result-desc"></p>
+        <button id="result-close-btn">CONTINUE</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="win-screen">
+    <h1>🏆 ALL DUNGEONS<br>CONQUERED! 🏆</h1>
+    <p id="win-stats"></p>
+    <button onclick="resetToPrompt()">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  GEMINI API
+// ══════════════════════════════════════════════════════
+const GEMINI_KEY = "AIzaSyDcoPDE3K8yPTY9jRdiVxgLdWDdHeb1tBc";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
+
+async function callGemini(prompt) {
+  const res = await fetch(GEMINI_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      contents:[{parts:[{text: prompt}]}],
+      generationConfig:{temperature:0.8, maxOutputTokens:4000}
+    })
+  });
+  if(!res.ok) throw new Error("Gemini API error: "+res.status);
+  const data = await res.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+async function generateDungeonData(topic, difficulty, useDefault=false) {
+  if(useDefault) {
+    document.getElementById("loading-msg").textContent = "Loading default dungeon data...";
+    await new Promise(r => setTimeout(r, 800));
+    const STATIC_DATA = {
+      dungeons: [
+        {
+          name: "Cavern of Kinematics",
+          dragons: [
+            { name:"Velocitron", lore:"A beast of pure motion, never at rest.", color:"#e05a00", hp:70,
+              questions:[
+                {type:"MCQ",q:"A car travels 60 km in 1.5 hours. What is its average speed?",opts:["30 km/h","40 km/h","45 km/h","60 km/h"],ans:"40 km/h"},
+                {type:"NUM",q:"A ball dropped from rest falls for 3s. How far? (g=10 m/s²)",ans:"45"},
+                {type:"FILL",q:"Speed = Distance ÷ ___",ans:"time"}
+              ]},
+            { name:"Accelerathos", lore:"It accelerates into battle, defying friction.", color:"#cc3300", hp:75,
+              questions:[
+                {type:"MCQ",q:"A train goes from 20 m/s to 60 m/s in 8s. Acceleration?",opts:["4 m/s²","5 m/s²","8 m/s²","10 m/s²"],ans:"5 m/s²"},
+                {type:"NUM",q:"v = u + at. u=0, a=3 m/s², t=6s. Find v.",ans:"18"},
+                {type:"FILL",q:"Slope of a velocity-time graph gives ___",ans:"acceleration"}
+              ]},
+            { name:"Displacementh", lore:"Master of vectors and displacement.", color:"#aa4400", hp:80,
+              questions:[
+                {type:"MCQ",q:"Which is a vector quantity?",opts:["Speed","Distance","Displacement","Temperature"],ans:"Displacement"},
+                {type:"NUM",q:"s = ut + ½at². u=5, a=2, t=4. Find s.",ans:"36"},
+                {type:"FILL",q:"Displacement is the ___ distance between two points.",ans:"shortest"}
+              ]}
+          ]
+        },
+        {
+          name: "Fortress of Forces",
+          dragons: [
+            { name:"Newtonis Rex", lore:"Embodies the three laws, unmovable as an axiom.", color:"#5500cc", hp:100,
+              questions:[
+                {type:"MCQ",q:"Newton's 2nd Law states F = ?",opts:["mv","ma","m/a","v/t"],ans:"ma"},
+                {type:"NUM",q:"A 5 kg object has 30 N net force. Find acceleration (m/s²).",ans:"6"},
+                {type:"FILL",q:"Every action has an equal and opposite ___",ans:"reaction"}
+              ]},
+            { name:"Frictionus", lore:"Opposes all who pass through its lair.", color:"#3300aa", hp:110,
+              questions:[
+                {type:"MCQ",q:"Friction on a moving object is called?",opts:["Static","Rolling","Kinetic","Fluid"],ans:"Kinetic"},
+                {type:"NUM",q:"Normal force = 40 N, μ = 0.25. Find friction force.",ans:"10"},
+                {type:"FILL",q:"Friction acts ___ to the direction of motion.",ans:"opposite"}
+              ]},
+            { name:"Gravitron", lore:"Pulls all things toward destruction at 9.8 m/s².", color:"#220088", hp:120,
+              questions:[
+                {type:"MCQ",q:"Weight of 10 kg on Earth? (g=9.8)",opts:["9.8 N","98 N","10 N","980 N"],ans:"98 N"},
+                {type:"NUM",q:"4 kg mass, 20 N force, frictionless. Find acceleration.",ans:"5"},
+                {type:"FILL",q:"Weight = mass × ___",ans:"gravity"}
+              ]}
+          ]
+        },
+        {
+          name: "Lair of Energy",
+          dragons: [
+            { name:"Kineticus", lore:"Radiates kinetic energy in all directions.", color:"#cc8800", hp:140,
+              questions:[
+                {type:"MCQ",q:"Kinetic energy formula?",opts:["mgh","½mv²","Fs","mv"],ans:"½mv²"},
+                {type:"NUM",q:"2 kg ball at 6 m/s. Find KE (J).",ans:"36"},
+                {type:"FILL",q:"KE depends on mass and ___",ans:"velocity"}
+              ]},
+            { name:"Potentialis", lore:"Stores energy in the silence of great heights.", color:"#009966", hp:150,
+              questions:[
+                {type:"MCQ",q:"PE = mgh. m=3kg, g=10, h=5m. PE = ?",opts:["15 J","50 J","150 J","300 J"],ans:"150 J"},
+                {type:"NUM",q:"Object has 200 J PE at h=10 m. Find mass. (g=10)",ans:"2"},
+                {type:"FILL",q:"At max height, a projectile has zero ___ energy.",ans:"kinetic"}
+              ]},
+            { name:"Conservatrix", lore:"Guardian of the law: energy is never destroyed.", color:"#006699", hp:160,
+              questions:[
+                {type:"MCQ",q:"Conservation of energy means energy is:",opts:["Created from nothing","Destroyed by friction","Converted between forms","Always kinetic"],ans:"Converted between forms"},
+                {type:"NUM",q:"1 kg ball falls 20 m. Speed just before ground? (g=10)",ans:"20"},
+                {type:"FILL",q:"The SI unit of energy is the ___",ans:"joule"}
+              ]}
+          ]
+        }
+      ]
+    };
+    document.getElementById("loading-msg").textContent = "Built dungeon 3 of 3...";
+    await new Promise(r => setTimeout(r, 300));
+    return STATIC_DATA;
+  }
+
+  // ── GEMINI AI MODE ──
+  const diffMap = {easy:"beginner",medium:"intermediate",hard:"advanced"};
+  const level = diffMap[difficulty];
+  const difficultyLabels = ["basic (dungeon 1)", "intermediate (dungeon 2)", "advanced (dungeon 3)"];
+  const dungeons = [];
+  for (let i = 0; i < 3; i++) {
+    const prompt = `You are a game master generating questions for a dungeon learning game.
+Topic: "${topic}"
+Difficulty: ${level} - ${difficultyLabels[i]}
+
+Generate exactly 1 dungeon with 3 dragons, each dragon with 3 questions.
+Mix question types: MCQ (multiple choice), FILL (fill in the blank), NUM (numerical).
+For FILL: answer must be 1-4 words. For NUM: answer must be a number.
+For MCQ: provide exactly 4 options, one correct.
+
+Give the dungeon a unique name and flavor related to the topic.
+For each dragon: thematic name + lore (1 sentence, max 12 words).
+
+Respond ONLY with valid JSON, no markdown, no backticks:
+{
+  "name": "string",
+  "dragons": [
+    {
+      "name": "string",
+      "lore": "string",
+      "color": "#rrggbb",
+      "hp": 80,
+      "questions": [
+        {"type":"MCQ","q":"question","opts":["A","B","C","D"],"ans":"correct option"},
+        {"type":"FILL","q":"question with ___ blank","ans":"short answer"},
+        {"type":"NUM","q":"numerical question","ans":"42"}
+      ]
+    }
+  ]
+}
+
+Use a vivid unique color per dragon. HP range: dungeon ${i+1} = ${[60,90,130][i]}-${[80,120,180][i]}.`;
+
+    const raw = await callGemini(prompt);
+    const clean = raw.replace(/```json\s*/gi,"").replace(/```\s*/gi,"").trim();
+    dungeons.push(JSON.parse(clean));
+    document.getElementById("loading-msg").textContent = `Built dungeon ${i+1} of 3...`;
+  }
+  return { dungeons };
+}
+
+// ══════════════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════════════
+let G = {
+  dungeons: [],
+  currentDungeon: 0,
+  playerHP: 100, maxHP: 100,
+  xp: 0, level: 1,
+  defeatedDragons: new Set(),
+  defeatedDungeons: new Set(),
+  unlockedDoors: new Set(),
+  player: { x:60, y:200, w:18, h:26, vx:0, vy:0 },
+  keys: {},
+  nearDragon: null,
+  nearDoor: null,
+  inBattle: false,
+  battle: {},
+  tick: 0,
+  playerDir: 1,
+  walkCycle: 0,
+  hazard: null,        // {type:'jump'|'duck', deadline, warned}
+  hazardTimer: null,
+  topic: "",
+  difficulty: "easy",
+  started: false
+};
+
+// ══════════════════════════════════════════════════════
+//  MAZE DEFINITIONS  (per dungeon, tile-based)
+// ══════════════════════════════════════════════════════
+// Each dungeon has its own maze layout
+// W=wall, .=floor, P=player start, 1/2/3=dragon positions, A/B/C=doors
+// Mazes are 28 cols × 18 rows
+const MAZE_LAYOUTS = [
+  // DUNGEON 0 - Cave of Knowledge
+  [
+   "############################",
+   "#P....#......#.............#",
+   "#.###.#.####.#.###########.#",
+   "#.#...#.#....#.#...........#",
+   "#.#.###.#.##.#.#.#########.#",
+   "#.#.#...#.##.A.#.#.........#",
+   "#.#.#.###.##.#.#.#.#######.#",
+   "#.#.#.....#..#.#.#.#.......#",
+   "#.#.#####.#.##.#.#.#.#####.#",
+   "#.#.....#.#.#..#.#.#.#1....#",
+   "#.#####.#.#.#..#.#.#.#####.#",
+   "#.......#.#....#.#.#.......#",
+   "#.#######.######.#.#######.#",
+   "#.#...............#.......#.#",
+   "#.#.###########.B.#.#####.#.#",
+   "#...#...........#...#...2.#.#",
+   "#...#.#########.#...#####.3.#",
+   "############################",
+  ],
+  // DUNGEON 1 - Lava Fortress
+  [
+   "############################",
+   "#P.......................#..#",
+   "#.#####################.#..#",
+   "#.#...................#.#..#",
+   "#.#.###############.#.#.#.#",
+   "#.#.#...............#.#.#.#",
+   "#.#.#.#############.A.#.#.#",
+   "#.#.#.#.............#.#.#.#",
+   "#.#.#.#.###########.#.1.#.#",
+   "#.#.#.#.#...........#.###.#",
+   "#.#.#.#.#.#########.#.....#",
+   "#.#.#.#.#.#...#.....#####.#",
+   "#.#.#.#.#.#.B.#.....#.....#",
+   "#.#.#.#.#.#...#.....#.2...#",
+   "#.#.#.#.#.#####.....#.###.#",
+   "#.#...#.#...........#.#...#",
+   "#.#...#.#######.....3.#...#",
+   "############################",
+  ],
+  // DUNGEON 2 - Ice Labyrinth
+  [
+   "############################",
+   "#P#.....#...#...#...#.....#",
+   "#.#.###.#.#.#.#.#.#.#.###.#",
+   "#...#.#...#...#...#...#...#",
+   "#####.#############.###.###",
+   "#.....#...........#...#...#",
+   "#.#####.#########.#.#.#.#.#",
+   "#.#.....#.......#.#.#.#.#.#",
+   "#.#.#####.#####.A.#.#.1.#.#",
+   "#.#.#.....#...#.#.#.###.#.#",
+   "#.#.#.#####.#.#.#.#.....#.#",
+   "#.#.#.#.....#.#.#.#####.#.#",
+   "#.#.#.#.#####.B.#.....#.#.#",
+   "#.#.#.#.#.......#####.#.#.#",
+   "#.#.#.#.#.....#.....#.2.#.#",
+   "#...#...#.###.#.###.#.###.#",
+   "#...#...#.....#.....#.....3",
+   "############################",
+  ]
+];
+
+const TILE = 36; // px per tile
+
+// Parse maze into wall rects + special positions
+function parseMaze(layoutIdx) {
+  const rows = MAZE_LAYOUTS[layoutIdx];
+  const walls=[], doors=[], dragons=[];
+  let playerStart={x:60,y:200};
+  rows.forEach((row,ry)=>{
+    for(let cx=0;cx<row.length;cx++){
+      const ch=row[cx];
+      const px=cx*TILE, py=ry*TILE;
+      if(ch==='#') walls.push({x:px,y:py,w:TILE,h:TILE});
+      else if(ch==='A') doors.push({id:'A',x:px,y:py,open:false,color:"#cc6600"});
+      else if(ch==='B') doors.push({id:'B',x:px,y:py,open:false,color:"#aa00cc"});
+      else if(ch==='P') playerStart={x:px+4,y:py+4};
+      else if(ch==='1') dragons.push({idx:0,x:px+TILE/2,y:py+TILE/2});
+      else if(ch==='2') dragons.push({idx:1,x:px+TILE/2,y:py+TILE/2});
+      else if(ch==='3') dragons.push({idx:2,x:px+TILE/2,y:py+TILE/2});
+    }
+  });
+  return {walls,doors,dragons,playerStart};
+}
+
+// Precomputed maze data (filled after maze parse)
+let mazeData = [{walls:[],doors:[],dragons:[],playerStart:{x:60,y:200}},{walls:[],doors:[],dragons:[],playerStart:{x:60,y:200}},{walls:[],doors:[],dragons:[],playerStart:{x:60,y:200}}];
+
+// ══════════════════════════════════════════════════════
+//  CANVAS
+// ══════════════════════════════════════════════════════
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let W=800, H=500;
+// Camera
+let cam = {x:0, y:0};
+const MAZE_W = 28*TILE;
+const MAZE_H = 18*TILE;
+
+let SCALE = 1;
+
+function resize() {
+  const area = document.getElementById("game-area");
+  W = canvas.width = area.clientWidth;
+  H = canvas.height = area.clientHeight;
+  // Scale maze to fill screen
+  SCALE = Math.min(W / MAZE_W, H / MAZE_H);
+}
+resize();
+window.addEventListener("resize", resize);
+
+// ══════════════════════════════════════════════════════
+//  INPUT
+// ══════════════════════════════════════════════════════
+document.addEventListener("keydown", e=>{
+  if(!G.started) return;
+  state_keys[e.key] = true;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) e.preventDefault();
+  if((e.key==="e"||e.key==="E") && !G.inBattle) {
+    if(G.nearDragon) startBattle(G.nearDragon);
+    else if(G.nearDoor) tryOpenDoor(G.nearDoor);
+  }
+  if(e.key===" ") handleHazardKey("jump");
+  if(e.key==="Shift") handleHazardKey("duck");
+});
+document.addEventListener("keyup", e=>{ state_keys[e.key]=false; });
+const state_keys = {};
+
+document.getElementById("interact-btn").addEventListener("click",()=>{
+  if(G.nearDragon && !G.inBattle) startBattle(G.nearDragon);
+  else if(G.nearDoor) tryOpenDoor(G.nearDoor);
+});
+
+// ══════════════════════════════════════════════════════
+//  DIFFICULTY SELECT
+// ══════════════════════════════════════════════════════
+let selectedDiff = "easy";
+function selectDiff(btn) {
+  document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("selected"));
+  btn.classList.add("selected");
+  selectedDiff = btn.dataset.diff;
+}
+
+// ══════════════════════════════════════════════════════
+//  START GAME
+// ══════════════════════════════════════════════════════
+async function startGame(useDefault=false) {
+  const topic = useDefault ? "Maths & Physics" : document.getElementById("topic-input").value.trim();
+  if(!useDefault && !topic) { alert("Please enter a topic!"); return; }
+  G.topic = topic;
+  G.difficulty = selectedDiff;
+  document.getElementById("start-btn").disabled = true;
+  document.getElementById("loading-overlay").style.display="flex";
+  const msgs = [
+    "Consulting the ancient scrolls of Gemini...",
+    "Summoning dragons from the knowledge abyss...",
+    "Carving dungeon corridors...",
+    "Enchanting questions with dark magic..."
+  ];
+  let mi=0;
+  const mInterval = setInterval(()=>{ document.getElementById("loading-msg").textContent=msgs[mi++%msgs.length]; },1800);
+  try {
+    const data = await generateDungeonData(topic, selectedDiff, useDefault);
+    clearInterval(mInterval);
+    // Merge Gemini data into dungeons
+    G.dungeons = data.dungeons.map((d,i)=>({
+      ...d,
+      id: i,
+      dragons: d.dragons.map((dr,j)=>({
+        ...dr,
+        id:`d${i}_${j}`,
+        x:0, y:0 // will be overridden by maze positions
+      }))
+    }));
+    // Parse all mazes
+    for(let i=0;i<3;i++) {
+      mazeData[i] = parseMaze(i);
+      // Assign dragon positions from maze
+      mazeData[i].dragons.forEach(pos=>{
+        if(G.dungeons[i]&&G.dungeons[i].dragons[pos.idx]) {
+          G.dungeons[i].dragons[pos.idx].x = pos.x;
+          G.dungeons[i].dragons[pos.idx].y = pos.y;
+        }
+      });
+    }
+    document.getElementById("loading-overlay").style.display="none";
+    document.getElementById("prompt-screen").style.display="none";
+    G.started = true;
+    G.playerHP = 100; G.maxHP = 100; G.xp = 0; G.level = 1;
+    G.defeatedDragons.clear(); G.defeatedDungeons.clear();
+    G.unlockedDoors.clear();
+    resetPlayerToStart();
+    updateHUD(); updateDungeonTabs();
+    document.getElementById("dungeon-label").textContent = G.dungeons[0]?.name||"Dungeon 1";
+    document.getElementById("topic-label").textContent = "Topic: "+topic;
+    scheduleHazard();
+    gameLoop();
+  } catch(err) {
+    clearInterval(mInterval);
+    document.getElementById("loading-overlay").style.display="none";
+    document.getElementById("start-btn").disabled = false;
+    alert("Failed to generate dungeon: "+err.message+"\nCheck your API key and try again.");
+  }
+}
+
+function resetPlayerToStart() {
+  const start = mazeData[G.currentDungeon]?.playerStart||{x:60,y:200};
+  G.player = {x:start.x, y:start.y, w:18, h:26, vx:0, vy:0};
+  cam.x=0; cam.y=0;
+}
+
+function resetToPrompt() {
+  G.started=false;
+  G.defeatedDragons.clear(); G.defeatedDungeons.clear(); G.unlockedDoors.clear();
+  G.currentDungeon=0;
+  document.getElementById("win-screen").style.display="none";
+  document.getElementById("prompt-screen").style.display="flex";
+  document.getElementById("start-btn").disabled=false;
+}
+
+// ══════════════════════════════════════════════════════
+//  HAZARD SYSTEM
+// ══════════════════════════════════════════════════════
+const HAZARD_INTERVAL_MIN = 12000;
+const HAZARD_INTERVAL_MAX = 22000;
+const HAZARD_WARN_TIME = 2500; // ms to react
+
+function scheduleHazard() {
+  if(!G.started) return;
+  const delay = HAZARD_INTERVAL_MIN + Math.random()*(HAZARD_INTERVAL_MAX-HAZARD_INTERVAL_MIN);
+  G.hazardTimer = setTimeout(triggerHazard, delay);
+}
+
+function triggerHazard() {
+  if(!G.started||G.inBattle) { scheduleHazard(); return; }
+  const type = Math.random()<0.5?"jump":"duck";
+  G.hazard = {type, deadline: Date.now()+HAZARD_WARN_TIME, reacted:false, dmg:18};
+  const el = document.getElementById("hazard-alert");
+  const txt = document.getElementById("hazard-text");
+  if(type==="jump"){
+    txt.textContent="⚠ SPIKES! PRESS SPACE TO JUMP! ⚠";
+    txt.style.color="#ffcc00";
+    el.style.background="linear-gradient(#aa660033,transparent)";
+  } else {
+    txt.textContent="⚠ BOULDERS! PRESS SHIFT TO DUCK! ⚠";
+    txt.style.color="#ff6600";
+    el.style.background="linear-gradient(#cc330033,transparent)";
+  }
+  el.style.display="flex";
+  G.hazardTimer = setTimeout(()=>{
+    if(G.hazard&&!G.hazard.reacted) {
+      G.playerHP = Math.max(0, G.playerHP - G.hazard.dmg);
+      updateHUD();
+      showToast(`OUCH! -${G.hazard.dmg} HP!`);
+      if(G.playerHP<=0) { G.playerHP=10; updateHUD(); showToast("You barely survived!"); }
+    }
+    document.getElementById("hazard-alert").style.display="none";
+    G.hazard = null;
+    scheduleHazard();
+  }, HAZARD_WARN_TIME);
+}
+
+function handleHazardKey(type) {
+  if(!G.hazard) return;
+  if(G.hazard.type===type && !G.hazard.reacted) {
+    G.hazard.reacted=true;
+    document.getElementById("hazard-alert").style.display="none";
+    showToast(type==="jump"?"Nice jump! +5 XP":"Smooth duck! +5 XP");
+    G.xp+=5; updateHUD();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  COLLISION
+// ══════════════════════════════════════════════════════
+function collides(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+
+function getWalls(){
+  const md=mazeData[G.currentDungeon];
+  const walls=[...md.walls];
+  // Add closed doors as walls
+  md.doors.forEach(d=>{
+    if(!G.unlockedDoors.has(G.currentDungeon+":"+d.id)){
+      walls.push({x:d.x,y:d.y,w:TILE,h:TILE});
+    }
+  });
+  return walls;
+}
+
+// ══════════════════════════════════════════════════════
+//  DOOR SYSTEM
+// ══════════════════════════════════════════════════════
+function isDoorLocked(dungeonIdx, doorId) {
+  // Door A unlocks after dragon 0 beaten
+  // Door B unlocks after dragon 1 beaten
+  const d = G.dungeons[dungeonIdx];
+  if(!d) return false;
+  if(doorId==='A') return !G.defeatedDragons.has(d.dragons[0]?.id);
+  if(doorId==='B') return !G.defeatedDragons.has(d.dragons[1]?.id);
+  return false;
+}
+
+function tryOpenDoor(door) {
+  const key = G.currentDungeon+":"+door.id;
+  if(G.unlockedDoors.has(key)) { showToast("Door already open!"); return; }
+  if(isDoorLocked(G.currentDungeon, door.id)) {
+    const needed = door.id==='A'?"dragon 1":"dragon 2";
+    showToast("Defeat "+needed+" first!");
+    return;
+  }
+  G.unlockedDoors.add(key);
+  showToast("Door unlocked!");
+}
+
+// ══════════════════════════════════════════════════════
+//  PLAYER UPDATE
+// ══════════════════════════════════════════════════════
+function updatePlayer() {
+  if(G.inBattle||!G.started) return;
+  const speed=2.8;
+  let dx=0,dy=0;
+  if(state_keys["w"]||state_keys["W"]||state_keys["ArrowUp"])    dy=-speed;
+  if(state_keys["s"]||state_keys["S"]||state_keys["ArrowDown"])   dy= speed;
+  if(state_keys["a"]||state_keys["A"]||state_keys["ArrowLeft"])  {dx=-speed;G.playerDir=-1;}
+  if(state_keys["d"]||state_keys["D"]||state_keys["ArrowRight"]) {dx= speed;G.playerDir= 1;}
+  if(dx!==0||dy!==0) G.walkCycle=(G.walkCycle+0.18)%(Math.PI*2);
+  else G.walkCycle=0;
+
+  const walls=getWalls();
+  const p=G.player;
+  // Diagonal normalization
+  if(dx!==0&&dy!==0){dx*=0.707;dy*=0.707;}
+  // X move
+  const nx={x:p.x+dx,y:p.y,w:p.w,h:p.h};
+  if(!walls.some(w=>collides(nx,w))&&nx.x>=0&&nx.x+nx.w<=MAZE_W) p.x+=dx;
+  // Y move
+  const ny={x:p.x,y:p.y+dy,w:p.w,h:p.h};
+  if(!walls.some(w=>collides(ny,w))&&ny.y>=0&&ny.y+ny.h<=MAZE_H) p.y+=dy;
+
+  // Camera follows player (centered)
+  cam.x = Math.max(0, Math.min(MAZE_W - W/SCALE, p.x + p.w/2 - W/SCALE/2));
+  cam.y = Math.max(0, Math.min(MAZE_H - H/SCALE, p.y + p.h/2 - H/SCALE/2));
+
+  // Dragon proximity
+  const d=G.dungeons[G.currentDungeon];
+  G.nearDragon=null;
+  let nearDist=999;
+  if(d) d.dragons.forEach((dr,i)=>{
+    if(G.defeatedDragons.has(dr.id)) return;
+    if(isDragonLocked(G.currentDungeon,i)) return;
+    const dist=Math.hypot(p.x+p.w/2-dr.x, p.y+p.h/2-dr.y);
+    if(dist<70&&dist<nearDist){G.nearDragon=dr;nearDist=dist;}
+  });
+
+  // Door proximity
+  G.nearDoor=null;
+  const md=mazeData[G.currentDungeon];
+  md.doors.forEach(door=>{
+    const key=G.currentDungeon+":"+door.id;
+    const cx=door.x+TILE/2, cy=door.y+TILE/2;
+    const dist=Math.hypot(p.x+p.w/2-cx, p.y+p.h/2-cy);
+    if(dist<65){G.nearDoor=door;}
+  });
+
+  // Interact button
+  const ib=document.getElementById("interact-btn");
+  if(G.nearDragon){
+    ib.textContent="[ E ] FIGHT "+G.nearDragon.name.toUpperCase();
+    ib.style.display="block";
+  } else if(G.nearDoor){
+    const key=G.currentDungeon+":"+G.nearDoor.id;
+    const locked=isDoorLocked(G.currentDungeon,G.nearDoor.id);
+    const open=G.unlockedDoors.has(key);
+    ib.textContent=open?"[ E ] DOOR OPEN":locked?"[ E ] DOOR LOCKED":"[ E ] OPEN DOOR";
+    ib.style.display="block";
+  } else {
+    ib.style.display="none";
+  }
+}
+
+function isDragonLocked(dungeonId,dragonIdx){
+  if(dungeonId>0&&!G.defeatedDungeons.has(dungeonId-1)) return true;
+  if(dragonIdx===0) return false;
+  const d=G.dungeons[dungeonId];
+  return d ? !G.defeatedDragons.has(d.dragons[dragonIdx-1]?.id) : true;
+}
+
+function isDungeonLocked(id){
+  if(id===0) return false;
+  return !G.defeatedDungeons.has(id-1);
+}
+
+// ══════════════════════════════════════════════════════
+//  DRAW HELPERS
+// ══════════════════════════════════════════════════════
+function lighten(hex,amt){
+  if(!hex||hex.length<7) return "#888";
+  let r=parseInt(hex.slice(1,3),16)||0,g=parseInt(hex.slice(3,5),16)||0,b=parseInt(hex.slice(5,7),16)||0;
+  return`rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`;
+}
+function darken(hex,amt){
+  if(!hex||hex.length<7) return "#333";
+  let r=parseInt(hex.slice(1,3),16)||0,g=parseInt(hex.slice(3,5),16)||0,b=parseInt(hex.slice(5,7),16)||0;
+  return`rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`;
+}
+
+function drawPixelHero(cx,cy,dir,walk){
+  ctx.save();
+  if(dir<0){ctx.scale(-1,1);cx=-cx;}
+  // shadow
+  ctx.fillStyle="rgba(0,0,0,0.35)";
+  ctx.beginPath();ctx.ellipse(cx,cy+13,8,3,0,0,Math.PI*2);ctx.fill();
+  const legSwing=Math.sin(walk)*5;
+  // legs
+  ctx.fillStyle="#1a2266";
+  ctx.fillRect(cx-5,cy+6,5,10+legSwing);
+  ctx.fillRect(cx+1,cy+6,5,10-legSwing);
+  // boots
+  ctx.fillStyle="#331100";
+  ctx.fillRect(cx-6,cy+15+legSwing,6,5);
+  ctx.fillRect(cx+1,cy+15-legSwing,6,5);
+  // body
+  ctx.fillStyle="#aa2222";
+  ctx.fillRect(cx-6,cy-6,12,12);
+  // belt
+  ctx.fillStyle="#773300";
+  ctx.fillRect(cx-6,cy+4,12,3);
+  // buckle
+  ctx.fillStyle="#ccaa00";
+  ctx.fillRect(cx-2,cy+4,4,3);
+  // left arm
+  ctx.fillStyle="#aa2222";
+  ctx.fillRect(cx-10,cy-5,4,10);
+  // right arm (sword arm)
+  ctx.fillRect(cx+6,cy-5,4,10);
+  // hands
+  ctx.fillStyle="#f0c080";
+  ctx.fillRect(cx-10,cy+4,4,4);
+  ctx.fillRect(cx+6,cy+4,4,4);
+  // sword
+  ctx.fillStyle="#c0c0c0";
+  ctx.fillRect(cx+10,cy-14,2,22);
+  ctx.fillStyle="#cc8800";
+  ctx.fillRect(cx+7,cy+2,8,3);
+  ctx.fillRect(cx+10,cy-16,3,4);
+  // head
+  ctx.fillStyle="#f0c080";
+  ctx.fillRect(cx-5,cy-16,10,10);
+  // eyes
+  ctx.fillStyle="#222";
+  ctx.fillRect(cx-3,cy-14,2,2);
+  ctx.fillRect(cx+2,cy-14,2,2);
+  // mouth
+  ctx.fillRect(cx-2,cy-10,5,2);
+  // helmet
+  ctx.fillStyle="#884400";
+  ctx.fillRect(cx-6,cy-18,12,4);
+  ctx.fillRect(cx-6,cy-16,2,4);
+  ctx.fillRect(cx+4,cy-16,2,4);
+  // plume
+  ctx.fillStyle="#cc0000";
+  ctx.fillRect(cx-1,cy-22,3,6);
+  ctx.restore();
+}
+
+function drawDragonOnMap(cx,cy,color,name,beaten,wobble,bob){
+  ctx.save();
+  ctx.translate(cx,cy+bob);
+  if(beaten) ctx.globalAlpha=0.35;
+  const w=wobble||0;
+  const c=color||"#888";
+  // shadow
+  if(!beaten){ctx.fillStyle="rgba(0,0,0,0.3)";ctx.beginPath();ctx.ellipse(0,32,22,6,0,0,Math.PI*2);ctx.fill();}
+  // tail
+  ctx.fillStyle=beaten?"#444":darken(c,15);
+  ctx.fillRect(16+w,8,10,7);ctx.fillRect(24+w,12,8,5);ctx.fillRect(30+w,16,7,4);
+  // body
+  ctx.fillStyle=beaten?"#555":c;
+  ctx.fillRect(-16+w,-18,32,36);
+  // belly
+  ctx.fillStyle=beaten?"#444":lighten(c,35);
+  ctx.fillRect(-9+w,-9,18,22);
+  // wings
+  ctx.fillStyle=beaten?"#333":darken(c,25);
+  ctx.fillRect(-36,-26,20,26);ctx.fillRect(16,-26,20,26);
+  // wing membrane lines
+  if(!beaten){ctx.strokeStyle=darken(c,40);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(-36,-26);ctx.lineTo(-16+w,-10);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-28,-26);ctx.lineTo(-16+w,-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(36,-26);ctx.lineTo(16+w,-10);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(28,-26);ctx.lineTo(16+w,-4);ctx.stroke();}
+  // neck+head
+  ctx.fillStyle=beaten?"#555":c;
+  ctx.fillRect(-10+w,-38,20,22);
+  ctx.fillRect(-12+w,-54,24,18);
+  // snout
+  ctx.fillRect(-8+w,-42,16,10);
+  // horns
+  ctx.fillStyle=beaten?"#333":"#774400";
+  ctx.fillRect(-12+w,-66,5,14);ctx.fillRect(7+w,-66,5,14);
+  // eyes
+  ctx.fillStyle=beaten?"#222":"#ffee00";
+  ctx.fillRect(-8+w,-52,5,5);ctx.fillRect(3+w,-52,5,5);
+  ctx.fillStyle="#000";ctx.fillRect(-7+w,-51,3,3);ctx.fillRect(4+w,-51,3,3);
+  // nostrils
+  ctx.fillStyle=beaten?"#222":"#550000";
+  ctx.fillRect(-5+w,-36,3,3);ctx.fillRect(2+w,-36,3,3);
+  // teeth
+  ctx.fillStyle="#fff";ctx.fillRect(-7+w,-32,3,5);ctx.fillRect(4+w,-32,3,5);
+  // feet
+  ctx.fillStyle=beaten?"#333":darken(c,18);
+  ctx.fillRect(-16+w,16,8,10);ctx.fillRect(8+w,16,8,10);
+  ctx.fillStyle=beaten?"#222":darken(c,30);
+  ctx.fillRect(-19+w,24,5,4);ctx.fillRect(10+w,24,5,4);
+
+  if(!beaten){
+    // name tag
+    ctx.fillStyle="rgba(0,0,0,0.7)";
+    const tw=name.length*6+12;
+    ctx.fillRect(-tw/2,-78,tw,14);
+    ctx.fillStyle="#fff";
+    ctx.font="bold 9px VT323,monospace";ctx.textAlign="center";
+    ctx.fillText(name,-1,-67);
+    // HP bar mini
+    ctx.fillStyle="#1a0000";ctx.fillRect(-24,-64,48,6);
+    ctx.fillStyle="#dd2222";ctx.fillRect(-24,-64,48,6);
+    ctx.strokeStyle="#440000";ctx.lineWidth=1;ctx.strokeRect(-24,-64,48,6);
+  }
+  ctx.globalAlpha=1;
+  ctx.restore();
+}
+
+function drawDungeonTheme(){
+  const p = G.player;
+  ctx.save();
+  ctx.scale(SCALE, SCALE);
+  ctx.translate(-cam.x, -cam.y);
+
+  // ── BACKGROUND LAYER (fills entire maze) ──
+  if(G.currentDungeon === 0) drawCaveBG();
+  else if(G.currentDungeon === 1) drawLavaBG();
+  else drawIceBG();
+
+  // ── FLOOR TILES (semi-transparent overlay) ──
+  const floorAlphas = [0.18, 0.15, 0.20];
+  const floorColors = ["#1a0e06","#1a0600","#060a14"];
+  ctx.globalAlpha = floorAlphas[G.currentDungeon];
+  for(let x=0;x<MAZE_W;x+=TILE){
+    for(let y=0;y<MAZE_H;y+=TILE){
+      ctx.fillStyle=(Math.floor(x/TILE)+Math.floor(y/TILE))%2===0?floorColors[G.currentDungeon]:"#000";
+      ctx.fillRect(x,y,TILE,TILE);
+    }
+  }
+  ctx.globalAlpha=1;
+
+  // ── WALLS ──
+  const wallColors = ["#1a0e06","#2a0800","#0a1428"];
+  const wallHighlight = ["rgba(180,100,40,0.13)","rgba(255,80,0,0.13)","rgba(80,160,255,0.13)"];
+  const md=mazeData[G.currentDungeon];
+  md.walls.forEach(w=>{
+    ctx.fillStyle=wallColors[G.currentDungeon];
+    ctx.globalAlpha=0.82;
+    ctx.fillRect(w.x,w.y,w.w,w.h);
+    ctx.globalAlpha=1;
+    // Stone texture
+    ctx.fillStyle=wallHighlight[G.currentDungeon];
+    ctx.fillRect(w.x,w.y,w.w,3);
+    ctx.fillRect(w.x,w.y,3,w.h);
+    ctx.fillStyle="rgba(0,0,0,0.5)";
+    ctx.fillRect(w.x,w.y+w.h-3,w.w,3);
+    ctx.fillRect(w.x+w.w-3,w.y,3,w.h);
+    // Brick pattern
+    ctx.strokeStyle="rgba(0,0,0,0.25)";ctx.lineWidth=1;
+    for(let bx=w.x;bx<w.x+w.w;bx+=12){ctx.beginPath();ctx.moveTo(bx,w.y);ctx.lineTo(bx,w.y+w.h);ctx.stroke();}
+    for(let by=w.y;by<w.y+w.h;by+=10){ctx.beginPath();ctx.moveTo(w.x,by);ctx.lineTo(w.x+w.w,by);ctx.stroke();}
+  });
+
+  // ── DOORS ──
+  md.doors.forEach(door=>{
+    const key=G.currentDungeon+":"+door.id;
+    const isOpen=G.unlockedDoors.has(key);
+    const isLocked=isDoorLocked(G.currentDungeon,door.id);
+    if(isOpen){
+      ctx.fillStyle=G.currentDungeon===1?"#1a0400":"#0a1428";
+      ctx.fillRect(door.x,door.y,TILE,TILE);
+      ctx.strokeStyle="#22aa44";ctx.lineWidth=1;ctx.setLineDash([4,4]);
+      ctx.strokeRect(door.x+2,door.y+2,TILE-4,TILE-4);
+      ctx.setLineDash([]);
+    } else {
+      ctx.fillStyle=isLocked?"#3a0a0a":"#0a2a0a";
+      ctx.fillRect(door.x,door.y,TILE,TILE);
+      ctx.strokeStyle=isLocked?"#cc2200":"#22cc44";
+      ctx.lineWidth=2;ctx.strokeRect(door.x+2,door.y+2,TILE-4,TILE-4);
+      ctx.fillStyle=isLocked?"#cc2200":"#22cc44";
+      ctx.font="16px serif";ctx.textAlign="center";
+      ctx.fillText(isLocked?"🔒":"🔓",door.x+TILE/2,door.y+TILE/2+6);
+      ctx.fillStyle=isLocked?"#cc2200":"#22cc44";
+      ctx.font="bold 9px VT323,monospace";
+      ctx.fillText(door.id,door.x+TILE/2,door.y+10);
+    }
+  });
+
+  // ── DRAGONS ──
+  const dg=G.dungeons[G.currentDungeon];
+  if(dg) dg.dragons.forEach((dr,i)=>{
+    const beaten=G.defeatedDragons.has(dr.id);
+    const locked=isDragonLocked(G.currentDungeon,i)&&!beaten;
+    const wobble=beaten?0:Math.sin(G.tick*0.06+i*1.5)*2.5;
+    const bob=beaten?0:Math.sin(G.tick*0.04+i)*4;
+    drawDragonOnMap(dr.x,dr.y+bob,dr.color,dr.name,beaten,wobble,0);
+    if(locked&&!beaten){
+      ctx.fillStyle="rgba(0,0,0,0.75)";
+      ctx.fillRect(dr.x-28,dr.y-82,56,16);
+      ctx.fillStyle="#555";ctx.font="bold 9px VT323,monospace";ctx.textAlign="center";
+      ctx.fillText("LOCKED",dr.x,dr.y-70);
+    }
+  });
+
+  // ── PLAYER ──
+  drawPixelHero(p.x+p.w/2, p.y+p.h/2, G.playerDir, G.walkCycle);
+
+  // ── PROXIMITY RINGS ──
+  if(G.nearDragon){
+    ctx.strokeStyle="rgba(200,160,0,0.45)";
+    ctx.lineWidth=2;ctx.setLineDash([5,5]);
+    ctx.beginPath();ctx.arc(G.nearDragon.x,G.nearDragon.y,70,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(G.nearDoor){
+    const d=G.nearDoor;
+    ctx.strokeStyle="rgba(100,200,100,0.5)";
+    ctx.lineWidth=2;ctx.setLineDash([4,4]);
+    ctx.strokeRect(d.x-4,d.y-4,TILE+8,TILE+8);
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
+}
+
+// ══════════════════════════════════════════════════════
+//  DUNGEON BACKGROUNDS
+// ══════════════════════════════════════════════════════
+
+function drawCaveBG() {
+  // D1: Dark cave — stalactites, dripping water, mossy glow
+  const t = G.tick;
+
+  // Deep cave gradient
+  const grad = ctx.createLinearGradient(0,0,0,MAZE_H);
+  grad.addColorStop(0,"#050305");
+  grad.addColorStop(0.4,"#0a0608");
+  grad.addColorStop(1,"#0d080a");
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,MAZE_W,MAZE_H);
+
+  // Rock texture noise patches
+  ctx.globalAlpha=0.12;
+  for(let i=0;i<180;i++){
+    const rx=((i*137+t*0.1)%MAZE_W);
+    const ry=((i*89+t*0.05)%MAZE_H);
+    const rs=4+((i*53)%18);
+    ctx.fillStyle=i%3===0?"#3a2a1a":i%3===1?"#1a1208":"#2a1a10";
+    ctx.beginPath();ctx.ellipse(rx,ry,rs,rs*0.6,i*0.4,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // Stalactites hanging from ceiling rows (wall tops)
+  const stalCols = [1,3,5,7,9,11,13,15,17,19,21,23,25];
+  stalCols.forEach((col,i)=>{
+    const x = col*TILE + TILE/2;
+    const h = 12 + (i*7)%20;
+    const drip = Math.sin(t*0.03+i*1.1)*0.5+0.5; // 0-1 drip progress
+    ctx.fillStyle="#1a1008";
+    ctx.beginPath();ctx.moveTo(x-6,0);ctx.lineTo(x+6,0);ctx.lineTo(x+2,h);ctx.lineTo(x-2,h);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#2a1a10";
+    ctx.beginPath();ctx.moveTo(x-4,0);ctx.lineTo(x+1,0);ctx.lineTo(x-1,h-2);ctx.closePath();ctx.fill();
+    // Drip drop
+    if(i%2===0){
+      const dripY = h + drip*40;
+      ctx.fillStyle=`rgba(40,80,100,${0.7-drip*0.6})`;
+      ctx.beginPath();ctx.ellipse(x,dripY,2,3,0,0,Math.PI*2);ctx.fill();
+    }
+  });
+
+  // Dripping water puddles on floor
+  for(let i=0;i<12;i++){
+    const px2=(i*173+50)%MAZE_W;
+    const py2=MAZE_H-8;
+    const ripple=(t*0.04+i)%(Math.PI*2);
+    ctx.strokeStyle=`rgba(40,80,120,${0.3+Math.sin(ripple)*0.2})`;
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(px2,py2,4+Math.sin(ripple)*3,1.5,0,0,Math.PI*2);ctx.stroke();
+  }
+
+  // Mossy glow patches (green bioluminescence)
+  const mossPts=[{x:120,y:180},{x:450,y:300},{x:700,y:150},{x:280,y:500},{x:820,y:420}];
+  mossPts.forEach((mp,i)=>{
+    const pulse=0.4+Math.sin(t*0.025+i*1.3)*0.25;
+    const gr=ctx.createRadialGradient(mp.x,mp.y,0,mp.x,mp.y,55);
+    gr.addColorStop(0,`rgba(20,80,30,${pulse})`);
+    gr.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=gr;
+    ctx.fillRect(mp.x-55,mp.y-55,110,110);
+  });
+
+  // Smoke wisps rising from bottom
+  for(let i=0;i<8;i++){
+    const sx=80+i*120;
+    const phase=(t*0.8+i*40)%MAZE_H;
+    const smokeY=MAZE_H-phase;
+    if(smokeY<0) continue;
+    const alpha=Math.max(0,(MAZE_H-phase)/MAZE_H*0.3);
+    ctx.fillStyle=`rgba(60,40,30,${alpha})`;
+    ctx.beginPath();
+    ctx.ellipse(sx+Math.sin(phase*0.04)*15, smokeY, 10+Math.sin(phase*0.02)*5, 18, 0,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawLavaBG() {
+  // D2: Lava fortress — flowing lava rivers, ember particles, heat shimmer
+  const t = G.tick;
+
+  // Dark rock base
+  const grad = ctx.createLinearGradient(0,0,0,MAZE_H);
+  grad.addColorStop(0,"#0d0200");
+  grad.addColorStop(0.5,"#150500");
+  grad.addColorStop(1,"#0a0100");
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,MAZE_W,MAZE_H);
+
+  // Rock texture
+  ctx.globalAlpha=0.18;
+  for(let i=0;i<200;i++){
+    const rx=(i*113+13)%MAZE_W;
+    const ry=(i*79+7)%MAZE_H;
+    ctx.fillStyle=i%2===0?"#3a1500":"#200a00";
+    ctx.beginPath();ctx.rect(rx,ry,3+(i%8),2+(i%5));ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // Lava rivers — horizontal flowing bands
+  const lavaRows=[3,7,11,15];
+  lavaRows.forEach((row,ri)=>{
+    const y=row*TILE;
+    const flowOffset=(t*1.2+ri*80)%MAZE_W;
+    // Lava glow
+    const lavGrad=ctx.createLinearGradient(0,y,0,y+TILE);
+    lavGrad.addColorStop(0,"#cc3300");
+    lavGrad.addColorStop(0.4,"#ff6600");
+    lavGrad.addColorStop(0.7,"#ff4400");
+    lavGrad.addColorStop(1,"#882200");
+    ctx.fillStyle=lavGrad;
+    ctx.globalAlpha=0.55;
+    ctx.fillRect(0,y,MAZE_W,TILE);
+
+    // Flow waves
+    ctx.globalAlpha=0.35;
+    for(let wx=0;wx<MAZE_W+40;wx+=40){
+      const waveX=(wx-flowOffset+MAZE_W)%MAZE_W;
+      ctx.fillStyle="#ff8800";
+      ctx.beginPath();ctx.ellipse(waveX,y+TILE*0.4,22,5,0,0,Math.PI*2);ctx.fill();
+    }
+    // Bright lava highlight streak
+    ctx.globalAlpha=0.22;
+    ctx.fillStyle="#ffcc00";
+    for(let wx=0;wx<MAZE_W+60;wx+=60){
+      const waveX=(wx-flowOffset*1.4+MAZE_W)%MAZE_W;
+      ctx.beginPath();ctx.ellipse(waveX,y+TILE*0.35,10,2,0,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // Lava glow light on surroundings
+    const glowGrad=ctx.createRadialGradient(MAZE_W/2,y+TILE/2,0,MAZE_W/2,y+TILE/2,TILE*2.5);
+    glowGrad.addColorStop(0,`rgba(255,80,0,${0.12+Math.sin(t*0.04+ri)*0.06})`);
+    glowGrad.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=glowGrad;
+    ctx.fillRect(0,y-TILE*2,MAZE_W,TILE*5);
+  });
+
+  // Ember particles floating up
+  for(let i=0;i<50;i++){
+    const seed=i*137;
+    const ex=(seed*73)%MAZE_W;
+    const phase=(t*0.7+seed)%MAZE_H;
+    const ey=MAZE_H-phase;
+    if(ey<0||ey>MAZE_H) continue;
+    const size=0.8+((seed)%3)*0.7;
+    const alpha=Math.min(1,(MAZE_H-phase)/(MAZE_H*0.4))*0.9;
+    const drift=Math.sin(phase*0.02+i)*8;
+    ctx.fillStyle=i%3===0?`rgba(255,200,0,${alpha})`:`rgba(255,100,0,${alpha})`;
+    ctx.beginPath();ctx.arc(ex+drift,ey,size,0,Math.PI*2);ctx.fill();
+  }
+
+  // Heat shimmer lines
+  ctx.globalAlpha=0.06;
+  for(let i=0;i<6;i++){
+    const shimX=((t*0.5+i*160)%MAZE_W);
+    const shimH=30+Math.sin(t*0.07+i)*20;
+    ctx.fillStyle="#ff8800";
+    ctx.beginPath();ctx.moveTo(shimX,0);ctx.lineTo(shimX+8,shimH);ctx.lineTo(shimX-8,shimH);ctx.closePath();ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // Magma cracks on walls (glowing veins)
+  ctx.strokeStyle=`rgba(255,80,0,${0.25+Math.sin(t*0.05)*0.1})`;
+  ctx.lineWidth=1.5;
+  [[100,200,180,260],[300,100,350,180],[600,300,650,400],[900,150,920,230]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  });
+}
+
+function drawIceBG() {
+  // D3: Ice labyrinth — snowfall, aurora, frost crystals
+  const t = G.tick;
+
+  // Cold deep blue gradient
+  const grad = ctx.createLinearGradient(0,0,0,MAZE_H);
+  grad.addColorStop(0,"#010814");
+  grad.addColorStop(0.5,"#020c1c");
+  grad.addColorStop(1,"#010610");
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,MAZE_W,MAZE_H);
+
+  // Aurora borealis bands
+  const auroraColors=[
+    ["rgba(0,200,100,","rgba(0,150,200,"],
+    ["rgba(100,0,200,","rgba(0,200,150,"],
+    ["rgba(0,180,220,","rgba(80,0,180,"]
+  ];
+  for(let a=0;a<3;a++){
+    const ay=60+a*90+Math.sin(t*0.008+a*1.2)*30;
+    const [c1,c2]=auroraColors[a];
+    const aGrad=ctx.createLinearGradient(0,ay,0,ay+80);
+    const alpha=0.07+Math.sin(t*0.015+a*0.8)*0.04;
+    aGrad.addColorStop(0,"rgba(0,0,0,0)");
+    aGrad.addColorStop(0.3,c1+alpha+")");
+    aGrad.addColorStop(0.7,c2+alpha+")");
+    aGrad.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=aGrad;
+    // Wavy aurora shape
+    ctx.beginPath();
+    ctx.moveTo(0,ay);
+    for(let x2=0;x2<=MAZE_W;x2+=40){
+      const waveY=ay+Math.sin(x2*0.008+t*0.02+a)*25;
+      ctx.lineTo(x2,waveY);
+    }
+    ctx.lineTo(MAZE_W,ay+80);ctx.lineTo(0,ay+80);ctx.closePath();
+    ctx.fill();
+  }
+
+  // Ice crystal patches on floor
+  const crystalPts=[{x:150,y:500},{x:400,y:200},{x:700,y:550},{x:900,y:300},{x:250,y:400}];
+  crystalPts.forEach((cp,i)=>{
+    const shimmer=0.3+Math.sin(t*0.04+i*1.7)*0.15;
+    ctx.strokeStyle=`rgba(150,220,255,${shimmer})`;
+    ctx.lineWidth=1;
+    for(let ang=0;ang<6;ang++){
+      const angle=ang*Math.PI/3+t*0.005;
+      const len=12+Math.sin(t*0.03+ang)*4;
+      ctx.beginPath();ctx.moveTo(cp.x,cp.y);ctx.lineTo(cp.x+Math.cos(angle)*len,cp.y+Math.sin(angle)*len);ctx.stroke();
+    }
+    // Crystal glow
+    const cgr=ctx.createRadialGradient(cp.x,cp.y,0,cp.x,cp.y,30);
+    cgr.addColorStop(0,`rgba(100,180,255,${shimmer*0.5})`);
+    cgr.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=cgr;
+    ctx.beginPath();ctx.arc(cp.x,cp.y,30,0,Math.PI*2);ctx.fill();
+  });
+
+  // Snowflakes falling
+  for(let i=0;i<80;i++){
+    const seed=i*97;
+    const sx=((seed*61+t*0.4*(0.5+i%3*0.3))%MAZE_W+MAZE_W)%MAZE_W;
+    const sy=((seed*43+t*(0.6+i%4*0.2))%MAZE_H+MAZE_H)%MAZE_H;
+    const size=0.8+(seed%3)*0.6;
+    const alpha=0.3+(seed%4)*0.12;
+    ctx.fillStyle=`rgba(200,230,255,${alpha})`;
+    ctx.beginPath();ctx.arc(sx,sy,size,0,Math.PI*2);ctx.fill();
+    // Larger flakes get a cross shape
+    if(i%8===0){
+      ctx.strokeStyle=`rgba(200,230,255,${alpha*0.7})`;
+      ctx.lineWidth=0.8;
+      ctx.beginPath();ctx.moveTo(sx-3,sy);ctx.lineTo(sx+3,sy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(sx,sy-3);ctx.lineTo(sx,sy+3);ctx.stroke();
+    }
+  }
+
+  // Frost vignette on edges
+  const frostGrad=ctx.createRadialGradient(MAZE_W/2,MAZE_H/2,MAZE_H*0.3,MAZE_W/2,MAZE_H/2,MAZE_H*0.9);
+  frostGrad.addColorStop(0,"rgba(0,0,0,0)");
+  frostGrad.addColorStop(1,"rgba(10,30,60,0.5)");
+  ctx.fillStyle=frostGrad;
+  ctx.fillRect(0,0,MAZE_W,MAZE_H);
+
+  // Icicles on ceiling
+  const iciCols=[2,4,6,8,10,12,14,16,18,20,22,24,26];
+  iciCols.forEach((col,i)=>{
+    const x=col*TILE+TILE/2;
+    const h=10+(i*11)%22;
+    const melt=(Math.sin(t*0.02+i*0.9)*0.5+0.5);
+    ctx.fillStyle="#8ab8d8";
+    ctx.globalAlpha=0.55;
+    ctx.beginPath();ctx.moveTo(x-5,0);ctx.lineTo(x+5,0);ctx.lineTo(x,h);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=0.25;
+    ctx.fillStyle="#ffffff";
+    ctx.beginPath();ctx.moveTo(x-2,0);ctx.lineTo(x+1,0);ctx.lineTo(x-1,h-2);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;
+    // Melt drip
+    if(i%3===0){
+      const dripY=h+melt*20;
+      ctx.fillStyle=`rgba(140,190,220,${0.6-melt*0.5})`;
+      ctx.beginPath();ctx.ellipse(x,dripY,1.5,2.5,0,0,Math.PI*2);ctx.fill();
+    }
+  });
+}
+// ══════════════════════════════════════════════════════
+//  BATTLE SYSTEM
+// ══════════════════════════════════════════════════════
+function startBattle(dragon) {
+  G.inBattle=true;
+  G.battle={
+    dragonId:dragon.id, dragon,
+    qIdx:0,
+    dragonHP:dragon.hp, maxDragonHP:dragon.hp,
+    answered:false
+  };
+  document.getElementById("interact-btn").style.display="none";
+  document.getElementById("battle-modal").style.display="flex";
+  document.getElementById("battle-result").style.display="none";
+  document.getElementById("battle-body").style.display="block";
+  document.getElementById("dragon-name-label").textContent=dragon.name;
+  document.getElementById("battle-story").textContent=dragon.lore||"";
+  drawBattleDragonCanvas(dragon);
+  renderBattleQuestion();
+  updateBattleHUD();
+}
+
+function drawBattleDragonCanvas(dragon){
+  const bc=document.getElementById("dragon-canvas");
+  const bctx=bc.getContext("2d");
+  bctx.clearRect(0,0,180,110);
+  bctx.fillStyle="#08080f";bctx.fillRect(0,0,180,110);
+  bctx.save();bctx.translate(90,90);
+  const c=dragon.color||"#888";
+  bctx.fillStyle=c;bctx.fillRect(-20,-44,40,44);
+  bctx.fillStyle=lighten(c,35);bctx.fillRect(-11,-34,22,28);
+  bctx.fillStyle=c;bctx.fillRect(-16,-66,28,24);bctx.fillRect(-10,-54,20,12);
+  bctx.fillStyle="#ffee00";bctx.fillRect(-8,-62,5,5);bctx.fillRect(3,-62,5,5);
+  bctx.fillStyle="#000";bctx.fillRect(-7,-61,3,3);bctx.fillRect(4,-61,3,3);
+  bctx.fillStyle="#fff";bctx.fillRect(-7,-44,3,5);bctx.fillRect(4,-44,3,5);
+  bctx.fillStyle=darken(c,22);bctx.fillRect(-46,-38,26,32);bctx.fillRect(20,-38,26,32);
+  bctx.fillStyle="#884400";bctx.fillRect(-16,-80,5,16);bctx.fillRect(11,-80,5,16);
+  bctx.fillStyle=c;bctx.fillRect(20,4,10,8);bctx.fillRect(28,8,8,6);bctx.fillRect(34,12,6,4);
+  bctx.restore();
+}
+
+function renderBattleQuestion(){
+  const b=G.battle;
+  const q=b.dragon.questions[b.qIdx];
+  if(!q) return;
+  document.getElementById("q-progress").textContent=`Question ${b.qIdx+1} / ${b.dragon.questions.length}`;
+  document.getElementById("q-text").textContent=q.q;
+  document.getElementById("feedback-line").textContent="";
+  document.getElementById("battle-next-btn").style.display="none";
+  // Type badge
+  const badge=document.getElementById("q-type-badge");
+  const typeMap={MCQ:{label:"MCQ",cls:"badge-mcq"},FILL:{label:"FILL IN BLANK",cls:"badge-fill"},NUM:{label:"NUMERICAL",cls:"badge-num"}};
+  const tm=typeMap[q.type]||typeMap.MCQ;
+  badge.textContent=tm.label;
+  badge.className="q-type-badge "+tm.cls;
+  // Options / input
+  const grid=document.getElementById("options-grid");
+  const fillWrap=document.getElementById("fill-input-wrap");
+  const fillInput=document.getElementById("fill-input");
+  grid.innerHTML="";
+  fillWrap.style.display="none";
+  if(q.type==="MCQ"){
+    grid.className="";
+    (q.opts||[]).forEach(opt=>{
+      const btn=document.createElement("button");
+      btn.className="opt-btn";btn.textContent=opt;
+      btn.onclick=()=>answerMCQ(opt,q.ans,btn);
+      grid.appendChild(btn);
+    });
+  } else {
+    // FILL or NUM
+    fillWrap.style.display="block";
+    fillInput.value="";
+    fillInput.placeholder=q.type==="NUM"?"Enter a number...":"Type your answer...";
+    fillInput.onkeydown=(e)=>{if(e.key==="Enter")submitFillAnswer();};
+    setTimeout(()=>fillInput.focus(),100);
+  }
+  b.answered=false;
+}
+
+function submitFillAnswer(){
+  if(G.battle.answered) return;
+  const val=document.getElementById("fill-input").value.trim();
+  if(!val){showToast("Type an answer first!");return;}
+  const b=G.battle;
+  const q=b.dragon.questions[b.qIdx];
+  // Flexible check: trim, lowercase, numeric compare for NUM
+  let correct=false;
+  const userAns=val.toLowerCase().replace(/\s+/g," ").trim();
+  const rightAns=(q.ans||"").toLowerCase().replace(/\s+/g," ").trim();
+  if(q.type==="NUM"){
+    correct=parseFloat(userAns)===parseFloat(rightAns);
+  } else {
+    correct=userAns===rightAns||userAns.includes(rightAns)||rightAns.includes(userAns);
+  }
+  processAnswer(correct, q.ans);
+}
+
+function answerMCQ(chosen,correct,btn){
+  if(G.battle.answered) return;
+  document.querySelectorAll(".opt-btn").forEach(b=>b.disabled=true);
+  document.querySelectorAll(".opt-btn").forEach(b=>{if(b.textContent===correct)b.classList.add("correct");});
+  if(chosen===correct){btn.classList.add("correct");}
+  else{btn.classList.add("wrong");}
+  processAnswer(chosen===correct, correct);
+}
+
+function processAnswer(isCorrect, correctAns){
+  G.battle.answered=true;
+  const b=G.battle;
+  if(isCorrect){
+    const dmg=18+G.level*5;
+    b.dragonHP=Math.max(0,b.dragonHP-dmg);
+    G.xp+=15;
+    document.getElementById("feedback-line").textContent=`✅ Correct! Dragon takes ${dmg} damage!`;
+    document.getElementById("feedback-line").style.color="#44ff66";
+  } else {
+    const dmg=12+Math.floor(b.qIdx*6);
+    G.playerHP=Math.max(0,G.playerHP-dmg);
+    document.getElementById("feedback-line").textContent=`❌ Wrong! -${dmg} HP. Answer: ${correctAns}`;
+    document.getElementById("feedback-line").style.color="#ff6644";
+  }
+  G.level=Math.floor(G.xp/50)+1;
+  updateBattleHUD();
+  setTimeout(()=>{
+    if(b.dragonHP<=0) endBattle(true);
+    else if(G.playerHP<=0) endBattle(false);
+    else if(b.qIdx>=b.dragon.questions.length-1){
+      endBattle(b.dragonHP<b.maxDragonHP*0.6);
+    } else {
+      b.qIdx++;
+      document.getElementById("battle-next-btn").style.display="block";
+    }
+  },1400);
+}
+
+document.getElementById("battle-next-btn").addEventListener("click",()=>{
+  document.getElementById("battle-next-btn").style.display="none";
+  renderBattleQuestion();
+});
+
+function endBattle(won){
+  document.getElementById("battle-body").style.display="none";
+  document.getElementById("battle-result").style.display="block";
+  const title=document.getElementById("result-title");
+  const desc=document.getElementById("result-desc");
+  const btn=document.getElementById("result-close-btn");
+  if(won){
+    G.defeatedDragons.add(G.battle.dragonId);
+    G.xp+=50;G.level=Math.floor(G.xp/50)+1;
+    title.className="result-title win";title.textContent="🏆 VICTORY!";
+    let extra="";
+    const d=G.dungeons[G.currentDungeon];
+    if(d&&d.dragons.every(dr=>G.defeatedDragons.has(dr.id))){
+      G.defeatedDungeons.add(G.currentDungeon);
+      extra=" DUNGEON CLEARED! 🏰 (+100 XP)";
+      G.xp+=100;G.level=Math.floor(G.xp/50)+1;
+    }
+    desc.textContent=`Defeated ${G.battle.dragon.name}! +50 XP${extra}`;
+    btn.className="result-close-btn";btn.textContent="CONTINUE ▶";
+  } else {
+    title.className="result-title lose";title.textContent="💀 DEFEATED!";
+    G.playerHP=Math.min(G.maxHP,G.playerHP+25);
+    desc.textContent=`The ${G.battle.dragon.name} was too powerful... (+25 HP restored)`;
+    btn.className="result-close-btn defeat-btn";btn.textContent="RETREAT ▶";
+  }
+  updateHUD();updateDungeonTabs();checkWin();
+}
+
+document.getElementById("result-close-btn").addEventListener("click",()=>{
+  document.getElementById("battle-modal").style.display="none";
+  G.inBattle=false;G.nearDragon=null;
+});
+
+// ══════════════════════════════════════════════════════
+//  HUD
+// ══════════════════════════════════════════════════════
+function updateBattleHUD(){
+  document.getElementById("bmod-player-hp").style.width=(G.playerHP/G.maxHP*100)+"%";
+  document.getElementById("bmod-player-hp").style.background=G.playerHP>50?"#22cc44":G.playerHP>25?"#ccaa00":"#cc2222";
+  document.getElementById("bmod-player-hp-num").textContent=`${G.playerHP}/${G.maxHP}`;
+  document.getElementById("bmod-dragon-hp").style.width=(G.battle.dragonHP/G.battle.maxDragonHP*100)+"%";
+  document.getElementById("bmod-dragon-hp-num").textContent=`${G.battle.dragonHP}/${G.battle.maxDragonHP}`;
+  updateHUD();
+}
+
+function updateHUD(){
+  const pct=(G.playerHP/G.maxHP*100)+"%";
+  document.getElementById("player-hp-bar").style.width=pct;
+  document.getElementById("player-hp-bar").style.background=G.playerHP>50?"#22cc44":G.playerHP>25?"#ccaa00":"#cc2222";
+  document.getElementById("hp-num").textContent=G.playerHP;
+  document.getElementById("xp-num").textContent=G.xp;
+  document.getElementById("lvl-num").textContent=G.level;
+}
+
+function updateDungeonTabs(){
+  const tabs=document.getElementById("dungeon-tabs");
+  tabs.innerHTML="";
+  G.dungeons.forEach((d,i)=>{
+    const btn=document.createElement("div");
+    btn.className="dtab";
+    const locked=isDungeonLocked(i);
+    const done=G.defeatedDungeons.has(i);
+    if(i===G.currentDungeon) btn.classList.add("active");
+    if(locked) btn.classList.add("locked");
+    if(done) btn.classList.add("done");
+    btn.textContent=(locked?"🔒 ":done?"✓ ":"")+"D"+(i+1);
+    btn.title=d.name;
+    btn.onclick=()=>{
+      if(locked){showToast("Clear D"+(i)+" first!");return;}
+      G.currentDungeon=i;
+      resetPlayerToStart();
+      G.nearDragon=null;G.nearDoor=null;
+      updateDungeonTabs();
+      document.getElementById("dungeon-label").textContent=G.dungeons[i]?.name||"Dungeon "+(i+1);
+    };
+    tabs.appendChild(btn);
+  });
+}
+
+function showToast(msg,dur=2000){
+  const t=document.getElementById("msg-toast");
+  t.textContent=msg;t.style.display="block";
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.style.display="none",dur);
+}
+
+function checkWin(){
+  if(G.dungeons.length>0&&G.dungeons.every((_,i)=>G.defeatedDungeons.has(i))){
+    setTimeout(()=>{
+      document.getElementById("win-stats").textContent=`XP: ${G.xp} | Level: ${G.level}`;
+      document.getElementById("win-screen").style.display="flex";
+    },1500);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  MAIN LOOP
+// ══════════════════════════════════════════════════════
+let loopRunning=false;
+function gameLoop(){
+  if(!G.started) return;
+  if(!loopRunning) loopRunning=true;
+  G.tick++;
+  updatePlayer();
+  ctx.clearRect(0,0,W,H);
+  if(G.dungeons.length>0) drawDungeonTheme();
+  requestAnimationFrame(gameLoop);
+}
+</script>
+</body>
+</html>

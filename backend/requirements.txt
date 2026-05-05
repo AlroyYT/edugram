@@ -25,3 +25,4 @@ torch==2.6.0
 gunicorn
 whitenoise
 google-generativeai
+edge_tts

@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Knowledge Siege</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --gold: #f0c040;
+  --red: #ff3333;
+  --green: #00ff88;
+  --blue: #00aaff;
+  --purple: #aa44ff;
+  --bg: #07080f;
+  --panel: #0d0f1a;
+  --border: #1a2040;
+  --text: #c8d8f0;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--text);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══ SETUP SCREEN ══ */
+#setup-screen {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, #0d0f20 0%, #04050c 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 200; gap: 0;
+  overflow: hidden;
+}
+
+.setup-stars {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.setup-star {
+  position: absolute; border-radius: 50%;
+  background: white; animation: twinkle var(--d) ease-in-out infinite alternate;
+}
+@keyframes twinkle { from{opacity:.1} to{opacity:.8} }
+
+.setup-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(20px, 4vw, 42px);
+  font-weight: 900;
+  color: var(--gold);
+  text-align: center;
+  text-shadow: 0 0 40px #f0c04066, 0 0 80px #f0c04033;
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+  animation: titlePulse 3s ease-in-out infinite;
+}
+@keyframes titlePulse {
+  0%,100%{text-shadow:0 0 40px #f0c04066,0 0 80px #f0c04033}
+  50%{text-shadow:0 0 60px #f0c040aa,0 0 120px #f0c04055}
+}
+.setup-sub {
+  font-size: 13px; color: #5a6a9a; letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 32px;
+}
+
+.setup-card {
+  background: #0a0c18;
+  border: 1px solid #1a2040;
+  padding: 28px 32px;
+  width: min(520px, 92vw);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.setup-label {
+  font-size: 10px; color: #4a5a8a; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+
+#topic-input {
+  width: 100%;
+  background: #060810;
+  border: 1px solid #1a2040;
+  border-bottom: 2px solid #1a2040;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  padding: 12px 14px;
+  outline: none;
+  resize: none; height: 72px;
+  transition: border-color .2s;
+}
+#topic-input:focus { border-color: var(--gold); }
+#topic-input::placeholder { color: #2a3050; }
+
+.diff-row { display: flex; gap: 8px; }
+.diff-btn {
+  flex: 1; padding: 10px 0;
+  background: #060810; border: 1px solid #1a2040;
+  color: #3a4a6a; font-family: 'Orbitron', monospace;
+  font-size: 9px; cursor: pointer; letter-spacing: 1px;
+  transition: all .2s;
+}
+.diff-btn:hover { border-color: #3a4a7a; color: #6a7aaa; }
+.diff-btn.selected { border-color: var(--gold); color: var(--gold); background: #14110a; }
+
+.mode-row { display: flex; gap: 10px; }
+.mode-btn {
+  flex: 1; padding: 14px 0;
+  font-family: 'Orbitron', monospace; font-size: 9px;
+  letter-spacing: 1px; cursor: pointer;
+  border: 1px solid; transition: all .2s;
+}
+#ai-btn {
+  background: #0a0818; border-color: var(--purple); color: var(--purple);
+}
+#ai-btn:hover { background: #140a24; box-shadow: 0 0 20px #aa44ff33; }
+#default-btn {
+  background: #080a18; border-color: var(--green); color: var(--green);
+}
+#default-btn:hover { background: #0a1020; box-shadow: 0 0 20px #00ff8833; }
+.mode-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ══ LOADING ══ */
+#loading-screen {
+  position: fixed; inset: 0;
+  background: #04050cee;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 300; gap: 20px;
+}
+.load-ring {
+  width: 60px; height: 60px;
+  border: 3px solid #1a2040;
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-title {
+  font-family: 'Orbitron', monospace; font-size: 13px;
+  color: var(--gold); letter-spacing: 3px;
+}
+#load-msg { font-size: 14px; color: #4a5a8a; }
+
+/* ══ HUD ══ */
+#hud {
+  height: 54px; background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 16px;
+  flex-shrink: 0; position: relative; z-index: 10;
+}
+.hud-title {
+  font-family: 'Orbitron', monospace; font-size: 11px;
+  color: var(--gold); letter-spacing: 2px; white-space: nowrap;
+}
+.hud-divider { width: 1px; height: 28px; background: var(--border); }
+
+.hud-stat { display: flex; flex-direction: column; align-items: center; }
+.hud-stat-label { font-size: 8px; color: #3a4a6a; letter-spacing: 1px; }
+.hud-stat-val { font-family: 'Orbitron', monospace; font-size: 14px; }
+#hud-wave-val { color: var(--blue); }
+#hud-lives-val { color: var(--red); }
+#hud-score-val { color: var(--gold); }
+#hud-streak-val { color: #ff8800; }
+
+.castle-hp-wrap {
+  display: flex; align-items: center; gap: 8px; flex: 1;
+}
+.castle-hp-label { font-size: 10px; color: #4a5a8a; white-space: nowrap; }
+.castle-hp-outer {
+  flex: 1; height: 12px;
+  background: #0a0c14; border: 1px solid #1a2a1a;
+}
+#castle-hp-bar {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #00cc44, #00ff88);
+  transition: width .4s, background .4s;
+}
+#castle-hp-num { font-size: 11px; color: #6a8a6a; white-space: nowrap; }
+
+.hud-topic {
+  font-size: 10px; color: #3a4a6a;
+  white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 180px;
+}
+
+.wave-badge {
+  font-family: 'Orbitron', monospace; font-size: 8px;
+  padding: 3px 8px; border: 1px solid;
+  white-space: nowrap;
+}
+.wave-badge.preparing { border-color: #3a4a6a; color: #3a4a6a; }
+.wave-badge.active { border-color: var(--red); color: var(--red); animation: badgePulse .6s ease-in-out infinite alternate; }
+.wave-badge.answered { border-color: var(--green); color: var(--green); }
+@keyframes badgePulse { from{opacity:.6} to{opacity:1} }
+
+/* ══ MAIN LAYOUT ══ */
+#main {
+  flex: 1; display: flex; overflow: hidden; min-height: 0;
+}
+
+/* ══ GAME CANVAS ══ */
+#game-wrap {
+  flex: 1; position: relative; overflow: hidden;
+}
+canvas { display: block; width: 100%; height: 100%; }
+
+/* ══ RIGHT PANEL ══ */
+#right-panel {
+  width: 340px; flex-shrink: 0;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── QUESTION AREA ── */
+#q-area {
+  flex: 1; padding: 16px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.q-header {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 8px;
+}
+.q-enemy-name {
+  font-family: 'Orbitron', monospace; font-size: 10px;
+  color: var(--red); letter-spacing: 1px;
+}
+.q-type-badge {
+  font-size: 9px; padding: 2px 7px;
+  border: 1px solid; letter-spacing: 1px;
+}
+.badge-MCQ { border-color: var(--purple); color: var(--purple); }
+.badge-FILL { border-color: var(--green); color: var(--green); }
+.badge-NUM { border-color: #ff8800; color: #ff8800; }
+
+#q-timer-wrap {
+  height: 4px; background: #0a0c14; border: 1px solid #1a2040;
+}
+#q-timer-bar {
+  height: 100%; width: 100%;
+  background: var(--green);
+  transition: width .1s linear, background .3s;
+}
+
+#q-text {
+  font-size: 15px; color: #e0e8ff;
+  line-height: 1.6; min-height: 48px;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+}
+
+#options-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+#options-grid.single { grid-template-columns: 1fr; }
+
+.opt-btn {
+  background: #060810; border: 1px solid #1a2040;
+  color: #8090b8; font-family: 'Share Tech Mono', monospace;
+  font-size: 13px; padding: 9px 10px;
+  cursor: pointer; text-align: left;
+  transition: all .15s; line-height: 1.3;
+  word-break: break-word;
+}
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--blue); color: #c0d8ff;
+  background: #0a1020;
+}
+.opt-btn.correct { border-color: var(--green)!important; background: #041a0a!important; color: var(--green)!important; }
+.opt-btn.wrong { border-color: var(--red)!important; background: #1a0404!important; color: var(--red)!important; }
+.opt-btn:disabled { cursor: not-allowed; }
+
+#fill-wrap { display: none; flex-direction: column; gap: 6px; }
+#fill-input {
+  width: 100%; background: #060810;
+  border: 1px solid #1a2040; border-bottom: 2px solid #1a2040;
+  color: var(--text); font-family: 'Share Tech Mono', monospace;
+  font-size: 16px; padding: 10px 12px; outline: none;
+  transition: border-color .2s;
+}
+#fill-input:focus { border-color: var(--green); }
+#fill-submit {
+  font-family: 'Orbitron', monospace; font-size: 8px;
+  padding: 8px 14px; background: #04100a;
+  border: 1px solid var(--green); color: var(--green);
+  cursor: pointer; letter-spacing: 1px; align-self: flex-start;
+  transition: all .2s;
+}
+#fill-submit:hover { background: #081a10; box-shadow: 0 0 12px #00ff8833; }
+
+#feedback {
+  font-size: 13px; min-height: 16px;
+  padding: 4px 0; line-height: 1.4;
+}
+
+#idle-msg {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #2a3a5a; text-align: center; gap: 8px;
+}
+#idle-msg .idle-icon { font-size: 36px; }
+#idle-msg p { font-size: 12px; line-height: 1.6; }
+
+/* ── WAVE INFO ── */
+#wave-panel {
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.wave-title {
+  font-family: 'Orbitron', monospace; font-size: 8px;
+  color: #2a3a5a; letter-spacing: 2px;
+}
+#enemy-queue {
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+.eq-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all .3s;
+}
+.eq-dot.dead { opacity: .2; background: #1a1a2a!important; }
+.eq-dot.current { transform: scale(1.4); box-shadow: 0 0 8px currentColor; }
+
+/* ── NEXT WAVE BTN ── */
+#next-wave-btn {
+  margin: 0 16px 12px;
+  font-family: 'Orbitron', monospace; font-size: 9px;
+  padding: 10px; border: 1px solid var(--blue);
+  color: var(--blue); background: #04080e;
+  cursor: pointer; letter-spacing: 2px;
+  transition: all .2s; display: none;
+}
+#next-wave-btn:hover { background: #061020; box-shadow: 0 0 16px #00aaff33; }
+
+/* ══ OVERLAYS ══ */
+.overlay {
+  position: absolute; inset: 0;
+  display: none; align-items: center;
+  justify-content: center; z-index: 50;
+  background: #04050ccc;
+  flex-direction: column; gap: 16px;
+}
+.overlay.show { display: flex; }
+
+.overlay-box {
+  background: #0a0c18; border: 1px solid #1a2040;
+  padding: 28px 32px; text-align: center;
+  max-width: 400px; width: 90%;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.overlay-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(14px, 3vw, 22px);
+  letter-spacing: 3px;
+}
+.overlay-title.win { color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+.overlay-title.lose { color: var(--red); text-shadow: 0 0 30px var(--red); }
+.overlay-sub { font-size: 14px; color: #5a6a8a; line-height: 1.6; }
+.overlay-stats { font-size: 13px; color: var(--text); line-height: 2; }
+.overlay-btn {
+  font-family: 'Orbitron', monospace; font-size: 9px;
+  padding: 12px 20px; cursor: pointer; letter-spacing: 2px;
+  transition: all .2s; border: 1px solid;
+}
+.overlay-btn.primary { border-color: var(--gold); color: var(--gold); background: #100e04; }
+.overlay-btn.primary:hover { background: #1a1608; box-shadow: 0 0 20px #f0c04033; }
+.overlay-btn.secondary { border-color: #3a4a6a; color: #3a4a6a; background: transparent; }
+.overlay-btn.secondary:hover { border-color: #5a6a9a; color: #5a6a9a; }
+
+/* ══ WAVE ANNOUNCE ══ */
+#wave-announce {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(16px, 3vw, 28px);
+  color: var(--red); letter-spacing: 4px;
+  pointer-events: none; opacity: 0;
+  text-shadow: 0 0 40px var(--red);
+  z-index: 40; white-space: nowrap;
+}
+@keyframes waveAnnounce {
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}
+  20%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}
+}
+
+/* ══ CANNON FLASH ══ */
+#cannon-flash {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 5;
+  opacity: 0;
+}
+@keyframes cannonFlash {
+  0%{opacity:.4} 100%{opacity:0}
+}
+
+/* ══ COMBO POPUP ══ */
+#combo-popup {
+  position: absolute; top: 80px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Orbitron', monospace;
+  font-size: 18px; font-weight: 900;
+  pointer-events: none; opacity: 0;
+  z-index: 45; letter-spacing: 2px;
+  text-shadow: 0 0 20px currentColor;
+}
+@keyframes comboPop {
+  0%{opacity:0;transform:translateX(-50%) translateY(10px) scale(.8)}
+  20%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.1)}
+  70%{opacity:1;transform:translateX(-50%) translateY(-5px) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.9)}
+}
+
+/* scrollbar */
+#q-area::-webkit-scrollbar { width: 4px; }
+#q-area::-webkit-scrollbar-track { background: #04050c; }
+#q-area::-webkit-scrollbar-thumb { background: #1a2040; }
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══ -->
+<div id="setup-screen">
+  <div class="setup-stars" id="stars-container"></div>
+  <div class="setup-title">⚔ KNOWLEDGE SIEGE</div>
+  <div class="setup-sub">Tower Defense · Educational · Powered by AI</div>
+  <div class="setup-card">
+    <div>
+      <div class="setup-label">Topic to defend against</div>
+      <textarea id="topic-input" placeholder="e.g. SQL joins, Newton's laws, React hooks, Organic chemistry..."></textarea>
+    </div>
+    <div>
+      <div class="setup-label">Difficulty</div>
+      <div class="diff-row">
+        <button class="diff-btn selected" data-d="easy" onclick="selDiff(this)">EASY</button>
+        <button class="diff-btn" data-d="medium" onclick="selDiff(this)">MEDIUM</button>
+        <button class="diff-btn" data-d="hard" onclick="selDiff(this)">HARD</button>
+      </div>
+    </div>
+    <div>
+      <div class="setup-label">Mode</div>
+      <div class="mode-row">
+        <button class="mode-btn" id="ai-btn" onclick="beginGame(false)">🤖 AI GENERATED</button>
+        <button class="mode-btn" id="default-btn" onclick="beginGame(true)">🎮 DEFAULT MODE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="loading-screen">
+  <div class="load-ring"></div>
+  <div class="load-title">GENERATING SIEGE...</div>
+  <div id="load-msg">Summoning enemies from the knowledge void...</div>
+</div>
+
+<!-- ══ HUD ══ -->
+<div id="hud">
+  <div class="hud-title">⚔ K·SIEGE</div>
+  <div class="hud-divider"></div>
+  <div class="castle-hp-wrap">
+    <div class="castle-hp-label">CASTLE</div>
+    <div class="castle-hp-outer"><div id="castle-hp-bar"></div></div>
+    <div id="castle-hp-num">100/100</div>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-stat"><div class="hud-stat-label">WAVE</div><div class="hud-stat-val" id="hud-wave-val">1/5</div></div>
+  <div class="hud-stat"><div class="hud-stat-label">SCORE</div><div class="hud-stat-val" id="hud-score-val">0</div></div>
+  <div class="hud-stat"><div class="hud-stat-label">STREAK</div><div class="hud-stat-val" id="hud-streak-val">🔥0</div></div>
+  <div class="hud-divider"></div>
+  <div class="hud-topic" id="hud-topic">—</div>
+  <div class="wave-badge preparing" id="wave-badge">STANDBY</div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+  <div id="game-wrap">
+    <canvas id="canvas"></canvas>
+    <div id="wave-announce"></div>
+    <div id="cannon-flash"></div>
+    <div id="combo-popup"></div>
+
+    <!-- WIN/LOSE overlays inside game-wrap -->
+    <div class="overlay" id="win-overlay">
+      <div class="overlay-box">
+        <div class="overlay-title win">🏆 SIEGE DEFENDED!</div>
+        <div class="overlay-sub">All waves repelled. The knowledge holds strong.</div>
+        <div class="overlay-stats" id="win-stats"></div>
+        <button class="overlay-btn primary" onclick="resetGame()">PLAY AGAIN</button>
+        <button class="overlay-btn secondary" onclick="resetGame()">CHANGE TOPIC</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="lose-overlay">
+      <div class="overlay-box">
+        <div class="overlay-title lose">💀 CASTLE FALLEN</div>
+        <div class="overlay-sub">The enemies breached your walls. Study and try again.</div>
+        <div class="overlay-stats" id="lose-stats"></div>
+        <button class="overlay-btn primary" onclick="resetGame()">TRY AGAIN</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="between-overlay">
+      <div class="overlay-box">
+        <div class="overlay-title win" id="between-title">WAVE CLEARED!</div>
+        <div class="overlay-sub" id="between-sub"></div>
+        <button class="overlay-btn primary" id="between-btn" onclick="startNextWave()">NEXT WAVE ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <div id="right-panel">
+    <div id="q-area">
+      <div id="idle-msg">
+        <div class="idle-icon">🏰</div>
+        <p>Enemies will appear on the battlefield.<br>Answer questions to fire your cannon!</p>
+      </div>
+
+      <div id="q-active" style="display:none; flex-direction:column; gap:10px;">
+        <div class="q-header">
+          <div class="q-enemy-name" id="q-enemy-name">ENEMY</div>
+          <div class="q-type-badge badge-MCQ" id="q-badge">MCQ</div>
+        </div>
+        <div id="q-timer-wrap"><div id="q-timer-bar"></div></div>
+        <div id="q-text"></div>
+        <div id="options-grid"></div>
+        <div id="fill-wrap">
+          <input type="text" id="fill-input" placeholder="Your answer..."/>
+          <button id="fill-submit" onclick="submitFill()">FIRE ▶</button>
+        </div>
+        <div id="feedback"></div>
+      </div>
+    </div>
+
+    <div id="wave-panel">
+      <div class="wave-title">INCOMING WAVE</div>
+      <div id="enemy-queue"></div>
+    </div>
+    <button id="next-wave-btn" onclick="startNextWave()">▶ LAUNCH NEXT WAVE</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  GEMINI API
+// ══════════════════════════════════════════════════════
+const GEMINI_KEY = "AIzaSyDcoPDE3K8yPTY9jRdiVxgLdWDdHeb1tBc";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
+
+async function callGemini(prompt) {
+  const res = await fetch(GEMINI_URL, {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.85,maxOutputTokens:5000} })
+  });
+  if(!res.ok) throw new Error("Gemini error "+res.status);
+  const d = await res.json();
+  return d.candidates[0].content.parts[0].text;
+}
+
+async function generateWaves(topic, difficulty) {
+  const diffMap = {easy:"beginner (simple recall questions)",medium:"intermediate (application questions)",hard:"advanced (analysis and synthesis questions)"};
+  const prompt = `You are designing waves for a tower defense learning game on topic: "${topic}".
+Difficulty: ${diffMap[difficulty]}
+
+Generate exactly 5 waves. Each wave has 4 enemies. Each enemy has 1 question.
+Enemy names must be thematic to the topic (e.g. for SQL: "NullPointer", "CartesianBlast").
+Mix question types: MCQ, FILL, NUM.
+For MCQ: exactly 4 options, specify correct ans text exactly matching one option.
+For FILL: 1-4 word answer.
+For NUM: numeric answer as string.
+
+Enemy HP scales by wave: wave1=40, wave2=60, wave3=80, wave4=100, wave5=130.
+Enemy speed scales: wave1=0.6, wave2=0.8, wave3=1.0, wave4=1.2, wave5=1.5.
+Enemy color: vivid hex color per enemy, unique per wave.
+
+Respond ONLY valid JSON no markdown:
+{
+  "waves": [
+    {
+      "waveNum": 1,
+      "enemies": [
+        {
+          "name": "string",
+          "color": "#rrggbb",
+          "hp": 40,
+          "speed": 0.6,
+          "question": {
+            "type": "MCQ",
+            "q": "question text",
+            "opts": ["A","B","C","D"],
+            "ans": "correct option text"
+          }
+        }
+      ]
+    }
+  ]
+}`;
+  const raw = await callGemini(prompt);
+  const clean = raw.replace(/```json\s*/gi,"").replace(/```\s*/gi,"").trim();
+  return JSON.parse(clean);
+}
+
+// ══════════════════════════════════════════════════════
+//  DEFAULT DATA (Maths & Physics)
+// ══════════════════════════════════════════════════════
+function getDefaultData() {
+  return { waves: [
+    { waveNum:1, enemies:[
+      {name:"VelocityVex",color:"#e05000",hp:40,speed:.6,question:{type:"MCQ",q:"Speed = Distance ÷ ?",opts:["Time","Mass","Force","Acceleration"],ans:"Time"}},
+      {name:"GravitronMk1",color:"#cc3300",hp:40,speed:.6,question:{type:"NUM",q:"g on Earth (m/s²)? Round to nearest whole.",ans:"10"}},
+      {name:"AreaBot",color:"#aa5500",hp:40,speed:.6,question:{type:"MCQ",q:"Area of a circle with radius r?",opts:["2πr","πr²","πr³","2πr²"],ans:"πr²"}},
+      {name:"FracShade",color:"#884400",hp:40,speed:.6,question:{type:"FILL",q:"0.5 as a fraction is ___",ans:"1/2"}}
+    ]},
+    { waveNum:2, enemies:[
+      {name:"NewtonBrute",color:"#5500cc",hp:60,speed:.8,question:{type:"MCQ",q:"F = ma. m=4kg, a=5m/s². F=?",opts:["9N","20N","1.25N","45N"],ans:"20N"}},
+      {name:"MomentumX",color:"#4400aa",hp:60,speed:.8,question:{type:"NUM",q:"Momentum = mass × velocity. m=3kg, v=8m/s. p=?",ans:"24"}},
+      {name:"WorkForce",color:"#3300aa",hp:60,speed:.8,question:{type:"FILL",q:"Work = Force × ___",ans:"distance"}},
+      {name:"PrimeSlayer",color:"#220088",hp:60,speed:.8,question:{type:"MCQ",q:"Which is a prime number?",opts:["9","15","17","21"],ans:"17"}}
+    ]},
+    { waveNum:3, enemies:[
+      {name:"KineticKraken",color:"#cc8800",hp:80,speed:1,question:{type:"MCQ",q:"KE = ½mv². m=2kg, v=4m/s. KE=?",opts:["4J","8J","16J","32J"],ans:"16J"}},
+      {name:"WaveSerpent",color:"#aa6600",hp:80,speed:1,question:{type:"NUM",q:"Wave speed = freq × wavelength. f=5Hz, λ=4m. v=?",ans:"20"}},
+      {name:"PythagoGhost",color:"#886600",hp:80,speed:1,question:{type:"MCQ",q:"Right triangle: legs 3,4. Hypotenuse=?",opts:["5","6","7","√7"],ans:"5"}},
+      {name:"DensityDemon",color:"#664400",hp:80,speed:1,question:{type:"FILL",q:"Density = mass ÷ ___",ans:"volume"}}
+    ]},
+    { waveNum:4, enemies:[
+      {name:"OhmBeast",color:"#009966",hp:100,speed:1.2,question:{type:"MCQ",q:"Ohm's Law: V=IR. V=12V, R=4Ω. I=?",opts:["3A","8A","48A","0.33A"],ans:"3A"}},
+      {name:"PowerSurge",color:"#007755",hp:100,speed:1.2,question:{type:"NUM",q:"Power = Voltage × Current. V=10V, I=3A. P=?",ans:"30"}},
+      {name:"TrigTerror",color:"#006644",hp:100,speed:1.2,question:{type:"MCQ",q:"sin(30°) = ?",opts:["0.5","√3/2","1","0"],ans:"0.5"}},
+      {name:"LogicLord",color:"#005533",hp:100,speed:1.2,question:{type:"FILL",q:"log base 10 of 1000 = ___",ans:"3"}}
+    ]},
+    { waveNum:5, enemies:[
+      {name:"RelativityRex",color:"#006699",hp:130,speed:1.5,question:{type:"MCQ",q:"E=mc². c≈3×10⁸ m/s. If m=1kg, E=?",opts:["9×10¹⁶ J","3×10⁸ J","9×10⁸ J","3×10¹⁶ J"],ans:"9×10¹⁶ J"}},
+      {name:"EntropyEater",color:"#005588",hp:130,speed:1.5,question:{type:"NUM",q:"Acceleration: v=50m/s, u=10m/s, t=8s. a=?",ans:"5"}},
+      {name:"QuadraticQueen",color:"#004477",hp:130,speed:1.5,question:{type:"MCQ",q:"Roots of x²-5x+6=0?",opts:["2,3","1,6","-2,-3","3,4"],ans:"2,3"}},
+      {name:"TerminalTitan",color:"#003366",hp:130,speed:1.5,question:{type:"FILL",q:"Terminal velocity occurs when drag equals ___",ans:"weight"}}
+    ]}
+  ]};
+}
+
+// ══════════════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════════════
+const G = {
+  waves: [], currentWave: 0,
+  enemies: [], projectiles: [], explosions: [], floatTexts: [],
+  castleHP: 100, maxCastleHP: 100,
+  score: 0, streak: 0, maxStreak: 0,
+  activeEnemy: null,     // enemy currently being questioned
+  questionTimerPct: 1,   // 0-1 time remaining
+  questionDeadline: 0,
+  questionTimeLimit: 18000, // ms
+  waveState: 'idle',     // idle | spawning | active | between | gameover | win
+  spawnQueue: [],
+  spawnTimer: 0,
+  tick: 0,
+  topic: "",
+  started: false,
+  answered: false,
+};
+
+// ══════════════════════════════════════════════════════
+//  CANVAS
+// ══════════════════════════════════════════════════════
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let CW = 800, CH = 500;
+
+function resize() {
+  const wrap = document.getElementById("game-wrap");
+  CW = canvas.width = wrap.clientWidth;
+  CH = canvas.height = wrap.clientHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+// PATH: enemies walk from left to right castle
+function getPath() {
+  // Winding path through the battlefield
+  const steps = [
+    {x:-60, y:CH*0.5},
+    {x:CW*0.08, y:CH*0.5},
+    {x:CW*0.15, y:CH*0.25},
+    {x:CW*0.28, y:CH*0.25},
+    {x:CW*0.35, y:CH*0.6},
+    {x:CW*0.5,  y:CH*0.6},
+    {x:CW*0.58, y:CH*0.35},
+    {x:CW*0.72, y:CH*0.35},
+    {x:CW*0.78, y:CH*0.65},
+    {x:CW*0.88, y:CH*0.65},
+    {x:CW*0.88, y:CH*0.5},
+    {x:CW+20,   y:CH*0.5},
+  ];
+  return steps;
+}
+
+// ══════════════════════════════════════════════════════
+//  SETUP UI
+// ══════════════════════════════════════════════════════
+// Generate stars
+(function() {
+  const c = document.getElementById("stars-container");
+  for(let i=0;i<120;i++){
+    const s=document.createElement("div");
+    s.className="setup-star";
+    const sz=Math.random()*2+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${1.5+Math.random()*3}s;animation-delay:${Math.random()*3}s`;
+    c.appendChild(s);
+  }
+})();
+
+let selDiffVal = "easy";
+function selDiff(btn) {
+  document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("selected"));
+  btn.classList.add("selected");
+  selDiffVal = btn.dataset.d;
+}
+
+async function beginGame(useDefault) {
+  const topic = useDefault ? "Maths & Physics" : document.getElementById("topic-input").value.trim();
+  if(!useDefault && !topic) { alert("Enter a topic first!"); return; }
+  document.getElementById("ai-btn").disabled = true;
+  document.getElementById("default-btn").disabled = true;
+  document.getElementById("loading-screen").style.display = "flex";
+  const msgs = [
+    "Summoning enemies from the knowledge void...",
+    "Forging questions into cannonballs...",
+    "Mapping the battlefield...",
+    "Briefing the castle garrison..."
+  ];
+  let mi = 0;
+  const iv = setInterval(()=>{ document.getElementById("load-msg").textContent = msgs[mi++%msgs.length]; }, 1800);
+  try {
+    let data;
+    if(useDefault) {
+      await new Promise(r=>setTimeout(r,1000));
+      data = getDefaultData();
+    } else {
+      data = await generateWaves(topic, selDiffVal);
+    }
+    clearInterval(iv);
+    document.getElementById("loading-screen").style.display = "none";
+    document.getElementById("setup-screen").style.display = "none";
+    G.waves = data.waves;
+    G.topic = topic;
+    initGame();
+  } catch(err) {
+    clearInterval(iv);
+    document.getElementById("loading-screen").style.display = "none";
+    document.getElementById("ai-btn").disabled = false;
+    document.getElementById("default-btn").disabled = false;
+    alert("Error: "+err.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT / RESET
+// ══════════════════════════════════════════════════════
+function initGame() {
+  G.currentWave = 0;
+  G.enemies = []; G.projectiles = []; G.explosions = []; G.floatTexts = [];
+  G.castleHP = 100; G.maxCastleHP = 100;
+  G.score = 0; G.streak = 0; G.maxStreak = 0;
+  G.activeEnemy = null; G.waveState = 'idle';
+  G.spawnQueue = []; G.tick = 0;
+  G.started = true;
+  document.getElementById("win-overlay").classList.remove("show");
+  document.getElementById("lose-overlay").classList.remove("show");
+  document.getElementById("between-overlay").classList.remove("show");
+  document.getElementById("next-wave-btn").style.display = "block";
+  document.getElementById("hud-topic").textContent = "▸ "+G.topic;
+  updateHUD();
+  showIdle();
+  gameLoop();
+}
+
+function resetGame() {
+  G.started = false;
+  document.getElementById("win-overlay").classList.remove("show");
+  document.getElementById("lose-overlay").classList.remove("show");
+  document.getElementById("between-overlay").classList.remove("show");
+  document.getElementById("setup-screen").style.display = "flex";
+  document.getElementById("ai-btn").disabled = false;
+  document.getElementById("default-btn").disabled = false;
+}
+
+// ══════════════════════════════════════════════════════
+//  WAVE MANAGEMENT
+// ══════════════════════════════════════════════════════
+function startNextWave() {
+  if(G.currentWave >= G.waves.length) return;
+  document.getElementById("next-wave-btn").style.display = "none";
+  document.getElementById("between-overlay").classList.remove("show");
+  const wave = G.waves[G.currentWave];
+  G.spawnQueue = wave.enemies.map((e,i)=>({...e, pathIdx:0, pathT:0, x:-60, y:CH*0.5, dead:false, id:`w${G.currentWave}_e${i}`, currentHP:e.hp, questioned:false}));
+  G.waveState = 'spawning';
+  G.spawnTimer = 0;
+  updateHUD();
+  announceWave(G.currentWave+1);
+  setBadge('active');
+}
+
+function announceWave(num) {
+  const el = document.getElementById("wave-announce");
+  el.textContent = `⚔ WAVE ${num} — INCOMING! ⚔`;
+  el.style.animation = "none";
+  el.offsetHeight; // reflow
+  el.style.animation = "waveAnnounce 2s ease forwards";
+}
+
+function setBadge(state) {
+  const b = document.getElementById("wave-badge");
+  b.className = "wave-badge "+state;
+  b.textContent = state==='preparing'?"STANDBY":state==='active'?"WAVE ACTIVE":"CLEARED";
+}
+
+// ══════════════════════════════════════════════════════
+//  ENEMY MOVEMENT
+// ══════════════════════════════════════════════════════
+function moveEnemies(dt) {
+  const path = getPath();
+  G.enemies.forEach(e => {
+    if(e.dead || e.questioned) return;
+    const target = path[e.pathIdx+1];
+    if(!target) {
+      // reached castle
+      e.dead = true;
+      damagecastle(e);
+      return;
+    }
+    const dx = target.x - e.x;
+    const dy = target.y - e.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const step = e.speed * dt * 0.06;
+    if(dist < step) {
+      e.x = target.x; e.y = target.y;
+      e.pathIdx++;
+    } else {
+      e.x += (dx/dist)*step;
+      e.y += (dy/dist)*step;
+    }
+    e.dir = Math.atan2(dy, dx);
+  });
+}
+
+function damagecastle(e) {
+  const dmg = Math.floor(10 + (G.currentWave)*3);
+  G.castleHP = Math.max(0, G.castleHP - dmg);
+  addFloatText(CW*0.88, CH*0.5, `-${dmg}`, "#ff3333", 22);
+  triggerShake();
+  updateHUD();
+  if(G.castleHP <= 0) gameOver(false);
+}
+
+// ══════════════════════════════════════════════════════
+//  QUESTION SYSTEM
+// ══════════════════════════════════════════════════════
+function tryAskQuestion() {
+  if(G.activeEnemy || G.waveState !== 'spawning' && G.waveState !== 'active') return;
+  // Find closest un-questioned living enemy
+  const candidates = G.enemies.filter(e => !e.dead && !e.questioned);
+  if(!candidates.length) return;
+  // Pick closest to castle
+  candidates.sort((a,b) => b.x - a.x);
+  const enemy = candidates[0];
+  askQuestion(enemy);
+}
+
+function askQuestion(enemy) {
+  G.activeEnemy = enemy;
+  enemy.questioned = true; // pauses movement
+  G.answered = false;
+  G.questionDeadline = Date.now() + G.questionTimeLimit;
+
+  document.getElementById("idle-msg").style.display = "none";
+  const qa = document.getElementById("q-active");
+  qa.style.display = "flex";
+
+  const q = enemy.question;
+  document.getElementById("q-enemy-name").textContent = "⚔ "+enemy.name;
+  const badge = document.getElementById("q-badge");
+  badge.textContent = q.type;
+  badge.className = "q-type-badge badge-"+q.type;
+  document.getElementById("q-text").textContent = q.q;
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").style.color = "";
+
+  const grid = document.getElementById("options-grid");
+  const fillWrap = document.getElementById("fill-wrap");
+  grid.innerHTML = "";
+  fillWrap.style.display = "none";
+
+  if(q.type === "MCQ") {
+    grid.className = "";
+    grid.style.display = "grid";
+    (q.opts||[]).forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "opt-btn"; btn.textContent = opt;
+      btn.onclick = () => submitMCQ(opt, q.ans, btn);
+      grid.appendChild(btn);
+    });
+  } else {
+    grid.style.display = "none";
+    fillWrap.style.display = "flex";
+    document.getElementById("fill-input").value = "";
+    document.getElementById("fill-input").placeholder = q.type==="NUM"?"Enter number...":"Your answer...";
+    setTimeout(()=>document.getElementById("fill-input").focus(), 100);
+  }
+}
+
+function submitMCQ(chosen, correct, btn) {
+  if(G.answered) return;
+  G.answered = true;
+  document.querySelectorAll(".opt-btn").forEach(b=>b.disabled=true);
+  document.querySelectorAll(".opt-btn").forEach(b=>{ if(b.textContent===correct) b.classList.add("correct"); });
+  if(chosen === correct) btn.classList.add("correct");
+  else btn.classList.add("wrong");
+  processAnswer(chosen===correct, correct);
+}
+
+function submitFill() {
+  if(G.answered) return;
+  const val = document.getElementById("fill-input").value.trim();
+  if(!val) return;
+  G.answered = true;
+  const q = G.activeEnemy.question;
+  const user = val.toLowerCase().trim();
+  const right = (q.ans||"").toLowerCase().trim();
+  let correct = false;
+  if(q.type==="NUM") correct = parseFloat(user)===parseFloat(right);
+  else correct = user===right || user.includes(right) || right.includes(user);
+  processAnswer(correct, q.ans);
+}
+
+document.getElementById("fill-input").addEventListener("keydown", e => { if(e.key==="Enter") submitFill(); });
+
+function processAnswer(isCorrect, correctAns) {
+  const enemy = G.activeEnemy;
+  if(!enemy) return;
+
+  if(isCorrect) {
+    // Fire cannon!
+    G.streak++;
+    G.maxStreak = Math.max(G.maxStreak, G.streak);
+    const baseScore = 100;
+    const combo = G.streak >= 3 ? G.streak : 1;
+    const pts = baseScore * combo;
+    G.score += pts;
+
+    document.getElementById("feedback").textContent = `✅ Correct! +${pts} pts${G.streak>=2?" 🔥x"+G.streak:""}`;
+    document.getElementById("feedback").style.color = "var(--green)";
+
+    fireProjectile(enemy);
+    if(G.streak >= 2) showCombo(G.streak);
+  } else {
+    G.streak = 0;
+    const dmg = 8 + G.currentWave * 2;
+    G.castleHP = Math.max(0, G.castleHP - dmg);
+    document.getElementById("feedback").textContent = `❌ Wrong! -${dmg} castle HP. Ans: ${correctAns}`;
+    document.getElementById("feedback").style.color = "var(--red)";
+    // Enemy resumes but damaged
+    enemy.questioned = false;
+    enemy.currentHP -= 20;
+    if(enemy.currentHP <= 0) { enemy.dead = true; addExplosion(enemy.x, enemy.y, enemy.color); }
+    updateHUD();
+    if(G.castleHP <= 0) { setTimeout(()=>gameOver(false),500); return; }
+  }
+
+  updateHUD();
+  setTimeout(() => {
+    G.activeEnemy = null;
+    checkWaveComplete();
+    if(G.waveState !== 'between' && G.waveState !== 'win' && G.waveState !== 'gameover')
+      setTimeout(tryAskQuestion, 600);
+  }, 1200);
+}
+
+function fireProjectile(enemy) {
+  // Cannon ball from castle to enemy
+  const cx = CW * 0.88;
+  const cy = CH * 0.5;
+  G.projectiles.push({
+    x: cx, y: cy,
+    tx: enemy.x, ty: enemy.y,
+    targetId: enemy.id,
+    progress: 0, color: "#f0c040"
+  });
+  // Flash
+  const fl = document.getElementById("cannon-flash");
+  fl.style.background = "radial-gradient(circle at 88% 50%, rgba(240,192,64,0.3) 0%, transparent 60%)";
+  fl.style.animation = "none"; fl.offsetHeight;
+  fl.style.animation = "cannonFlash .3s ease forwards";
+}
+
+function showCombo(streak) {
+  const el = document.getElementById("combo-popup");
+  const colors = ["#ff8800","#ff4400","#ff0044","#aa00ff","#f0c040"];
+  const ci = Math.min(streak-2, colors.length-1);
+  el.style.color = colors[ci];
+  el.textContent = streak >= 8 ? "💥 MEGA x"+streak+"!!" : streak >= 5 ? "⚡ SUPER x"+streak+"!" : "🔥 x"+streak+" COMBO!";
+  el.style.animation = "none"; el.offsetHeight;
+  el.style.animation = "comboPop 1.2s ease forwards";
+}
+
+let shakeTimer = 0;
+function triggerShake() {
+  shakeTimer = 8;
+}
+
+// ══════════════════════════════════════════════════════
+//  PROJECTILE UPDATE
+// ══════════════════════════════════════════════════════
+function updateProjectiles(dt) {
+  G.projectiles = G.projectiles.filter(p => {
+    p.progress += dt * 0.003;
+    if(p.progress >= 1) {
+      // Hit!
+      const enemy = G.enemies.find(e=>e.id===p.targetId);
+      if(enemy && !enemy.dead) {
+        enemy.dead = true;
+        addExplosion(enemy.x, enemy.y, enemy.color);
+        addFloatText(enemy.x, enemy.y-20, "💥 DESTROYED", "#f0c040", 14);
+      }
+      return false;
+    }
+    return true;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SPAWNING
+// ══════════════════════════════════════════════════════
+function updateSpawning(dt) {
+  if(G.waveState !== 'spawning') return;
+  G.spawnTimer += dt;
+  if(G.spawnTimer >= 1800 && G.spawnQueue.length > 0) {
+    G.spawnTimer = 0;
+    const enemy = G.spawnQueue.shift();
+    const path = getPath();
+    enemy.x = path[0].x; enemy.y = path[0].y;
+    enemy.pathIdx = 0;
+    G.enemies.push(enemy);
+    updateEnemyQueue();
+    if(G.spawnQueue.length === 0) G.waveState = 'active';
+    setTimeout(tryAskQuestion, 800);
+  }
+}
+
+function updateEnemyQueue() {
+  const wave = G.waves[G.currentWave];
+  if(!wave) return;
+  const qEl = document.getElementById("enemy-queue");
+  qEl.innerHTML = "";
+  wave.enemies.forEach((e,i)=>{
+    const dot = document.createElement("div");
+    dot.className = "eq-dot";
+    dot.style.background = e.color;
+    dot.title = e.name;
+    const liveEnemy = G.enemies.find(en=>en.id===`w${G.currentWave}_e${i}`);
+    const inQueue = G.spawnQueue.some(sq=>sq.id===`w${G.currentWave}_e${i}`);
+    if(liveEnemy?.dead) dot.classList.add("dead");
+    else if(liveEnemy?.questioned) dot.classList.add("current");
+    qEl.appendChild(dot);
+  });
+}
+
+function checkWaveComplete() {
+  if(G.waveState !== 'active') return;
+  const allSpawned = G.spawnQueue.length === 0;
+  const allDead = G.enemies.every(e=>e.dead);
+  if(allSpawned && allDead) {
+    G.waveState = 'between';
+    G.currentWave++;
+    setBadge('answered');
+    showIdle();
+    if(G.currentWave >= G.waves.length) {
+      setTimeout(()=>gameOver(true), 1000);
+    } else {
+      setTimeout(()=>showBetween(), 800);
+    }
+  }
+}
+
+function showBetween() {
+  const bo = document.getElementById("between-overlay");
+  document.getElementById("between-title").textContent = `✅ WAVE ${G.currentWave} CLEARED!`;
+  document.getElementById("between-sub").textContent = `Score: ${G.score.toLocaleString()} | Streak best: ${G.maxStreak} | Castle: ${G.castleHP}HP`;
+  bo.classList.add("show");
+}
+
+// ══════════════════════════════════════════════════════
+//  QUESTION TIMER
+// ══════════════════════════════════════════════════════
+function updateQuestionTimer() {
+  if(!G.activeEnemy || G.answered) return;
+  const remaining = G.questionDeadline - Date.now();
+  G.questionTimerPct = Math.max(0, remaining / G.questionTimeLimit);
+  const bar = document.getElementById("q-timer-bar");
+  bar.style.width = (G.questionTimerPct*100)+"%";
+  bar.style.background = G.questionTimerPct > 0.5 ? "var(--green)" : G.questionTimerPct > 0.25 ? "#ff8800" : "var(--red)";
+  if(remaining <= 0 && !G.answered) {
+    // Time up — enemy attacks
+    G.answered = true;
+    const dmg = 15;
+    G.castleHP = Math.max(0, G.castleHP - dmg);
+    G.streak = 0;
+    document.getElementById("feedback").textContent = `⏱ TIME'S UP! -${dmg} castle HP!`;
+    document.getElementById("feedback").style.color = "var(--red)";
+    document.querySelectorAll(".opt-btn").forEach(b=>b.disabled=true);
+    G.activeEnemy.questioned = false;
+    updateHUD();
+    if(G.castleHP<=0){setTimeout(()=>gameOver(false),500);return;}
+    setTimeout(()=>{ G.activeEnemy=null; checkWaveComplete(); setTimeout(tryAskQuestion,600); }, 1200);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  EFFECTS
+// ══════════════════════════════════════════════════════
+function addExplosion(x, y, color) {
+  for(let i=0;i<14;i++) {
+    const angle = Math.random()*Math.PI*2;
+    const speed = 1.5+Math.random()*3.5;
+    G.explosions.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:1,color,size:2+Math.random()*4});
+  }
+}
+
+function addFloatText(x, y, text, color, size=14) {
+  G.floatTexts.push({x,y,text,color,size,life:1,vy:-0.8});
+}
+
+function updateEffects(dt) {
+  G.explosions = G.explosions.filter(p=>{ p.x+=p.vx*dt*0.05;p.y+=p.vy*dt*0.05;p.vy+=0.05;p.life-=0.018*dt;return p.life>0; });
+  G.floatTexts = G.floatTexts.filter(t=>{ t.y+=t.vy*dt*0.04;t.life-=0.015*dt;return t.life>0; });
+}
+
+// ══════════════════════════════════════════════════════
+//  GAME OVER
+// ══════════════════════════════════════════════════════
+function gameOver(won) {
+  if(G.waveState==='gameover'||G.waveState==='win') return;
+  G.waveState = won?'win':'gameover';
+  showIdle();
+  if(won) {
+    document.getElementById("win-stats").innerHTML = `Score: ${G.score.toLocaleString()}<br>Best Streak: ${G.maxStreak}<br>Castle HP: ${G.castleHP}/${G.maxCastleHP}`;
+    setTimeout(()=>document.getElementById("win-overlay").classList.add("show"), 800);
+  } else {
+    document.getElementById("lose-stats").innerHTML = `Score: ${G.score.toLocaleString()}<br>Best Streak: ${G.maxStreak}<br>Reached Wave: ${G.currentWave+1}`;
+    setTimeout(()=>document.getElementById("lose-overlay").classList.add("show"), 500);
+  }
+}
+
+function showIdle() {
+  document.getElementById("idle-msg").style.display = "flex";
+  document.getElementById("q-active").style.display = "none";
+}
+
+// ══════════════════════════════════════════════════════
+//  HUD UPDATE
+// ══════════════════════════════════════════════════════
+function updateHUD() {
+  const pct = G.castleHP/G.maxCastleHP;
+  document.getElementById("castle-hp-bar").style.width = (pct*100)+"%";
+  document.getElementById("castle-hp-bar").style.background = pct>0.6?"linear-gradient(90deg,#00cc44,#00ff88)":pct>0.3?"linear-gradient(90deg,#cc8800,#ffaa00)":"linear-gradient(90deg,#cc2200,#ff3300)";
+  document.getElementById("castle-hp-num").textContent = `${G.castleHP}/${G.maxCastleHP}`;
+  document.getElementById("hud-wave-val").textContent = `${G.currentWave+1}/${G.waves.length}`;
+  document.getElementById("hud-score-val").textContent = G.score.toLocaleString();
+  document.getElementById("hud-streak-val").textContent = "🔥"+G.streak;
+  updateEnemyQueue();
+}
+
+// ══════════════════════════════════════════════════════
+//  DRAW
+// ══════════════════════════════════════════════════════
+let lastTime = 0;
+function gameLoop(ts=0) {
+  if(!G.started) return;
+  const dt = Math.min(ts - lastTime, 50); lastTime = ts;
+
+  updateSpawning(dt);
+  moveEnemies(dt);
+  updateProjectiles(dt);
+  updateEffects(dt);
+  updateQuestionTimer();
+
+  // Shake
+  let sx=0, sy=0;
+  if(shakeTimer>0){ shakeTimer--; sx=(Math.random()-.5)*6; sy=(Math.random()-.5)*6; }
+
+  ctx.save();
+  ctx.translate(sx,sy);
+
+  drawBackground();
+  drawPath();
+  drawCastle();
+  drawEnemies();
+  drawProjectiles();
+  drawExplosions();
+  drawFloatTexts();
+
+  ctx.restore();
+  G.tick++;
+  requestAnimationFrame(gameLoop);
+}
+
+function drawBackground() {
+  // Parallax sky
+  const grad = ctx.createLinearGradient(0,0,0,CH);
+  grad.addColorStop(0,"#04050e");
+  grad.addColorStop(0.6,"#080a18");
+  grad.addColorStop(1,"#0c0a10");
+  ctx.fillStyle=grad; ctx.fillRect(0,0,CW,CH);
+
+  // Stars
+  ctx.fillStyle="rgba(255,255,255,0.6)";
+  for(let i=0;i<80;i++){
+    const sx=((i*137.5)%CW); const sy=((i*91.3)%CH*0.55);
+    const br=0.3+Math.sin(G.tick*0.02+i)*0.3;
+    ctx.globalAlpha=br;
+    ctx.fillRect(sx,sy,1,1);
+  }
+  ctx.globalAlpha=1;
+
+  // Ground
+  const groundGrad = ctx.createLinearGradient(0,CH*0.75,0,CH);
+  groundGrad.addColorStop(0,"#0a1208");
+  groundGrad.addColorStop(1,"#050a04");
+  ctx.fillStyle=groundGrad;
+  ctx.fillRect(0,CH*0.75,CW,CH*0.25);
+
+  // Ground texture streaks
+  ctx.globalAlpha=0.15;
+  for(let i=0;i<20;i++){
+    const gx=(i*71)%CW; const gw=20+((i*37)%60);
+    ctx.fillStyle="#1a2a10";
+    ctx.fillRect(gx,CH*0.75,gw,3);
+  }
+  ctx.globalAlpha=1;
+
+  // Distant mountains silhouette
+  ctx.fillStyle="#06080e";
+  ctx.beginPath(); ctx.moveTo(0,CH*0.75);
+  for(let x=0;x<=CW;x+=40){
+    const h=CH*0.15+Math.sin(x*0.012)*CH*0.08+Math.sin(x*0.031)*CH*0.04;
+    ctx.lineTo(x,CH*0.75-h);
+  }
+  ctx.lineTo(CW,CH*0.75); ctx.closePath(); ctx.fill();
+
+  // Fog wisps
+  for(let i=0;i<5;i++){
+    const fx=(G.tick*0.3+i*200)%CW;
+    const fy=CH*0.7;
+    const fogGrad=ctx.createRadialGradient(fx,fy,0,fx,fy,80);
+    fogGrad.addColorStop(0,"rgba(200,220,255,0.04)");
+    fogGrad.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=fogGrad;
+    ctx.fillRect(fx-80,fy-80,160,160);
+  }
+}
+
+function drawPath() {
+  const path = getPath();
+  // Glow
+  ctx.shadowColor="#2a4a2a"; ctx.shadowBlur=12;
+  ctx.strokeStyle="#1a2a14"; ctx.lineWidth=28;
+  ctx.setLineDash([]); ctx.lineJoin="round"; ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
+  path.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  // Path surface
+  ctx.shadowBlur=0;
+  ctx.strokeStyle="#121a0e"; ctx.lineWidth=22;
+  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
+  path.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  // Center line
+  ctx.strokeStyle="#1e2a16"; ctx.lineWidth=4;
+  ctx.setLineDash([12,8]);
+  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
+  path.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Waypoint markers
+  path.slice(1,-1).forEach((p,i)=>{
+    const pulse=0.4+Math.sin(G.tick*0.04+i)*0.2;
+    ctx.strokeStyle=`rgba(80,140,80,${pulse})`;
+    ctx.lineWidth=1; ctx.beginPath();
+    ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.stroke();
+  });
+}
+
+function drawCastle() {
+  const cx = CW*0.88, cy = CH*0.5;
+  const t = G.tick;
+  // Base glow
+  const healthPct = G.castleHP/G.maxCastleHP;
+  const glowColor = healthPct>0.6?"rgba(0,255,100,0.12)":healthPct>0.3?"rgba(255,160,0,0.12)":"rgba(255,50,0,0.2)";
+  const glow = ctx.createRadialGradient(cx,cy,0,cx,cy,80);
+  glow.addColorStop(0,glowColor); glow.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(cx,cy,80,0,Math.PI*2); ctx.fill();
+
+  // Castle body
+  ctx.fillStyle="#1a1f2a"; ctx.fillRect(cx-28,cy-40,56,60);
+  // Battlements
+  const merlons=[cx-28,cx-14,cx,cx+14];
+  ctx.fillStyle="#22283a";
+  merlons.forEach(mx=>ctx.fillRect(mx,cy-52,10,14));
+  // Tower
+  ctx.fillStyle="#1a1f2a"; ctx.fillRect(cx-16,cy-58,32,20);
+  // Tower battlements
+  [cx-16,cx-4,cx+8].forEach(tx=>{ ctx.fillStyle="#22283a"; ctx.fillRect(tx,cy-66,8,10); });
+  // Gate
+  ctx.fillStyle="#0a0a12"; ctx.fillRect(cx-10,cy+5,20,15);
+  // Portcullis
+  ctx.strokeStyle="#333a50"; ctx.lineWidth=1.5;
+  for(let i=0;i<4;i++){ ctx.beginPath();ctx.moveTo(cx-10+i*6,cy+5);ctx.lineTo(cx-10+i*6,cy+20);ctx.stroke(); }
+  for(let j=0;j<3;j++){ ctx.beginPath();ctx.moveTo(cx-10,cy+10+j*4);ctx.lineTo(cx+10,cy+10+j*4);ctx.stroke(); }
+  // Flag
+  const flagWave = Math.sin(t*0.08)*6;
+  ctx.strokeStyle="#c8a000"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx,cy-66); ctx.lineTo(cx,cy-86); ctx.stroke();
+  ctx.fillStyle="#c8a000";
+  ctx.beginPath(); ctx.moveTo(cx,cy-86); ctx.lineTo(cx+12+flagWave,cy-80); ctx.lineTo(cx,cy-74); ctx.closePath(); ctx.fill();
+  // Wall cracks (low HP)
+  if(healthPct < 0.5) {
+    const alpha = (0.5-healthPct)/0.5;
+    ctx.strokeStyle=`rgba(200,100,50,${alpha*0.7})`; ctx.lineWidth=1;
+    [[cx-20,cy-30,cx-15,cy-10],[cx+10,cy-35,cx+18,cy-15],[cx-5,cy,cx+2,cy+15]].forEach(([x1,y1,x2,y2])=>{
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    });
+  }
+  // HP bar above castle
+  const barW=60,barH=6;
+  ctx.fillStyle="#0a0a12"; ctx.fillRect(cx-barW/2,cy-90,barW,barH);
+  ctx.fillStyle=healthPct>0.6?"#00cc44":healthPct>0.3?"#cc8800":"#cc2200";
+  ctx.fillRect(cx-barW/2,cy-90,barW*healthPct,barH);
+  ctx.strokeStyle="#333"; ctx.lineWidth=1; ctx.strokeRect(cx-barW/2,cy-90,barW,barH);
+}
+
+function drawEnemies() {
+  G.enemies.forEach(e=>{
+    if(e.dead) return;
+    const t = G.tick;
+    const bob = e.questioned ? 0 : Math.sin(t*0.1+e.pathIdx)*3;
+    const cx=e.x, cy=e.y+bob;
+
+    ctx.save(); ctx.translate(cx,cy);
+
+    // Shadow
+    ctx.fillStyle="rgba(0,0,0,0.4)";
+    ctx.beginPath(); ctx.ellipse(0,24,16,5,0,0,Math.PI*2); ctx.fill();
+
+    // Body glow
+    if(e.questioned){
+      const qglow=ctx.createRadialGradient(0,0,0,0,0,35);
+      qglow.addColorStop(0,e.color+"66"); qglow.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle=qglow; ctx.beginPath();ctx.arc(0,0,35,0,Math.PI*2);ctx.fill();
+    }
+
+    // Body
+    ctx.fillStyle=e.color;
+    ctx.beginPath();
+    ctx.ellipse(0,0,12,16,0,0,Math.PI*2); ctx.fill();
+    // Darker center
+    ctx.fillStyle="rgba(0,0,0,0.3)";
+    ctx.beginPath(); ctx.ellipse(0,0,8,11,0,0,Math.PI*2); ctx.fill();
+    // Eyes
+    ctx.fillStyle="#ffee00";
+    ctx.beginPath();ctx.arc(-4,-4,3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(4,-4,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#000";
+    ctx.beginPath();ctx.arc(-3,-4,1.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(5,-4,1.5,0,Math.PI*2);ctx.fill();
+    // Mouth (angry)
+    ctx.strokeStyle="#ff2200"; ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(0,4,5,0.2,Math.PI-0.2);ctx.stroke();
+    // Arms
+    const armSwing = e.questioned?0:Math.sin(t*0.12)*12;
+    ctx.strokeStyle=e.color; ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(-12,2);ctx.lineTo(-20,10+armSwing);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(12,2);ctx.lineTo(20,10-armSwing);ctx.stroke();
+    // Legs
+    const legSwing=e.questioned?0:Math.sin(t*0.12)*8;
+    ctx.beginPath();ctx.moveTo(-6,15);ctx.lineTo(-8,28+legSwing);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(6,15);ctx.lineTo(8,28-legSwing);ctx.stroke();
+
+    // Name tag
+    ctx.fillStyle="rgba(0,0,0,0.75)";
+    const nw=e.name.length*5.5+10;
+    ctx.fillRect(-nw/2,-38,nw,13);
+    ctx.fillStyle="#fff"; ctx.font="bold 8px Share Tech Mono,monospace";
+    ctx.textAlign="center"; ctx.fillText(e.name,0,-28);
+
+    // HP bar
+    const hpPct=e.currentHP/e.hp;
+    ctx.fillStyle="#1a0000"; ctx.fillRect(-18,-26,36,5);
+    ctx.fillStyle=hpPct>0.5?"#00cc44":"#cc2200";
+    ctx.fillRect(-18,-26,36*hpPct,5);
+
+    // Question mark if being questioned
+    if(e.questioned){
+      ctx.fillStyle=e.color; ctx.font="bold 18px Orbitron,monospace"; ctx.textAlign="center";
+      ctx.fillText("?",0,-50+Math.sin(t*0.1)*3);
+    }
+
+    ctx.restore();
+  });
+}
+
+function drawProjectiles() {
+  G.projectiles.forEach(p => {
+    const x = p.x + (p.tx-p.x)*p.progress;
+    const y = p.y + (p.ty-p.y)*p.progress - Math.sin(p.progress*Math.PI)*40;
+    // Trail
+    ctx.fillStyle="rgba(240,192,64,0.3)";
+    for(let i=1;i<=4;i++){
+      const tp=Math.max(0,p.progress-i*0.03);
+      const tx2=p.x+(p.tx-p.x)*tp;
+      const ty2=p.y+(p.ty-p.y)*tp-Math.sin(tp*Math.PI)*40;
+      ctx.beginPath();ctx.arc(tx2,ty2,3-i*0.5,0,Math.PI*2);ctx.fill();
+    }
+    // Ball
+    ctx.fillStyle="#f0c040";
+    ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#ffee88";
+    ctx.beginPath();ctx.arc(x-2,y-2,3,0,Math.PI*2);ctx.fill();
+    // Glow
+    ctx.shadowColor="#f0c040"; ctx.shadowBlur=12;
+    ctx.fillStyle="#f0c040";
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+  });
+}
+
+function drawExplosions() {
+  G.explosions.forEach(p=>{
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life+1,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life*0.4,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+}
+
+function drawFloatTexts() {
+  G.floatTexts.forEach(t=>{
+    ctx.globalAlpha=t.life;
+    ctx.fillStyle=t.color;
+    ctx.font=`bold ${t.size}px Orbitron,monospace`;
+    ctx.textAlign="center";
+    ctx.fillText(t.text,t.x,t.y);
+  });
+  ctx.globalAlpha=1;
+}
+</script>
+</body>
+</html>

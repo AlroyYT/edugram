@@ -29,10 +29,14 @@ SECRET_KEY = "django-insecure-a*@ewf7cgly6!1kf)asuqr)snc5g5hpb1sx0fpcbe++4%x04uo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
+# ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
+
+ALLOWED_HOSTS = ["*"]  # OK for now (Cloud Run)
 
 # Add Gemini API Key directly (replace with your actual API key)
+GEMINI_API_KEY_JARVIS = os.getenv("GEMINI_API_KEY_JARVIS")  # Get this from Google AI Studio
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # Get this from Google AI Studio
+GEMINI_API_KEY_VIDEO = os.getenv("GEMINI_API_KEY_VIDEO")  # Get this from Google AI Studio
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 # Application definition
@@ -160,12 +164,12 @@ REST_FRAMEWORK = {
 # CORS configuration
 CORS_ALLOW_ALL_ORIGINS = True  # Disable to use specific origins
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
  
-    "http://localhost:8000"
-]
+#     "http://localhost:8000"
+# ]
 CORS_ALLOWED_METHODS = [
     "DELETE",
     "GET",

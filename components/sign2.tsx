@@ -125,8 +125,8 @@ const AnimationView: React.FC = () => {
 
   const renderWord = (wordData: any, index: number) => {
     // Use the URL sent by the backend if it exists, otherwise construct it
-    // const mediaSrc = wordData.url || `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
-    const mediaSrc = 'http://127.0.0.1:8000/api/sign-video/finish/';
+    const mediaSrc = wordData.url || `${backend_url}/static/animations/${wordData.format}/${wordData.word}.${wordData.format}`;
+    // const mediaSrc = 'http://127.0.0.1:8000/api/sign-video/finish/';
 
     return (
       <div 
@@ -877,7 +877,7 @@ const AnimationView: React.FC = () => {
               objectFit: 'contain',
               borderRadius: '20px',
             }}
-            src={animationData[currentIndex].url || `http://127.0.0.1:8000/api/sign-video/${animationData[currentIndex].word}/`}
+            src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
             autoPlay
             muted
             onEnded={handleVideoEnded}
@@ -887,7 +887,7 @@ const AnimationView: React.FC = () => {
           </video>
         ) : (
           <img 
-            src={animationData[currentIndex].url || `http://127.0.0.1:8000/api/sign-video/${animationData[currentIndex].word}/`}
+            src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
             // alt={animationData[currentIndex].word}
             style={{
               width: '100%',

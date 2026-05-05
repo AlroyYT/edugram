@@ -2020,3 +2020,265 @@ def serve_sign_video(request, video_name):
     # 5. Final Fail
     print(f"❌ File not found in static storage: {clean_name}")
     raise Http404(f"Video '{clean_name}' not found.")
+
+
+# Jarvis 2.0 - with multi language and new UI
+import asyncio
+import io
+import edge_tts
+genai.configure(api_key=settings.GEMINI_API_KEY_JARVIS)
+
+# ── Voice map ──────────────────────────────────────────────────────────────────
+JARVIS_VOICE_MAP = {
+    "en": "en-GB-RyanNeural",
+    "hi": "hi-IN-MadhurNeural",
+    "kn": "kn-IN-GaganNeural",
+    "ta": "ta-IN-ValluvarNeural",
+    "te": "te-IN-MohanNeural",
+    "ml": "ml-IN-MidhunNeural",
+    "mr": "mr-IN-ManoharNeural",
+}
+
+# ── Language config with formatting preserved but concise ─────────────────────
+JARVIS_LANGUAGE_CONFIG = {
+    "en": {
+        "system_prompt": """You are JARVIS, an advanced AI assistant for engineering students. Be witty and helpful. Be concise - give essential information directly.
+
+FORMATTING RULES:
+- Use numbered lists for steps/procedures (1. 2. 3.)
+- Use **bold** for key terms
+- Use LaTeX for equations: inline $equation$ or display $$equation$$
+- No tables, no code blocks unless absolutely necessary
+- Keep responses under 200 words
+- Address user as "sir"
+
+EQUATION RULE: Always include LaTeX equations when explaining formulas.
+Example: Ohm's law: $$V = IR$$""",
+    },
+    
+    "hi": {
+        "system_prompt": """आप JARVIS हैं, इंजीनियरिंग छात्रों के लिए उन्नत AI सहायक। संक्षिप्त रहें - सीधे आवश्यक जानकारी दें।
+
+फ़ॉर्मेटिंग नियम:
+- चरणों/प्रक्रियाओं के लिए क्रमांकित सूची (1. 2. 3.)
+- मुख्य शब्दों के लिए **bold**
+- समीकरणों के लिए LaTeX: inline $equation$ या display $$equation$$
+- जवाब 200 शब्दों से कम रखें
+- उपयोगकर्ता को 'सर' कहें
+
+समीकरण नियम: सूत्र समझाते समय LaTeX equation ज़रूर शामिल करें।""",
+    },
+    
+    "kn": {
+        "system_prompt": """ನೀವು JARVIS, ಇಂಜಿನಿಯರಿಂಗ್ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಸುಧಾರಿತ AI ಸಹಾಯಕ. ಸಂಕ್ಷಿಪ್ತವಾಗಿರಿ - ನೇರವಾಗಿ ಅಗತ್ಯ ಮಾಹಿತಿ ನೀಡಿ.
+
+ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ನಿಯಮಗಳು:
+- ಹಂತಗಳಿಗೆ ಸಂಖ್ಯಾ ಪಟ್ಟಿ (1. 2. 3.)
+- ಮುಖ್ಯ ಪದಗಳಿಗೆ **bold**
+- ಸಮೀಕರಣಗಳಿಗೆ LaTeX: inline $equation$ ಅಥವಾ display $$equation$$
+- 200 ಪದಗಳಿಗಿಂತ ಕಡಿಮೆ ಇರಿಸಿ
+- ಬಳಕೆದಾರರನ್ನು 'ಸರ್' ಎಂದು ಸಂಬೋಧಿಸಿ
+
+ಸಮೀಕರಣ ನಿಯಮ: ಸೂತ್ರ ವಿವರಿಸುವಾಗ LaTeX equation ಸೇರಿಸಿ.""",
+    },
+    
+    "ta": {
+        "system_prompt": """நீங்கள் JARVIS, இஞ்சினியரிங் மாணவர்களுக்கான மேம்பட்ட AI உதவியாளர். சுருக்கமாக இருங்கள் - நேரடியாக தேவையான தகவல்களை கொடுங்கள்.
+
+வடிவமைப்பு விதிகள்:
+- படிகளுக்கு எண் பட்டியல் (1. 2. 3.)
+- முக்கிய சொற்களுக்கு **bold**
+- சமன்பாடுகளுக்கு LaTeX: inline $equation$ அல்லது display $$equation$$
+- 200 வார்த்தைகளுக்குக் குறைவாக வைத்திருங்கள்
+- பயனரை 'சார்' என்று அழையுங்கள்
+
+சமன்பாடு விதி: சூத்திரத்தை விளக்கும்போது LaTeX equation சேர்க்கவும்.""",
+    },
+    
+    "te": {
+        "system_prompt": """మీరు JARVIS, ఇంజినీరింగ్ విద్యార్థులకు అధునాతన AI సహాయకుడు. క్లుప్తంగా ఉండండి - నేరుగా అవసరమైన సమాచారం ఇవ్వండి.
+
+ఫార్మాటింగ్ నియమాలు:
+- దశలకు సంఖ్యా జాబితా (1. 2. 3.)
+- కీలక పదాలకు **bold**
+- సమీకరణాలకు LaTeX: inline $equation$ లేదా display $$equation$$
+- 200 పదాల కంటే తక్కువగా ఉంచండి
+- వినియోగదారుని 'సార్' అని సంబోధించండి
+
+సమీకరణ నియమం: సూత్రం వివరించేటప్పుడు LaTeX equation తప్పకుండా చేర్చండి.""",
+    },
+    
+    "ml": {
+        "system_prompt": """നിങ്ങൾ JARVIS, ഇൻജിനീയറിംഗ് വിദ്യാർഥികൾക്കായുള്ള നൂതന AI സഹായി. സംക്ഷിപ്തമായിരിക്കുക - ആവശ്യമായ വിവരങ്ങൾ നേരിട്ട് നൽകുക.
+
+ഫോർമാറ്റിംഗ് നിയമങ്ങൾ:
+- ഘട്ടങ്ങൾക്ക് ക്രമ പട്ടിക (1. 2. 3.)
+- പ്രധാന പദങ്ങൾക്ക് **bold**
+- സമവാക്യങ്ങൾക്ക് LaTeX: inline $equation$ അല്ലെങ്കിൽ display $$equation$$
+- 200 വാക്കുകളിൽ താഴെ നിലനിർത്തുക
+- ഉപയോക്താവിനെ 'സർ' എന്ന് അഭിസംബോധന ചെയ്യുക
+
+സമവാക്യ നിയമം: ഫോർമുല വിശദീകരിക്കുമ്പോൾ LaTeX equation ഉൾപ്പെടുത്തുക.""",
+    },
+    
+    "mr": {
+        "system_prompt": """तुम्ही JARVIS, इंजिनिअरिंग विद्यार्थ्यांसाठी प्रगत AI सहाय्यक. संक्षिप्त रहा - थेट आवश्यक माहिती द्या.
+
+फॉरमॅटिंग नियम:
+- पायऱ्यांसाठी क्रमांकित यादी (1. 2. 3.)
+- मुख्य शब्दांसाठी **bold**
+- समीकरणांसाठी LaTeX: inline $equation$ किंवा display $$equation$$
+- 200 शब्दांपेक्षा कमी ठेवा
+- वापरकर्त्याला 'सर' म्हणून संबोधित करा
+
+समीकरण नियम: सूत्र समजावताना LaTeX equation आवश्यक आहे.""",
+    },
+}
+
+# ── Conversation state ─────────────────────────────────────────────────────────
+_jarvis_conversation_history = []
+_jarvis_current_language = "en"
+
+# ── TTS cleaner: speaks full content including equations ──────────────────────
+def _strip_for_tts(text: str) -> str:
+    """Remove markdown/LaTeX for speech while keeping all content."""
+    
+    # Display math - speak equation in a natural way
+    def clean_display_math(m):
+        inner = m.group(1)
+        # Clean LaTeX but keep variables readable
+        inner = re.sub(r'\\[a-zA-Z]+', ' ', inner)
+        inner = re.sub(r'[{}^_]', ' ', inner)
+        inner = re.sub(r'\s+', ' ', inner).strip()
+        return f" जहाँ {inner} " if inner else " समीकरण "
+    
+    text = re.sub(r'\$\$([\s\S]+?)\$\$', clean_display_math, text)
+    
+    # Inline math - make it speakable
+    def clean_inline_math(m):
+        inner = m.group(1)
+        inner = re.sub(r'\\[a-zA-Z]+', ' ', inner)
+        inner = re.sub(r'[{}^_]', ' ', inner)
+        inner = re.sub(r'\s+', ' ', inner).strip()
+        return f" {inner} " if inner else " समीकरण "
+    
+    text = re.sub(r'\$([^$\n]+?)\$', clean_inline_math, text)
+    
+    # Code blocks - simple cue
+    text = re.sub(r'```[\s\S]*?```', ' कोड ब्लॉक ', text)
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    
+    # Bold markers - remove but keep text
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)
+    
+    # Keep numbered list structure for natural speech
+    text = re.sub(r'^(\d+)\.\s+', r'\1. ', text, flags=re.MULTILINE)
+    
+    # Clean up extra whitespace
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = re.sub(r'[ \t]{2,}', ' ', text)
+    
+    return text.strip()
+
+# ── TTS async generator ────────────────────────────────────────────────────────
+async def _generate_tts(text: str, voice: str) -> bytes:
+    audio_buffer = io.BytesIO()
+    # Split into chunks if text is too long (edge-tts handles long text but let's be safe)
+    communicate = edge_tts.Communicate(text, voice)
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            audio_buffer.write(chunk["data"])
+    audio_buffer.seek(0)
+    return audio_buffer.read()
+
+# ── Health check ───────────────────────────────────────────────────────────────
+@require_http_methods(["GET"])
+def jarvis_health(request):
+    return JsonResponse({"status": "online", "jarvis": "ready"})
+
+# ── Configure ───────────────────────────────────────────────────────────────────
+@csrf_exempt
+@require_http_methods(["POST"])
+def jarvis_configure(request):
+    return JsonResponse({"success": True, "message": "API key pre-configured"})
+
+# ── Main chat endpoint ─────────────────────────────────────────────────────────
+@csrf_exempt
+@require_http_methods(["POST"])
+def jarvis_chat(request):
+    global _jarvis_conversation_history, _jarvis_current_language
+    
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    
+    user_text = data.get("text", "")
+    language = data.get("language", "en")
+    
+    if not user_text:
+        return JsonResponse({"error": "No text provided"}, status=400)
+    
+    # Reset history on language switch
+    if language != _jarvis_current_language:
+        _jarvis_conversation_history = []
+        _jarvis_current_language = language
+    
+    lang_cfg = JARVIS_LANGUAGE_CONFIG.get(language, JARVIS_LANGUAGE_CONFIG["en"])
+    voice = JARVIS_VOICE_MAP.get(language, "en-GB-RyanNeural")
+    
+    try:
+        # ── 1. Fast Gemini with minimal history ────────────────────────────
+        model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash",
+            system_instruction=lang_cfg["system_prompt"]
+        )
+        
+        # Keep only last 4 messages for context (faster, still conversational)
+        _jarvis_conversation_history.append({"role": "user", "parts": [user_text]})
+        history_to_send = _jarvis_conversation_history[-4:]
+        
+        chat_session = model.start_chat(history=history_to_send[:-1] if len(history_to_send) > 1 else [])
+        response = chat_session.send_message(user_text)
+        reply_text = response.text
+        _jarvis_conversation_history.append({"role": "model", "parts": [reply_text]})
+        
+        # Trim history to 8 messages max
+        if len(_jarvis_conversation_history) > 8:
+            _jarvis_conversation_history = _jarvis_conversation_history[-8:]
+        
+        # ── 2. TTS cleaning (preserves all content, no length limit) ───────
+        tts_text = _strip_for_tts(reply_text)
+        
+        # No character limit - speak the entire response
+        
+        # ── 3. Async TTS generation ────────────────────────────────────────
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_closed():
+                raise RuntimeError("closed")
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        audio_bytes = loop.run_until_complete(_generate_tts(tts_text, voice))
+        audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+        
+        return JsonResponse({
+            "reply": reply_text,      # Full formatted text for display
+            "audio": audio_base64,    # Complete speech audio
+            "audio_format": "mp3",
+            "language": language,
+        })
+        
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+# ── Reset conversation ─────────────────────────────────────────────────────────
+@csrf_exempt
+@require_http_methods(["POST"])
+def jarvis_reset(request):
+    global _jarvis_conversation_history
+    _jarvis_conversation_history = []
+    return JsonResponse({"success": True, "message": "Conversation reset"})

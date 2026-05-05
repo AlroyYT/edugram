@@ -30,6 +30,8 @@ RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 # -------- Install gunicorn --------
 RUN pip install --no-cache-dir gunicorn
 
+RUN pip install deep_translator
+
 # -------- Download NLTK data --------
 RUN python - <<EOF
 import nltk

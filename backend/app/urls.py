@@ -24,7 +24,11 @@ from .views import (
     generate_drag_and_match,
     design_digital_circuit, 
     # animation_view,
-    serve_sign_video
+    serve_sign_video,
+    jarvis_health,
+    jarvis_configure,
+    jarvis_chat,
+    jarvis_reset,
     # Add the new hand sign detection functions  
 )
 
@@ -68,4 +72,10 @@ urlpatterns = [
     path('videos/', views.list_videos, name='list_videos'),
     path("subtitles/<path:filename>", serve_subtitle),
     path('videos/<int:video_id>/', views.delete_video, name='delete_video'),
+
+    # Jarvis 2.0 - multi language with new UI
+    path('health/',    jarvis_health,     name='jarvis_health'),
+    path('configure/', jarvis_configure,  name='jarvis_configure'),
+    path('chat/',      jarvis_chat,       name='jarvis_chat'),
+    path('reset/',     jarvis_reset,      name='jarvis_reset'),
 ]
