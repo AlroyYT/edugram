@@ -251,6 +251,20 @@ const Landing = () => {
           </div>
         </section>
 
+        {/* Architecture Diagram */}
+        <section className="edu-architecture-section">
+          <div className="edu-section-header">
+            <h2>Feature Map</h2>
+            <p>A look under the hood at how NEURO-LEARN is built</p>
+          </div>
+          <div className="edu-architecture-diagram">
+            <img
+              src="/images/edu11.jpeg"
+              alt="NEURO-LEARN System Architecture"
+            />
+          </div>
+        </section>
+
         {/* Call to Action */}
         <section className="edu-final-cta">
           <div className="edu-cta-content">

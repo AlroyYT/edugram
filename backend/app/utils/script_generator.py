@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY_VIDEO"))
 
 def generate_script(topic: str):
     model = genai.GenerativeModel("gemini-2.5-flash")

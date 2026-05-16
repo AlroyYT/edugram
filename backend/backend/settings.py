@@ -32,6 +32,8 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
 
 # Add Gemini API Key directly (replace with your actual API key)
+GEMINI_API_KEY_JARVIS=os.getenv("GEMINI_API_KEY_JARVIS")
+GEMINI_API_KEY_VIDEO=os.getenv("GEMINI_API_KEY_VIDEO")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # Get this from Google AI Studio
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 

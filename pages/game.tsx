@@ -60,6 +60,17 @@ export default function Home() {
               Defend your tower by solving challenges and mastering concepts.
             </p>
           </button>
+
+          <button
+            style={styles.cardButton}
+            onClick={() => navigateToGame("tower")}
+          >
+            <span style={styles.icon}>🏰</span>
+            <h2 style={styles.cardTitle}>Basic Games</h2>
+            <p style={styles.cardDesc}>
+              Interactive crosswords and puzzles to test your knowledge and critical thinking.
+            </p>
+          </button>
         </section>
       </main>
     </>

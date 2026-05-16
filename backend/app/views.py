@@ -1844,7 +1844,7 @@ Design the circuit now:"""
         return JsonResponse({"error": str(e)}, status=500)
 
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+genai.configure(api_key=settings.GEMINI_API_KEY_JARVIS)
 
 # ── Voice map ──────────────────────────────────────────────────────────────────
 JARVIS_VOICE_MAP = {

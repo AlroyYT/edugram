@@ -30,6 +30,11 @@ const QuizExperience = () => {
   const { uploadedFile } = useFileContext();
   const router = useRouter();
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const loadingAudioRef = useRef<HTMLAudioElement | null>(null);
+  const questionAudioRef = useRef<HTMLAudioElement | null>(null);
+  const timerAudioRef = useRef<HTMLAudioElement | null>(null);
+  const correctAudioRef = useRef<HTMLAudioElement | null>(null);
+const wrongAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Text-to-Speech Function
   const speakText = (text: string) => {
@@ -102,6 +107,20 @@ const QuizExperience = () => {
     };
   }, [activeProblemIndex, quizQuestions, voiceEnabled]);
 
+  // KBC Style Audio
+  useEffect(() => {
+  loadingAudioRef.current = new Audio("/audio/loading.mp3");
+  questionAudioRef.current = new Audio("/audio/question.mp3");
+  timerAudioRef.current = new Audio("/audio/timer.mp3");
+  correctAudioRef.current = new Audio("/audio/correct.mp3");
+  wrongAudioRef.current = new Audio("/audio/wrong.mp3");
+
+  // Optional: loop timer sound
+  if (timerAudioRef.current) {
+    timerAudioRef.current.loop = true;
+  }
+}, []);
+
   // Speak feedback when answer is revealed
   useEffect(() => {
     if (revealSolution && chosenAnswer && voiceEnabled) {
@@ -124,7 +143,7 @@ const QuizExperience = () => {
     const generateQuiz = async () => {
       setProcessingFile(true);
       setUploadError(null);
-
+      loadingAudioRef.current?.play();
       const formData = new FormData();
       formData.append("file", uploadedFile);
 
@@ -143,6 +162,8 @@ const QuizExperience = () => {
       } catch (err) {
         setUploadError("An error occurred while processing your document.");
       } finally {
+        loadingAudioRef.current?.pause();
+        loadingAudioRef.current!.currentTime = 0; 
         setProcessingFile(false);
       }
     };
@@ -151,51 +172,83 @@ const QuizExperience = () => {
   }, [uploadedFile, router]);
 
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
-    if (timerActive && timeRemaining > 0) {
-      countdown = setTimeout(() => {
-        setTimeRemaining(time => time - 1);
-      }, 1000);
-    } else if (timeRemaining === 0 && timerActive) {
-      handleNextProblem();
-    }
-    
-    return () => {
-      if (countdown) clearTimeout(countdown);
-    };
-  }, [timeRemaining, timerActive]);
+  let countdown: NodeJS.Timeout;
+
+  if (timerActive && timeRemaining > 0) {
+    timerAudioRef.current?.play(); // start ticking
+
+    countdown = setTimeout(() => {
+      setTimeRemaining(time => time - 1);
+    }, 1000);
+
+  } else if (timeRemaining === 0 && timerActive) {
+    timerAudioRef.current?.pause(); // stop sound
+    timerAudioRef.current!.currentTime = 0;
+
+    handleNextProblem();
+
+  } else {
+    // when timer is inactive (answer selected, etc.)
+    timerAudioRef.current?.pause();
+    timerAudioRef.current!.currentTime = 0;
+  }
+
+  return () => {
+    if (countdown) clearTimeout(countdown);
+  };
+}, [timeRemaining, timerActive]);
   
   useEffect(() => {
     if (quizQuestions.length > 0) {
+      questionAudioRef.current?.play();
       setTimerActive(true);
       setTimeRemaining(60);
     }
   }, [quizQuestions, activeProblemIndex]);
 
   const handleAnswerSelection = (option: string) => {
-    stopSpeech();
-    setChosenAnswer(option);
-    setRevealSolution(true);
-    setTimerActive(false);
-    
-    if (option === quizQuestions[activeProblemIndex].correct_answer) {
-      setScoreData(prev => ({ ...prev, correct: prev.correct + 1 }));
-    }
-    
-    if (activeProblemIndex === quizQuestions.length - 1) {
-      setTimeout(() => {
-        setQuizCompleted(true);
-        setShowConfetti(true);
-        if (voiceEnabled) {
-          const finalScore = option === quizQuestions[activeProblemIndex].correct_answer 
-            ? scoreData.correct + 1 
-            : scoreData.correct;
-          const percentage = Math.round((finalScore / quizQuestions.length) * 100);
-          setTimeout(() => speakText(`Quiz completed! You scored ${percentage} percent.`), 2000);
-        }
-      }, 1500);
-    }
-  };
+  // 🔇 Stop timer sound immediately
+  timerAudioRef.current?.pause();
+  if (timerAudioRef.current) timerAudioRef.current.currentTime = 0;
+
+  stopSpeech();
+
+  setChosenAnswer(option);
+  setRevealSolution(true);
+  setTimerActive(false);
+
+  const isCorrect = option === quizQuestions[activeProblemIndex].correct_answer;
+
+  // 🔊 Play correct / wrong sound
+  if (isCorrect) {
+    correctAudioRef.current?.play();
+    setScoreData(prev => ({ ...prev, correct: prev.correct + 1 }));
+  } else {
+    wrongAudioRef.current?.play();
+  }
+
+  // 🏁 If last question → finish quiz
+  if (activeProblemIndex === quizQuestions.length - 1) {
+    setTimeout(() => {
+      setQuizCompleted(true);
+      setShowConfetti(true);
+
+      if (voiceEnabled) {
+        const finalScore = isCorrect
+          ? scoreData.correct + 1
+          : scoreData.correct;
+
+        const percentage = Math.round(
+          (finalScore / quizQuestions.length) * 100
+        );
+
+        setTimeout(() => {
+          speakText(`Quiz completed! You scored ${percentage} percent.`);
+        }, 2000);
+      }
+    }, 1500);
+  }
+};
 
   const handleNextProblem = () => {
     if (activeProblemIndex < quizQuestions.length - 1) {

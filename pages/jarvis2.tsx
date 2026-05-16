@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { backend_url } from '../components/config';
 
 // ── KaTeX + Marked loaded via CDN in the style injection ──────────────────────
 const JARVIS_STYLES = `
@@ -543,7 +544,7 @@ const UI_TEXT: Record<string, { dropdownHint:string; emptyState:string; emptyCmd
   mr: { dropdownHint:'"JARVIS" म्हणा मग मराठीत कमांड द्या', emptyState:'"JARVIS" म्हणून सुरू करा', emptyCmd:'सर, समजलं नाही.', statusHint:['"JARVIS" स्पष्टपणे म्हणा','मग मराठीत बोला'], howTo:[{s:'01',t:'Chrome मध्ये mic परवानगी द्या'},{s:'02',t:'ONLINE स्थितीची प्रतीक्षा करा'},{s:'03',t:'"JARVIS" मोठ्याने म्हणा'},{s:'04',t:'मराठीत कमांड द्या (7s)'},{s:'05',t:'JARVIS मराठीत उत्तर देईल'}], clearMemory:'मेमरी साफ केली, सर.', ttsLabel:'EDGE TTS MR-IN', speechLabel:'mr-IN' },
 }
 
-const BACKEND = 'http://localhost:8000/api'
+const BACKEND = `${backend_url}/api`
 
 export default function JarvisPage() {
   const [messages, setMessages]     = useState<Message[]>([])
@@ -569,6 +570,8 @@ export default function JarvisPage() {
   const initRanRef      = useRef(false)
   const audioCtxRef     = useRef<AudioContext | null>(null)
   const langRef         = useRef<Language>(LANGUAGES[0])
+  const abortRef        = useRef(false)  // ← ADD THIS
+
 
   useEffect(() => {
     const tag = document.createElement('style')
@@ -778,6 +781,22 @@ export default function JarvisPage() {
       addMsg('jarvis', 'Error: ' + e.message); setTimeout(startWake, 500)
     }
   }
+  function abortOperation() {
+    abortRef.current = true
+    if (cmdRef.current) { try { cmdRef.current.stop() } catch {} cmdRef.current = null }
+    if (cmdTimerRef.current) { clearTimeout(cmdTimerRef.current); cmdTimerRef.current = null }
+    if (wakeRef.current) { try { wakeRef.current.abort() } catch {} wakeRef.current = null }
+    if (audioCtxRef.current) { try { audioCtxRef.current.suspend() } catch {} }
+    capturingRef.current = false
+    speakingRef.current = false
+    wakeMatchedRef.current = false
+    wakeStartingRef.current = false
+    setTranscript('')
+    setStatus('idle')
+    dbg('⛔ Operation aborted by user')
+    addMsg('jarvis', 'Operation aborted, sir.')
+    setTimeout(() => { abortRef.current = false; if (readyRef.current) startWake() }, 600)
+  }
 
   const STATUS_LABEL: Record<Status,string> = { offline:'OFFLINE', idle:'STANDBY', listening:'LISTENING', thinking:'PROCESSING', speaking:'RESPONDING' }
   const STATUS_COLOR: Record<Status,string> = { offline:'#ff3030', idle:'#ffa500', listening:'#00ff88', thinking:'#00d4ff', speaking:'#aa88ff' }
@@ -869,6 +888,8 @@ export default function JarvisPage() {
             </div>
 
             {isReady && <button className="btn-arc" onClick={async e=>{ e.stopPropagation(); await fetch(`${BACKEND}/reset/`,{method:'POST'}).catch(()=>{}); setMessages([]); addMsg('jarvis',ui.clearMemory) }} style={{ width:'100%' }}>CLEAR MEMORY</button>}
+            {isReady && <button className="btn-arc" onClick={e=>{ e.stopPropagation(); abortOperation() }} style={{ width:'100%', borderColor:'#ff4444', color:'#ff4444' }}>⛔ ABORT</button>}
+          
           </div>
 
           {/* CENTER — conversation log with rich rendering */}

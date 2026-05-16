@@ -115,8 +115,17 @@ const Features = () => {
   link: "/game",
   hoverColor: "#0d73e1",
   bgGradient: "linear-gradient(135deg, rgba(14, 219, 202, 0.2) 0%, rgba(255, 69, 0, 0.05) 100%)",
+},
+ {
+  title: "Jarvis text bot",
+  message: "Chat with the agent",
+  description: "Hands-on AI learning with activities, simulations, real-world challenges, and practice tasks for better understanding and memory.",
+  icon: "🖐️",
+  color: "#0ee1da",
+  link: "/lom",
+  hoverColor: "#0d73e1",
+  bgGradient: "linear-gradient(135deg, rgba(14, 219, 202, 0.2) 0%, rgba(255, 69, 0, 0.05) 100%)",
 }
-
 
   ];
 
