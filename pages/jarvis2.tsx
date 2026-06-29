@@ -524,7 +524,7 @@ type Status   = 'offline' | 'idle' | 'listening' | 'thinking' | 'speaking'
 type Language = { code: string; label: string; speechLang: string; gttsLang: string; gttsTld: string; wakeWords: string[]; listeningMsg: string; activatedMsg: string }
 
 const LANGUAGES: Language[] = [
-  { code:'en', label:'🇬🇧 English',   speechLang:'en-US', gttsLang:'en', gttsTld:'co.uk', wakeWords:['jarvis','jarvi','jarve','jarvey','harvey','harris','service','jarv'], listeningMsg:"Yes sir, I'm listening...", activatedMsg:'ACTIVATED' },
+  { code:'en', label:'🇮🇳 English',   speechLang:'en-US', gttsLang:'en', gttsTld:'co.uk', wakeWords:['jarvis','jarvi','jarve','jarvey','harvey','harris','service','jarv'], listeningMsg:"Yes sir, I'm listening...", activatedMsg:'ACTIVATED' },
   { code:'hi', label:'🇮🇳 Hindi',     speechLang:'hi-IN', gttsLang:'hi', gttsTld:'co.in', wakeWords:['जार्विस','jarvis','jarvi','jarve','jarvey','harvey','harris','service','jarv'], listeningMsg:'जी सर, मैं सुन रहा हूँ...', activatedMsg:'सक्रिय' },
   { code:'kn', label:'🇮🇳 Kannada',   speechLang:'kn-IN', gttsLang:'kn', gttsTld:'co.in', wakeWords:['ಜಾರ್ವಿಸ್','jarvis','jarvi','jarve','jarvey','harvey','harris','service','jarv'], listeningMsg:'ಹೌದು ಸರ್, ನಾನು ಕೇಳುತ್ತಿದ್ದೇನೆ...', activatedMsg:'ಸಕ್ರಿಯ' },
   { code:'ta', label:'🇮🇳 Tamil',     speechLang:'ta-IN', gttsLang:'ta', gttsTld:'co.in', wakeWords:['ஜார்விஸ்','jarvis','jarvi','jarve','jarvey','harvey','harris','service','jarv'], listeningMsg:'ஆம் சார், நான் கேட்கிறேன்...', activatedMsg:'செயலில்' },
@@ -543,8 +543,9 @@ const UI_TEXT: Record<string, { dropdownHint:string; emptyState:string; emptyCmd
   mr: { dropdownHint:'"JARVIS" म्हणा मग मराठीत कमांड द्या', emptyState:'"JARVIS" म्हणून सुरू करा', emptyCmd:'सर, समजलं नाही.', statusHint:['"JARVIS" स्पष्टपणे म्हणा','मग मराठीत बोला'], howTo:[{s:'01',t:'Chrome मध्ये mic परवानगी द्या'},{s:'02',t:'ONLINE स्थितीची प्रतीक्षा करा'},{s:'03',t:'"JARVIS" मोठ्याने म्हणा'},{s:'04',t:'मराठीत कमांड द्या (7s)'},{s:'05',t:'JARVIS मराठीत उत्तर देईल'}], clearMemory:'मेमरी साफ केली, सर.', ttsLabel:'EDGE TTS MR-IN', speechLabel:'mr-IN' },
 }
 
-const BACKEND = 'https://edugram-608857399645.asia-south1.run.app/api'
+// const BACKEND = 'https://edugram-608857399645.asia-south1.run.app/api'
 // const BACKEND = "http://0.0.0.0:8000/api"
+const BACKEND = "http://127.0.0.1:8000/api"
 
 export default function JarvisPage() {
   const [messages, setMessages]     = useState<Message[]>([])

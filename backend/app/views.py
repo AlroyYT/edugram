@@ -73,6 +73,10 @@ os.environ["PATH"] += os.pathsep + ffmpeg_path
 
 logger = logging.getLogger(__name__)
 
+def sign_status(request):
+    return JsonResponse({
+        "status": "running"
+    })
 
 class FileUploadAPIView(APIView):
     def post(self, request):

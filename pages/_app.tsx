@@ -9,6 +9,7 @@ import { autoTranslate } from "../plugins/autoTranslate"
 import { useRouter } from "next/router"
 
 import '../styles/globals.css';
+import "katex/dist/katex.min.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()

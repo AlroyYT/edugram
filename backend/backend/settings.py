@@ -39,6 +39,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # Get this from Google AI Studio
 GEMINI_API_KEY_VIDEO = os.getenv("GEMINI_API_KEY_VIDEO")  # Get this from Google AI Studio
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
+ASGI_APPLICATION = 'backend.asgi.application'
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",  # Django REST Framework
     "corsheaders",  # For enabling CORS
+    "channels",
     # Your app
     "app",  # Replace 'app' with your app's actual name if different
 ]

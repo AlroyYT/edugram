@@ -28,7 +28,7 @@ from .views import (
     jarvis_health,
     jarvis_configure,
     jarvis_chat,
-    jarvis_reset,
+    jarvis_reset, sign_status,
     # Add the new hand sign detection functions  
 )
 
@@ -78,4 +78,5 @@ urlpatterns = [
     path('configure/', jarvis_configure,  name='jarvis_configure'),
     path('chat/',      jarvis_chat,       name='jarvis_chat'),
     path('reset/',     jarvis_reset,      name='jarvis_reset'),
+    path("api/sign-status/", sign_status, name="sign_status" ),
 ]
