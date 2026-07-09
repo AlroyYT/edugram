@@ -219,7 +219,12 @@ export default function Lom() {
   const isEmpty = messages.length === 0 && !loading;
 
   return (
-    <div className="shell">
+    <div
+      className="shell"
+      style={{
+        maxWidth: signMode ? 1180 : undefined,
+      }}
+    >
       {/* Header */}
       <header className="header">
 
@@ -307,11 +312,13 @@ export default function Lom() {
         className="messages"
         style={{
           display: signMode ? "flex" : undefined,
+          flexDirection: signMode ? "row" : undefined,
           gap: signMode ? 20 : undefined,
           alignItems: signMode ? "stretch" : undefined,
+          overflowY: signMode ? "hidden" : undefined,
         }}
       >
-        <div style={{ flex: 1, overflowY: "auto", paddingRight: signMode ? 12 : 0, }} >
+        <div style={{ flex: 1, minWidth: 0, overflowY: "auto", paddingRight: signMode ? 12 : 0, }} >
         {isEmpty ? (
           <div className="welcome">
             <svg className="welcome-gem" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -411,7 +418,7 @@ export default function Lom() {
         )}
         <div ref={bottomRef} />
       </div>
-      {signMode && animationText && (
+      {signMode && (
         <div
           style={{
             width: 380,

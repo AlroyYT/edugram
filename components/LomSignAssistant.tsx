@@ -481,3 +481,6 @@ export default function LomSignAssistant() {
     };
 
   }, [signMode]);
+
+  return null;
+}

@@ -120,17 +120,24 @@ const AnimationView: React.FC<AnimationViewProps> = ({
             );
 
             if (!response.ok)
-                throw new Error();
+                throw new Error("Animation request failed");
 
             const data = await response.json();
 
-            setAnimationData(data.words || []);
+            if (data.error) {
+                setError(data.error);
+                setAnimationData([]);
+            } else {
+                setAnimationData(data.words || []);
+            }
 
         }
 
-        catch (err) {
+        catch (err: any) {
 
             console.error(err);
+            setAnimationData([]);
+            setError(err.message || "Unable to create sign animation");
 
         }
 
@@ -205,9 +212,9 @@ const AnimationView: React.FC<AnimationViewProps> = ({
               >
                 Your browser does not support the video tag.
               </video>
-            ) : (
+            ) : animationData[currentIndex].format === "webp" ? (
               <img 
-                src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
+                src={animationData[currentIndex].url || `${backend_url}/static/animations/webp/${animationData[currentIndex].word}.webp`}
                 // alt={animationData[currentIndex].word}
                 style={{
                   width: '100%',
@@ -216,6 +223,10 @@ const AnimationView: React.FC<AnimationViewProps> = ({
                   borderRadius: animationOnly ? '0' : '20px',
                 }}
               />
+            ) : (
+              <div className="animation-fallback-letter">
+                {animationData[currentIndex].word}
+              </div>
             )}
             {/* Overlay showing the current word */}
             {!animationOnly && (
@@ -235,7 +246,9 @@ const AnimationView: React.FC<AnimationViewProps> = ({
         </div>
       ) : !loading && !error ? (
         <div className="placeholder-text">
-          {!animationOnly && (
+          {animationOnly ? (
+            <p>Sign animation will appear here</p>
+          ) : (
             <>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤟</div>
               <p>Your sign language animation will appear here</p>
@@ -244,14 +257,20 @@ const AnimationView: React.FC<AnimationViewProps> = ({
         </div>
       ) : loading ? (
         <div className="placeholder-text">
-          {!animationOnly && (
+          {animationOnly ? (
+            <p>Creating sign animation...</p>
+          ) : (
             <>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔄</div>
               <p>Creating your sign language animation...</p>
             </>
           )}
         </div>
-      ) : null}
+      ) : (
+        <div className="placeholder-text">
+          <p>{error || "Unable to create sign animation"}</p>
+        </div>
+      )}
     </div>
   );
 
@@ -780,6 +799,7 @@ const AnimationView: React.FC<AnimationViewProps> = ({
           margin: 0;
           padding: 0;
           backdrop-filter: none;
+          width: 100%;
         }
 
         .animation-only .animation-section::before {
@@ -799,6 +819,25 @@ const AnimationView: React.FC<AnimationViewProps> = ({
 
         .animation-only .media-wrapper::before {
           display: none;
+        }
+
+        .animation-only .placeholder-text {
+          color: rgba(255, 255, 255, 0.72);
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .animation-fallback-letter {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #ffffff;
+          font-size: 6rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          background: rgba(255, 255, 255, 0.08);
         }
 
         @keyframes rotate {
