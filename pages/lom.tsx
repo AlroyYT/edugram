@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import AnimationView from "./sign2";
 
 import "katex/dist/katex.min.css";
 
@@ -27,10 +28,117 @@ export default function Lom() {
   const [streamedText, setStreamedText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [signMode, setSignMode] = useState(false);
+
+  const [currentGesture, setCurrentGesture] = useState("");
+
+  const [gestureSentence, setGestureSentence] = useState("");
+
+  const [animationText, setAnimationText] = useState("");
+
+  const [arduinoConnected, setArduinoConnected] = useState(false);
+
+  const wsRef = useRef<WebSocket | null>(null);
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const lastWordRef = useRef("");
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamedText]);
+
+  useEffect(() => {
+
+    if (!signMode) {
+
+        wsRef.current?.close();
+        setArduinoConnected(false);
+
+        return;
+    }
+
+    const ws = new WebSocket("ws://127.0.0.1:8000/ws/sign-text/");
+
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+
+        console.log("Arduino Connected");
+
+        setArduinoConnected(true);
+
+    };
+
+    ws.onmessage = (event) => {
+
+    const data = JSON.parse(event.data);
+
+    const word = data.word?.trim();
+
+    if (!word) return;
+
+    // Ignore consecutive duplicates
+    if (word === lastWordRef.current)
+        return;
+
+    lastWordRef.current = word;
+
+    // Show current live gesture
+    setCurrentGesture(word);
+
+    // Build sentence
+    setGestureSentence((prev) =>
+        prev ? prev + " " + word : word
+    );
+
+    // Reset timer
+    if (timerRef.current) {
+        clearTimeout(timerRef.current);
+    }
+
+    timerRef.current = setTimeout(() => {
+
+        setGestureSentence((sentence) => {
+
+            if (!sentence.trim())
+                return "";
+
+            console.log("AUTO SEND:", sentence);
+
+            send(sentence);
+
+            return "";
+
+        });
+
+    }, 4000);
+
+};
+
+    ws.onclose = () => {
+
+        console.log("Arduino Disconnected");
+
+        setArduinoConnected(false);
+
+    };
+
+    ws.onerror = () => {
+
+        console.log("WebSocket Error");
+
+        setArduinoConnected(false);
+
+    };
+
+    return () => {
+
+        ws.close();
+
+    };
+
+}, [signMode]);
 
   const autoResize = () => {
     const ta = textareaRef.current;
@@ -86,6 +194,9 @@ export default function Lom() {
       }
 
       setMessages([...newMessages, { role: "model", text: accumulated }]);
+      if (signMode) {
+    setAnimationText(accumulated);
+}
       setStreamedText("");
     } catch {
       setMessages([
@@ -111,26 +222,89 @@ export default function Lom() {
     <div className="shell">
       {/* Header */}
       <header className="header">
-        <svg className="gem-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="gemGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#4285f4" />
-              <stop offset="50%" stopColor="#8ab4f8" />
-              <stop offset="100%" stopColor="#a855f7" />
-            </linearGradient>
-          </defs>
-          <path d="M20 4L36 14V26L20 36L4 26V14L20 4Z" fill="url(#gemGrad)" opacity="0.9" />
-          <path d="M20 4L28 14H12L20 4Z" fill="white" opacity="0.3" />
-          <path d="M12 14L4 26L20 36L12 14Z" fill="white" opacity="0.1" />
-          <path d="M28 14L36 26L20 36L28 14Z" fill="white" opacity="0.2" />
-          <path d="M12 14H28L20 36L12 14Z" fill="white" opacity="0.15" />
-        </svg>
-        <span className="header-title">Jarvis</span>
-        <span className="header-badge">Text</span>
-      </header>
 
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: "100%",
+    }}
+  >
+
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+      }}
+    >
+
+      {/* Paste your ORIGINAL SVG here */}
+
+      <svg className="gem-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Your existing SVG */}
+      </svg>
+
+      <span className="header-title">Jarvis</span>
+
+      <span className="header-badge">Text</span>
+
+    </div>
+
+    <label
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        cursor: "pointer",
+        fontWeight: 600,
+      }}
+    >
+
+      <input
+        type="checkbox"
+        checked={signMode}
+        onChange={(e) => {
+            console.log("Sign Mode:", e.target.checked);
+            setSignMode(e.target.checked);
+        }}
+    />
+
+       {signMode ? "Sign Language ON" : "Sign Language OFF"}
+
+    </label>
+
+  </div>
+
+</header>
+{signMode && (
+
+<div
+    style={{
+        padding: 12,
+        background: "#222",
+        color: "white",
+        margin: 10,
+        borderRadius: 8,
+    }}
+>
+
+    <div>
+        <strong>Current Gesture:</strong> {currentGesture}
+    </div>
+
+    <div style={{ marginTop: 10 }}>
+        <strong>Sentence:</strong> {gestureSentence}
+    </div>
+
+</div>
+
+)}
       {/* Messages */}
+      {/* <div className="messages" style={{ display: "flex", gap: 20, overflow: "hidden", }} >  */}
       <div className="messages">
+        <div style={{ flex: 1, overflowY: "auto", paddingRight: signMode ? 12 : 0, }} >
         {isEmpty ? (
           <div className="welcome">
             <svg className="welcome-gem" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -174,13 +348,13 @@ export default function Lom() {
                 <div className={`bubble ${msg.role}-bubble`}>
                   {msg.role === "model" ? (
                     <div className="md-content">
-  <ReactMarkdown
-    remarkPlugins={[remarkGfm, remarkMath]}
-    rehypePlugins={[rehypeKatex]}
-  >
-    {msg.text}
-  </ReactMarkdown>
-</div>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
                   ) : (
                     msg.text
                   )}
@@ -229,6 +403,7 @@ export default function Lom() {
           </>
         )}
         <div ref={bottomRef} />
+      </div>
       </div>
 
       {/* Input */}

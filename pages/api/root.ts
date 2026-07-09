@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const apiKey = process.env.JARVIS_GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "GEMINI_API_KEY not set in environment" });
+    return res.status(501).json({ error: "GEMINI_API_KEY not set in environment" });
   }
 
   // Convert to Gemini API format
