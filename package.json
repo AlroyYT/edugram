@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/geolocation": "^8.2.0",
     "@google/generative-ai": "^0.24.1",
+    "@googlemaps/js-api-loader": "^2.1.1",
     "axios": "^1.9.0",
     "framer-motion": "^10.18.0",
     "i18next": "^25.8.18",
@@ -35,6 +38,7 @@
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.65.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
