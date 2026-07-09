@@ -8,7 +8,16 @@ from .utils.arduino_readder import latest_word
 print("========== CONSUMER LOADED ==========")
 class SignTextConsumer(AsyncWebsocketConsumer):
 
+    # async def connect(self):
+    #     await self.accept()
+
+    #     self.task = asyncio.create_task(
+    #         self.send_words()
+    #     )
+
     async def connect(self):
+        print("========== WEBSOCKET CONNECTED ==========")
+
         await self.accept()
 
         self.task = asyncio.create_task(

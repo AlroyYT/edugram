@@ -11,7 +11,15 @@ type WordStatus = {
   status: "displaying" | "completed" | "pending";
 };
 
-const AnimationView: React.FC = () => {
+interface AnimationViewProps {
+    externalText?: string;
+    hideInput?: boolean;
+}
+
+const AnimationView: React.FC<AnimationViewProps> = ({
+    externalText,
+    hideInput = false,
+}) => {
   const [sentence, setSentence] = useState<string>("");
   const [animationData, setAnimationData] = useState<WordData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -82,9 +90,58 @@ const AnimationView: React.FC = () => {
   };
 
   useEffect(() => {
-    // Don't use localStorage in artifacts - storing in memory instead
-    setDarkMode(true); // Default to dark mode
-  }, []);
+
+    if (!externalText) return;
+
+    const generate = async () => {
+
+        setSentence(externalText);
+
+        setLoading(true);
+        setError("");
+        setCurrentIndex(-1);
+        setProgress(0);
+
+        try {
+
+            const formData = new FormData();
+
+            formData.append("sen", externalText);
+
+            const response = await fetch(
+                `${backend_url}/api/animation_view/`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+            if (!response.ok)
+                throw new Error();
+
+            const data = await response.json();
+
+            setAnimationData(data.words || []);
+
+        }
+
+        catch (err) {
+
+            console.error(err);
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+    generate();
+
+}, [externalText]);
 
   useEffect(() => {
     if (animationData.length > 0) {
@@ -791,11 +848,14 @@ const AnimationView: React.FC = () => {
 
         <div className="main-container" ref={containerRef}>
           <div className="glass-card">
+            {!hideInput && (
             <div className="header-section">
               <h1 className="main-title">SignSpeak AI</h1>
               <p className="subtitle">Bridging Communication Through Technology</p>
               <p className="description">Transform text into beautiful sign language animations with AI-powered precision</p>
-            </div>
+            </div> )}
+
+            {!hideInput && (
 
             <form onSubmit={handleSubmit} className="input-section">
               <div className="input-container">
@@ -834,7 +894,7 @@ const AnimationView: React.FC = () => {
               <div className="progress-bar">
                 <div className="progress-fill"></div>
               </div>
-            </form>
+            </form> )}
 
             {error && (
               <div className="error-message">
@@ -923,14 +983,14 @@ const AnimationView: React.FC = () => {
     </div>
   ) : null}
 </div>
-
+            {!hideInput && (
             <div className="footer">
               <p>🚀 Empowering inclusive communication with cutting-edge AI technology Built by EDUGRAM core developers</p>
               <p style={{ fontSize: '0.9rem', marginTop: '0.2rem', opacity: 0.6 }}>
                 
                 
               </p>
-            </div>
+            </div> )}
           </div>
         </div>
       </div>
