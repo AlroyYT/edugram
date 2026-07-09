@@ -4,6 +4,7 @@ import { backend_url } from '../components/config';
 type WordData = {
   word: string;
   format: "mp4" | "webp" | "none";
+  url?: string;
 };
 
 type WordStatus = {
@@ -14,11 +15,13 @@ type WordStatus = {
 interface AnimationViewProps {
     externalText?: string;
     hideInput?: boolean;
+    animationOnly?: boolean;
 }
 
 const AnimationView: React.FC<AnimationViewProps> = ({
     externalText,
     hideInput = false,
+    animationOnly = false,
 }) => {
   const [sentence, setSentence] = useState<string>("");
   const [animationData, setAnimationData] = useState<WordData[]>([]);
@@ -171,14 +174,86 @@ const AnimationView: React.FC<AnimationViewProps> = ({
   }, [currentIndex]);
 
   const handleVideoEnded = () => {
-  if (currentIndex < animationData.length - 1) {
-    setCurrentIndex(prev => prev + 1); // Move to next word
-  } else {
-    // Sequence finished - you can either stay on the last frame or reset
-    console.log("All animations finished");
-    // If you want it to disappear after finishing: setCurrentIndex(-1);
-  }
-};
+    if (currentIndex < animationData.length - 1) {
+      setCurrentIndex(prev => prev + 1); // Move to next word
+    } else {
+      // Sequence finished - you can either stay on the last frame or reset
+      console.log("All animations finished");
+      // If you want it to disappear after finishing: setCurrentIndex(-1);
+    }
+  };
+
+  const renderAnimationSection = () => (
+    <div className="animation-section">
+      {animationData.length > 0 && !loading && currentIndex >= 0 ? (
+        <div className="media-container active">
+          <div className="media-wrapper">
+            {animationData[currentIndex].format === "mp4" ? (
+              <video 
+                key={currentIndex} // CRITICAL: This forces the video player to reset for each new word
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  borderRadius: animationOnly ? '0' : '20px',
+                }}
+                src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
+                autoPlay
+                muted
+                onEnded={handleVideoEnded}
+                playsInline
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img 
+                src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
+                // alt={animationData[currentIndex].word}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  borderRadius: animationOnly ? '0' : '20px',
+                }}
+              />
+            )}
+            {/* Overlay showing the current word */}
+            {!animationOnly && (
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                background: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                padding: '5px 15px',
+                borderRadius: '20px',
+                fontWeight: 'bold'
+              }}>
+                {/* {animationData[currentIndex].word} */}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : !loading && !error ? (
+        <div className="placeholder-text">
+          {!animationOnly && (
+            <>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤟</div>
+              <p>Your sign language animation will appear here</p>
+            </>
+          )}
+        </div>
+      ) : loading ? (
+        <div className="placeholder-text">
+          {!animationOnly && (
+            <>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔄</div>
+              <p>Creating your sign language animation...</p>
+            </>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
 
   const renderWord = (wordData: any, index: number) => {
     // Use the URL sent by the backend if it exists, otherwise construct it
@@ -697,6 +772,35 @@ const AnimationView: React.FC<AnimationViewProps> = ({
           pointer-events: none;
         }
 
+        .animation-only .animation-section {
+          min-height: 320px;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          margin: 0;
+          padding: 0;
+          backdrop-filter: none;
+        }
+
+        .animation-only .animation-section::before {
+          display: none;
+        }
+
+        .animation-only .media-wrapper {
+          width: 100%;
+          max-width: 360px;
+          height: 320px;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          backdrop-filter: none;
+        }
+
+        .animation-only .media-wrapper::before {
+          display: none;
+        }
+
         @keyframes rotate {
           to { transform: rotate(360deg); }
         }
@@ -831,6 +935,12 @@ const AnimationView: React.FC<AnimationViewProps> = ({
         }
       `}</style>
 
+      {animationOnly ? (
+        <div className="animation-only">
+          {renderAnimationSection()}
+        </div>
+      ) : (
+
       <div className="app-container">
         <div className="floating-orbs">
           <div className="orb"></div>
@@ -924,65 +1034,7 @@ const AnimationView: React.FC<AnimationViewProps> = ({
               </div>
             )}
 
-            <div className="animation-section">
-  {animationData.length > 0 && !loading && currentIndex >= 0 ? (
-    <div className="media-container active">
-      <div className="media-wrapper">
-        {animationData[currentIndex].format === "mp4" ? (
-          <video 
-            key={currentIndex} // CRITICAL: This forces the video player to reset for each new word
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              borderRadius: '20px',
-            }}
-            src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
-            autoPlay
-            muted
-            onEnded={handleVideoEnded}
-            playsInline
-          >
-            Your browser does not support the video tag.
-          </video>
-        ) : (
-          <img 
-            src={animationData[currentIndex].url || `${backend_url}/api/sign-video/${animationData[currentIndex].word}/`}
-            // alt={animationData[currentIndex].word}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              borderRadius: '20px',
-            }}
-          />
-        )}
-        {/* Overlay showing the current word */}
-        <div style={{
-          position: 'absolute',
-          bottom: '20px',
-          background: 'rgba(0,0,0,0.5)',
-          color: 'white',
-          padding: '5px 15px',
-          borderRadius: '20px',
-          fontWeight: 'bold'
-        }}>
-          {/* {animationData[currentIndex].word} */}
-        </div>
-      </div>
-    </div>
-  ) : !loading && !error ? (
-    <div className="placeholder-text">
-      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤟</div>
-      <p>Your sign language animation will appear here</p>
-    </div>
-  ) : loading ? (
-    <div className="placeholder-text">
-      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔄</div>
-      <p>Creating your sign language animation...</p>
-    </div>
-  ) : null}
-</div>
+            {renderAnimationSection()}
             {!hideInput && (
             <div className="footer">
               <p>🚀 Empowering inclusive communication with cutting-edge AI technology Built by EDUGRAM core developers</p>
@@ -994,6 +1046,7 @@ const AnimationView: React.FC<AnimationViewProps> = ({
           </div>
         </div>
       </div>
+      )}
     </>
   );
 };

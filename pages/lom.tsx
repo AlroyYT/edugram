@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import AnimationView from "./sign2";
+import AnimationView from "../components/sign2";
 
 import "katex/dist/katex.min.css";
 
@@ -58,7 +58,7 @@ export default function Lom() {
         return;
     }
 
-    const ws = new WebSocket("ws://127.0.0.1:8000/ws/sign-text/");
+    const ws = new WebSocket("ws://127.0.0.1:8001/ws/sign-text/");
 
     wsRef.current = ws;
 
@@ -303,7 +303,14 @@ export default function Lom() {
 )}
       {/* Messages */}
       {/* <div className="messages" style={{ display: "flex", gap: 20, overflow: "hidden", }} >  */}
-      <div className="messages">
+      <div
+        className="messages"
+        style={{
+          display: signMode ? "flex" : undefined,
+          gap: signMode ? 20 : undefined,
+          alignItems: signMode ? "stretch" : undefined,
+        }}
+      >
         <div style={{ flex: 1, overflowY: "auto", paddingRight: signMode ? 12 : 0, }} >
         {isEmpty ? (
           <div className="welcome">
@@ -404,6 +411,24 @@ export default function Lom() {
         )}
         <div ref={bottomRef} />
       </div>
+      {signMode && animationText && (
+        <div
+          style={{
+            width: 380,
+            minWidth: 320,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <AnimationView
+            key={animationText}
+            externalText={animationText}
+            hideInput
+            animationOnly
+          />
+        </div>
+      )}
       </div>
 
       {/* Input */}
