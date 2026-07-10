@@ -26,3 +26,6 @@ gunicorn
 whitenoise
 google-generativeai
 edge_tts
+pyserial
+channels
+daphne
